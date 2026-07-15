@@ -1,0 +1,220 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="d-flex position-relative">
+  <%- include('partials/sidebar') %>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-content flex-grow-1 p-4">
+    <h4 class="mb-4"><i class="bi bi-upload me-2"></i>Add Asset</h4>
+
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+    <% if (result) { %>
+      <div class="alert <%= isWarning ? 'alert-warning' : 'alert-success' %>"><%= result %></div>
+      <% if (info) { %>
+        <div class="card mb-3 bg-light">
+          <div class="card-body small" style="font-family:monospace; word-break:break-all;">
+            <p class="mb-1"><strong>Sheet range:</strong> <%= info.sheetRef %> | <strong>Columns found:</strong> <%= info.colCount %></p>
+            <p class="mb-1"><strong>Headers found in file:</strong></p>
+            <p class="mb-2"><%= info.rawHeaders %></p>
+            <p class="mb-1"><strong>Matched to system columns:</strong> <%= info.mapped %></p>
+            <p class="mb-1"><strong>Not found in file:</strong> <%= info.unmapped %></p>
+            <p class="mb-0"><strong>First row data:</strong> <%= info.sample %></p>
+          </div>
+        </div>
+      <% } %>
+    <% } %>
+
+    <ul class="nav nav-tabs mb-3" id="uploadTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#fileTab" type="button" role="tab">
+          <i class="bi bi-file-earmark-excel me-1"></i>Upload Excel File
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manualTab" type="button" role="tab">
+          <i class="bi bi-pencil-square me-1"></i>Manual Entry
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- File Upload Tab -->
+      <div class="tab-pane fade show active" id="fileTab" role="tabpanel">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <form action="/upload/file" method="POST" enctype="multipart/form-data">
+              <div class="mb-4">
+                <label class="form-label fw-bold">Select Excel File (.xlsx / .xls)</label>
+                <div class="upload-zone border border-2 border-dashed rounded p-5 text-center" id="dropZone">
+                  <i class="bi bi-file-earmark-excel display-4 text-success"></i>
+                  <p class="mt-3 mb-1 fw-bold">Drag & drop your file here</p>
+                  <p class="text-muted small">or click to browse</p>
+                  <input type="file" name="file" id="fileInput" class="form-control d-none" accept=".xlsx,.xls">
+                  <div id="fileName" class="mt-2 text-success fw-bold d-none"></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary px-4" id="uploadBtn" disabled>
+                  <i class="bi bi-cloud-upload me-1"></i> Upload
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual Entry Tab -->
+      <div class="tab-pane fade" id="manualTab" role="tabpanel">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <form action="/upload/manual" method="POST">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">BUSINESS_UNIT</label>
+                  <input type="text" name="business_unit" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">ASSET_ID <span class="text-danger">*</span></label>
+                  <input type="text" name="asset_id" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">TAG_NUMBE</label>
+                  <input type="text" name="tag_numbe" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">DESCR</label>
+                  <input type="text" name="descr" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">DESCR_LONG</label>
+                  <input type="text" name="descr_long" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">MODEL</label>
+                  <input type="text" name="model" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">PLANT</label>
+                  <input type="text" name="plant" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">SERIAL_ID</label>
+                  <input type="text" name="serial_id" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">VENDOR_ID</label>
+                  <input type="text" name="vendor_id" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">VENDOR_NAME</label>
+                  <input type="text" name="vendor_name" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">DEPTID</label>
+                  <input type="text" name="deptid" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">DEPT_NAME</label>
+                  <input type="text" name="dept_name" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">CATEGORY</label>
+                  <input type="text" name="category" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">X_ASSET_STATUS</label>
+                  <input type="text" name="x_asset_status" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">ASSET_STATUS</label>
+                  <input type="text" name="asset_status" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">X_ASSET_REASON</label>
+                  <input type="text" name="x_asset_reason" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">X_AGREEMENT_ID</label>
+                  <input type="text" name="x_agreement_id" class="form-control form-control-sm">
+                </div>
+              </div>
+              <div class="mt-4">
+                <button type="submit" class="btn btn-success px-4">
+                  <i class="bi bi-plus-circle me-1"></i> Add Asset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-body">
+        <h6>Expected Columns:</h6>
+        <div class="row small text-muted">
+          <div class="col-md-4">BUSINESS_UNIT</div>
+          <div class="col-md-4">ASSET_ID</div>
+          <div class="col-md-4">TAG_NUMBE</div>
+          <div class="col-md-4">DESCR</div>
+          <div class="col-md-4">DESCR_LONG</div>
+          <div class="col-md-4">MODEL</div>
+          <div class="col-md-4">PLANT</div>
+          <div class="col-md-4">SERIAL_ID</div>
+          <div class="col-md-4">VENDOR_ID</div>
+          <div class="col-md-4">VENDOR_NAME</div>
+          <div class="col-md-4">DEPTID</div>
+          <div class="col-md-4">DEPT_NAME</div>
+          <div class="col-md-4">CATEGORY</div>
+          <div class="col-md-4">X_ASSET_STATUS</div>
+          <div class="col-md-4">ASSET_STATUS</div>
+          <div class="col-md-4">X_ASSET_REASON</div>
+          <div class="col-md-4">X_AGREEMENT_ID</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('dropZone').addEventListener('click', function() {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('dropZone').addEventListener('dragover', function(e) {
+  e.preventDefault();
+  this.classList.add('border-primary');
+});
+
+document.getElementById('dropZone').addEventListener('dragleave', function(e) {
+  e.preventDefault();
+  this.classList.remove('border-primary');
+});
+
+document.getElementById('dropZone').addEventListener('drop', function(e) {
+  e.preventDefault();
+  this.classList.remove('border-primary');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('fileInput').files = files;
+    handleFile(files[0].name);
+  }
+});
+
+document.getElementById('fileInput').addEventListener('change', function() {
+  if (this.files.length > 0) {
+    handleFile(this.files[0].name);
+  }
+});
+
+function handleFile(name) {
+  document.getElementById('fileName').textContent = 'Selected: ' + name;
+  document.getElementById('fileName').classList.remove('d-none');
+  document.getElementById('uploadBtn').disabled = false;
+}
+</script>
+
+<%- include('partials/footer') %>

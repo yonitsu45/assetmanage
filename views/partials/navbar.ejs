@@ -1,0 +1,19 @@
+<nav class="navbar navbar-expand navbar-dark bg-primary px-3">
+  <button class="btn btn-outline-light btn-sm me-3 d-md-none" type="button" id="mobileSidebarToggle">
+    <i class="bi bi-list"></i>
+  </button>
+  <a class="navbar-brand fw-bold" href="/">
+    <i class="bi bi-building-gear me-2"></i>AssetManage
+  </a>
+  <div class="ms-auto d-flex align-items-center">
+    <% if (user) { %>
+      <span class="text-light me-3 d-none d-sm-inline"><i class="bi bi-person-circle me-1"></i><%= user.fullName %></span>
+      <form action="/logout" method="POST" class="m-0">
+        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/login" class="btn btn-outline-light btn-sm me-2">Login</a>
+      <a href="/register" class="btn btn-light btn-sm">Register</a>
+    <% } %>
+  </div>
+</nav>

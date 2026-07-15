@@ -1,0 +1,25 @@
+<%
+const isActive = (path) => currentPath === path ? 'active' : '';
+%>
+<div class="sidebar d-flex flex-column flex-shrink-0 bg-dark text-white" id="sidebar">
+  <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom border-secondary">
+    <span class="sidebar-text fw-bold fs-6">Navigation</span>
+    <button class="btn btn-sm btn-outline-secondary text-white" id="sidebarToggle" type="button">
+      <i class="bi bi-layout-sidebar"></i>
+    </button>
+  </div>
+  <ul class="nav nav-pills flex-column mb-auto mt-2">
+    <li class="nav-item">
+      <a href="/" class="nav-link text-white <%= isActive('/') %>">
+        <i class="bi bi-speedometer2 me-2 fs-5"></i>
+        <span class="sidebar-text">Dashboard</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/upload" class="nav-link text-white <%= isActive('/upload') %>">
+        <i class="bi bi-upload me-2 fs-5"></i>
+        <span class="sidebar-text">Upload</span>
+      </a>
+    </li>
+  </ul>
+</div>

@@ -1,0 +1,251 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="d-flex position-relative">
+  <%- include('partials/sidebar') %>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-content flex-grow-1 p-4">
+    <h4 class="mb-4">
+      <i class="bi bi-speedometer2 me-2"></i>Dashboard
+      <form action="/clear" method="POST" class="d-inline float-end" onsubmit="return confirm('ลบข้อมูลทั้งหมดในตาราง?')">
+        <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash3 me-1"></i>Clear All Data</button>
+      </form>
+    </h4>
+
+    <% if (typeof cleared !== 'undefined' && cleared) { %>
+      <div class="alert alert-success">Deleted <%= cleared %> rows successfully</div>
+    <% } %>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-primary h-100">
+          <div class="card-body text-center">
+            <h6 class="card-subtitle text-muted">Total Assets</h6>
+            <h2 class="text-primary mb-0"><%= summary.total %></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-success h-100">
+          <div class="card-body">
+            <h6 class="card-subtitle text-muted">By Status</h6>
+            <% summary.byStatus.forEach(function(s) { %>
+              <div class="d-flex justify-content-between small">
+                <span><%= s.label %></span>
+                <span class="badge bg-success"><%= s.value %></span>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-info h-100">
+          <div class="card-body">
+            <h6 class="card-subtitle text-muted">Top Categories</h6>
+            <% summary.byCategory.forEach(function(c) { %>
+              <div class="d-flex justify-content-between small">
+                <span><%= c.label %></span>
+                <span class="badge bg-info"><%= c.value %></span>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-warning h-100">
+          <div class="card-body">
+            <h6 class="card-subtitle text-muted">Top Departments</h6>
+            <% summary.byDept.forEach(function(d) { %>
+              <div class="d-flex justify-content-between small">
+                <span><%= d.label %></span>
+                <span class="badge bg-warning"><%= d.value %></span>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="GET" action="/" id="filterForm">
+          <div class="row g-2 mb-2">
+            <div class="col-md-5">
+              <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Search by ID, Tag, Description, Serial, Vendor..." value="<%= search %>">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                  <i class="bi bi-funnel"></i> Filter
+                </button>
+                <% if (search || categories.length > 0 || statuses.length > 0 || departments.length > 0) { %>
+                  <a href="/" class="btn btn-outline-danger">Clear</a>
+                <% } %>
+              </div>
+            </div>
+            <div class="col-md-2 ms-auto">
+              <select name="limit" class="form-select" onchange="this.form.submit()">
+                <option value="25" <%= limit === 25 ? 'selected' : '' %>>25 per page</option>
+                <option value="50" <%= limit === 50 ? 'selected' : '' %>>50 per page</option>
+                <option value="100" <%= limit === 100 ? 'selected' : '' %>>100 per page</option>
+              </select>
+            </div>
+          </div>
+          <!-- FILTER -->
+          <div class="collapse <%= categories.length > 0 || statuses.length > 0 || departments.length > 0 ? 'show' : '' %>" id="filterCollapse">
+            <div class="card card-body bg-light mb-2">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="fw-bold small mb-2">Categories</label>
+                  <div style="max-height:200px; overflow-y:auto;">
+                    <% (allCategories || []).forEach(function(c) { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="categories" value="<%= c %>" id="cat_<%= c.replace(/\s+/g,'_') %>" <%= (categories || []).includes(c) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="cat_<%= c.replace(/\s+/g,'_') %>"><%= c %></label>
+                      </div>
+                    <% }); %>
+                    <% if (!allCategories || allCategories.length === 0) { %>
+                      <span class="text-muted small">No categories</span>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="fw-bold small mb-2">Statuses</label>
+                  <div style="max-height:200px; overflow-y:auto;">
+                    <% (allStatuses || []).forEach(function(s) { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="statuses" value="<%= s %>" id="stat_<%= s.replace(/\s+/g,'_') %>" <%= (statuses || []).includes(s) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="stat_<%= s.replace(/\s+/g,'_') %>"><%= s %></label>
+                      </div>
+                    <% }); %>
+                    <% if (!allStatuses || allStatuses.length === 0) { %>
+                      <span class="text-muted small">No statuses</span>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="fw-bold small mb-2">Departments</label>
+                  <div style="max-height:200px; overflow-y:auto;">
+                    <% (allDepartments || []).forEach(function(d) { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="departments" value="<%= d %>" id="dept_<%= d.replace(/\s+/g,'_') %>" <%= (departments || []).includes(d) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="dept_<%= d.replace(/\s+/g,'_') %>"><%= d %></label>
+                      </div>
+                    <% }); %>
+                    <% if (!allDepartments || allDepartments.length === 0) { %>
+                      <span class="text-muted small">No departments</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2">
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-funnel"></i> Apply Filters</button>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-hover table-striped table-sm align-middle table-bordered-columns">
+            <thead class="table-dark">
+              <tr>
+                <% 
+                const columns = [
+                  {key:'business_unit', label:'BU'},
+                  {key:'asset_id', label:'Asset ID'},
+                  {key:'tag_numbe', label:'Tag No'},
+                  {key:'descr', label:'Description'},
+                  {key:'descr_long', label:'Long Desc'},
+                  {key:'model', label:'Model'},
+                  {key:'plant', label:'Plant'},
+                  {key:'serial_id', label:'Serial'},
+                  {key:'vendor_id', label:'Vendor ID'},
+                  {key:'vendor_name', label:'Vendor'},
+                  {key:'deptid', label:'Dept ID'},
+                  {key:'dept_name', label:'Department'},
+                  {key:'category', label:'Category'},
+                  {key:'x_asset_status', label:'X Status'},
+                  {key:'asset_status', label:'Status'},
+                  {key:'x_asset_reason', label:'Reason'},
+                  {key:'x_agreement_id', label:'Agreement ID'}
+                ];
+                %>
+                <%
+                const qsBase = ['search=' + encodeURIComponent(search)];
+                (categories || []).forEach(function(c) { qsBase.push('categories=' + encodeURIComponent(c)); });
+                (statuses || []).forEach(function(s) { qsBase.push('statuses=' + encodeURIComponent(s)); });
+                (departments || []).forEach(function(d) { qsBase.push('departments=' + encodeURIComponent(d)); });
+                const qs = qsBase.join('&');
+                %>
+                <% columns.forEach(function(col) {
+                  const newOrder = sortBy === col.key && order === 'ASC' ? 'DESC' : 'ASC';
+                  const icon = sortBy === col.key ? (order === 'ASC' ? 'bi-sort-up' : 'bi-sort-down') : 'bi-sort';
+                %>
+                <th>
+                  <a href="/?<%= qs %>&sort_by=<%= col.key %>&order=<%= newOrder %>&page=1&limit=<%= limit %>" class="text-white text-decoration-none">
+                    <%= col.label %> <i class="bi <%= icon %>"></i>
+                  </a>
+                </th>
+                <% }); %>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (assets.length === 0) { %>
+                <tr><td colspan="17" class="text-center text-muted py-4">No assets found</td></tr>
+              <% } %>
+              <% assets.forEach(function(a) { %>
+              <tr>
+                <td><%= a.business_unit || '-' %></td>
+                <td><%= a.asset_id || '-' %></td>
+                <td><%= a.tag_numbe || '-' %></td>
+                <td><%= a.descr || '-' %></td>
+                <td><%= a.descr_long || '-' %></td>
+                <td><%= a.model || '-' %></td>
+                <td><%= a.plant || '-' %></td>
+                <td><%= a.serial_id || '-' %></td>
+                <td><%= a.vendor_id || '-' %></td>
+                <td><%= a.vendor_name || '-' %></td>
+                <td><%= a.deptid || '-' %></td>
+                <td><%= a.dept_name || '-' %></td>
+                <td><span class="badge bg-secondary"><%= a.category || '-' %></span></td>
+                <td><%= a.x_asset_status || '-' %></td>
+                <td>
+                  <span class="badge <%= (a.asset_status || '').toLowerCase() === 'active' ? 'bg-success' : 'bg-secondary' %>">
+                    <%= a.asset_status || '-' %>
+                  </span>
+                </td>
+                <td><%= a.x_asset_reason || '-' %></td>
+                <td><%= a.x_agreement_id || '-' %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if (totalPages > 1) { %>
+        <nav>
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item <%= page <= 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="/?<%= qs %>&sort_by=<%= sortBy %>&order=<%= order %>&page=<%= page - 1 %>&limit=<%= limit %>">Previous</a>
+            </li>
+            <% for (let p = 1; p <= totalPages; p++) { %>
+              <% if (p === page || p === 1 || p === totalPages || Math.abs(p - page) <= 2) { %>
+                <li class="page-item <%= p === page ? 'active' : '' %>">
+                  <a class="page-link" href="/?<%= qs %>&sort_by=<%= sortBy %>&order=<%= order %>&page=<%= p %>&limit=<%= limit %>"><%= p %></a>
+                </li>
+              <% } else if (p === page - 3 || p === page + 3) { %>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+              <% } %>
+            <% } %>
+            <li class="page-item <%= page >= totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="/?<%= qs %>&sort_by=<%= sortBy %>&order=<%= order %>&page=<%= page + 1 %>&limit=<%= limit %>">Next</a>
+            </li>
+          </ul>
+        </nav>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
