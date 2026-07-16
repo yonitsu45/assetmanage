@@ -21,5 +21,11 @@ const isActive = (path) => currentPath === path ? 'active' : '';
         <span class="sidebar-text">Upload</span>
       </a>
     </li>
+    <li class="nav-item">
+      <a href="/documents" class="nav-link text-white <%= isActive('/documents') %>">
+        <i class="bi bi-file-earmark-pdf me-2 fs-5"></i>
+        <span class="sidebar-text">Documents</span>
+      </a>
+    </li>
   </ul>
 </div>

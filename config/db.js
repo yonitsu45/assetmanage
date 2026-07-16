@@ -7,9 +7,16 @@ const pool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'asset_management',
+  charset: 'utf8mb4',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
+});
+
+pool.on('connection', (conn) => {
+  conn.query("SET NAMES utf8mb4", (err) => {
+    if (err) console.error('SET NAMES utf8mb4 failed:', err);
+  });
 });
 
 const initDB = async () => {
@@ -17,7 +24,8 @@ const initDB = async () => {
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 3306,
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || ''
+    password: process.env.DB_PASSWORD || '',
+    charset: 'utf8mb4'
   });
   await conn.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME || 'asset_management'}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
   await conn.end();
@@ -74,6 +82,9 @@ const initDB = async () => {
     // Table might already be in the new format — ignore error
   }
 
+  try { await pool.query(`ALTER TABLE assets ADD COLUMN uploaded_by INT AFTER x_agreement_id`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL`); } catch (e) {}
+
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS documents (
@@ -87,6 +98,9 @@ const initDB = async () => {
       FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
+
+  try { await pool.query(`ALTER TABLE documents CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`); } catch (e) {}
+
 };
 
 module.exports = { pool, initDB };

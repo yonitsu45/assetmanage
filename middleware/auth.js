@@ -5,6 +5,16 @@ const requireAuth = (req, res, next) => {
   res.redirect('/login');
 };
 
+const requireAdmin = (req, res, next) => {
+  if (req.session && req.session.role === 'admin') {
+    return next();
+  }
+  if (req.session && req.session.userId) {
+    return res.redirect('/documents');
+  }
+  res.redirect('/login');
+};
+
 const redirectIfAuth = (req, res, next) => {
   if (req.session && req.session.userId) {
     return res.redirect('/');
@@ -12,4 +22,4 @@ const redirectIfAuth = (req, res, next) => {
   next();
 };
 
-module.exports = { requireAuth, redirectIfAuth };
+module.exports = { requireAuth, requireAdmin, redirectIfAuth };

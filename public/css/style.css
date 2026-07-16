@@ -136,3 +136,8 @@ body {
     display: block;
   }
 }
+
+.user-dropdown { position: relative; cursor: pointer; }
+.user-dropdown .dropdown-menu { display: none; top: 100%; right: 0; margin-top: 2px; min-width: 220px; left: auto; }
+.user-dropdown:hover .dropdown-menu { display: block; }
+.user-dropdown .dropdown-toggle::after { vertical-align: middle; }

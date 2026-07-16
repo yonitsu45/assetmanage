@@ -42,7 +42,8 @@ const dashboardController = {
         totalPages: data.totalPages,
         total: data.total,
         limit,
-        cleared
+        cleared,
+        reqQuery: req.query
       });
     } catch (err) {
       console.error('Dashboard error:', err);
@@ -57,6 +58,59 @@ const dashboardController = {
     } catch (err) {
       console.error('Clear error:', err);
       res.status(500).send('Server error');
+    }
+  },
+
+  async edit(req, res) {
+    try {
+      const { asset_id } = req.params;
+      const userId = req.session.userId;
+      const role = req.session.role;
+
+      const asset = await Asset.getById(asset_id);
+      if (!asset) return res.redirect('/?error=not_found');
+      if (role !== 'admin' && (!asset.uploaded_by || asset.uploaded_by !== userId)) {
+        return res.redirect('/?error=permission_denied');
+      }
+
+      const allowed = ['business_unit', 'tag_numbe', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id'];
+      const data = {};
+      for (const field of allowed) {
+        if (req.body[field] !== undefined) {
+          data[field] = req.body[field];
+        }
+      }
+      if (Object.keys(data).length === 0) {
+        return res.redirect('/?error=no_fields');
+      }
+      const affected = await Asset.update(asset_id, data);
+      if (affected === 0) {
+        return res.redirect('/?error=not_found');
+      }
+      res.redirect('/?updated=' + encodeURIComponent(asset_id));
+    } catch (err) {
+      console.error('Edit error:', err);
+      res.redirect('/?error=edit_failed');
+    }
+  },
+
+  async deleteAsset(req, res) {
+    try {
+      const { asset_id } = req.params;
+      const userId = req.session.userId;
+      const role = req.session.role;
+
+      const asset = await Asset.getById(asset_id);
+      if (!asset) return res.redirect('/?error=not_found');
+      if (role !== 'admin' && (!asset.uploaded_by || asset.uploaded_by !== userId)) {
+        return res.redirect('/?error=permission_denied');
+      }
+
+      await Asset.deleteById(asset_id);
+      res.redirect('/?deleted=' + encodeURIComponent(asset_id));
+    } catch (err) {
+      console.error('Delete error:', err);
+      res.redirect('/?error=delete_failed');
     }
   }
 };

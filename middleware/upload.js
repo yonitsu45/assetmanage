@@ -7,6 +7,11 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+const pdfDir = path.join(__dirname, '..', 'documents');
+if (!fs.existsSync(pdfDir)) {
+  fs.mkdirSync(pdfDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
@@ -42,14 +47,15 @@ const pdfFilter = (req, file, cb) => {
 
 const uploadPdf = multer({
   storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
+    destination: (req, file, cb) => cb(null, pdfDir),
     filename: (req, file, cb) => {
       const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9) + '.pdf';
       cb(null, uniqueName);
     }
   }),
   fileFilter: pdfFilter,
-  limits: { fileSize: parseInt(process.env.UPLOAD_MAX_SIZE) || 10485760 }
+  limits: { fileSize: parseInt(process.env.UPLOAD_MAX_SIZE) || 10485760 },
+  defParamCharset: 'utf8'
 });
 
 module.exports = upload;

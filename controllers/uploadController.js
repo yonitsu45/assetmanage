@@ -159,7 +159,7 @@ const uploadController = {
         rows.push(r);
       });
 
-      const { inserted, skipped } = await Asset.bulkInsert(rows);
+      const { inserted, skipped } = await Asset.bulkInsert(rows, req.session.userId);
 
       const rawHeaders = headerRow.length === 0 ? '(no headers)' : headerRow.map((c, i) => `[${i}] ${c || '(blank)'}`).join(' | ');
       const mappedNames = matchedCols.length > 0 ? matchedCols.join(', ') : '(none)';
@@ -204,7 +204,7 @@ const uploadController = {
   async handleManualEntry(req, res) {
     try {
       const row = mapFormRow(req.body);
-      const { inserted } = await Asset.bulkInsert([row]);
+      const { inserted } = await Asset.bulkInsert([row], req.session.userId);
       if (inserted === 0) {
         return res.render('upload', {
           result: null,

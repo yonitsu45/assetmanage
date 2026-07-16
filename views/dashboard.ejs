@@ -16,6 +16,23 @@
     <% if (typeof cleared !== 'undefined' && cleared) { %>
       <div class="alert alert-success">Deleted <%= cleared %> rows successfully</div>
     <% } %>
+    <% if (reqQuery.updated) { %>
+      <div class="alert alert-success">Updated asset: <%= reqQuery.updated %></div>
+    <% } %>
+    <% if (reqQuery.deleted) { %>
+      <div class="alert alert-info">Deleted asset: <%= reqQuery.deleted %></div>
+    <% } %>
+    <% if (reqQuery.error === 'permission_denied') { %>
+      <div class="alert alert-danger">คุณไม่มีสิทธิ์ดำเนินการกับข้อมูลนี้</div>
+    <% } else if (reqQuery.error === 'not_found') { %>
+      <div class="alert alert-warning">ไม่พบข้อมูลที่ต้องการ</div>
+    <% } else if (reqQuery.error === 'edit_failed') { %>
+      <div class="alert alert-danger">แก้ไขข้อมูลล้มเหลว</div>
+    <% } else if (reqQuery.error === 'delete_failed') { %>
+      <div class="alert alert-danger">ลบข้อมูลล้มเหลว</div>
+    <% } else if (reqQuery.error === 'no_fields') { %>
+      <div class="alert alert-warning">ไม่มีข้อมูลที่ต้องการแก้ไข</div>
+    <% } %>
 
     <div class="row g-3 mb-4">
       <div class="col-md-3">
@@ -187,11 +204,12 @@
                   </a>
                 </th>
                 <% }); %>
+                <th class="text-center" style="min-width:90px;"><i class="bi bi-gear"></i></th>
               </tr>
             </thead>
             <tbody>
               <% if (assets.length === 0) { %>
-                <tr><td colspan="17" class="text-center text-muted py-4">No assets found</td></tr>
+                <tr><td colspan="18" class="text-center text-muted py-4">No assets found</td></tr>
               <% } %>
               <% assets.forEach(function(a) { %>
               <tr>
@@ -216,6 +234,34 @@
                 </td>
                 <td><%= a.x_asset_reason || '-' %></td>
                 <td><%= a.x_agreement_id || '-' %></td>
+                <td class="text-center">
+                  <% if (user.role === 'admin' || (a.uploaded_by && a.uploaded_by === user.id)) { %>
+                  <button class="btn btn-sm btn-outline-primary edit-btn" title="Edit"
+                    data-asset_id="<%= a.asset_id %>"
+                    data-business_unit="<%= a.business_unit || '' %>"
+                    data-tag_numbe="<%= a.tag_numbe || '' %>"
+                    data-descr="<%= a.descr || '' %>"
+                    data-descr_long="<%= a.descr_long || '' %>"
+                    data-model="<%= a.model || '' %>"
+                    data-plant="<%= a.plant || '' %>"
+                    data-serial_id="<%= a.serial_id || '' %>"
+                    data-vendor_id="<%= a.vendor_id || '' %>"
+                    data-vendor_name="<%= a.vendor_name || '' %>"
+                    data-deptid="<%= a.deptid || '' %>"
+                    data-dept_name="<%= a.dept_name || '' %>"
+                    data-category="<%= a.category || '' %>"
+                    data-x_asset_status="<%= a.x_asset_status || '' %>"
+                    data-asset_status="<%= a.asset_status || '' %>"
+                    data-x_asset_reason="<%= a.x_asset_reason || '' %>"
+                    data-x_agreement_id="<%= a.x_agreement_id || '' %>"
+                    data-bs-toggle="modal" data-bs-target="#editModal">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <form action="/delete/<%= encodeURIComponent(a.asset_id) %>" method="POST" class="d-inline" onsubmit="return confirm('ลบ asset <%= a.asset_id %>?')">
+                    <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                  </form>
+                  <% } %>
+                </td>
               </tr>
               <% }); %>
             </tbody>
@@ -247,5 +293,122 @@
     </div>
   </div>
 </div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" id="editForm">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit Asset</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Asset ID</label>
+              <input name="asset_id" class="form-control form-control-sm" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Business Unit</label>
+              <input name="business_unit" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Tag No</label>
+              <input name="tag_numbe" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Model</label>
+              <input name="model" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Description</label>
+              <input name="descr" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Long Desc</label>
+              <input name="descr_long" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Plant</label>
+              <input name="plant" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Serial</label>
+              <input name="serial_id" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Category</label>
+              <input name="category" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Vendor ID</label>
+              <input name="vendor_id" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Vendor Name</label>
+              <input name="vendor_name" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Dept ID</label>
+              <input name="deptid" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Department</label>
+              <input name="dept_name" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">X Asset Status</label>
+              <input name="x_asset_status" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Asset Status</label>
+              <select name="asset_status" class="form-select form-select-sm">
+                <option value="">-- Select --</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Disposed">Disposed</option>
+                <option value="Under Maintenance">Under Maintenance</option>
+                <% (allStatuses || []).forEach(function(s) { %>
+                  <option value="<%= s %>"><%= s %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">X Asset Reason</label>
+              <input name="x_asset_reason" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small">Agreement ID</label>
+              <input name="x_agreement_id" class="form-control form-control-sm">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const editModal = document.getElementById('editModal');
+  editModal.addEventListener('show.bs.modal', function(event) {
+    const btn = event.relatedTarget;
+    const form = this.querySelector('#editForm');
+    const fields = ['asset_id','business_unit','tag_numbe','descr','descr_long','model','plant','serial_id','vendor_id','vendor_name','deptid','dept_name','category','x_asset_status','asset_status','x_asset_reason','x_agreement_id'];
+    fields.forEach(function(f) {
+      const val = btn.getAttribute('data-' + f) || '';
+      const el = form.querySelector('[name="' + f + '"]');
+      if (el) el.value = val;
+    });
+    const action = '/edit/' + encodeURIComponent(btn.getAttribute('data-asset_id'));
+    form.setAttribute('action', action);
+  });
+});
+</script>
 
 <%- include('partials/footer') %>

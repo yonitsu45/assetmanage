@@ -26,6 +26,7 @@ const authController = {
 
     req.session.userId = user.id;
     req.session.fullName = user.full_name || user.username;
+    req.session.email = user.email;
     req.session.role = user.role || 'user';
     req.session.department = user.department || null;
     res.redirect('/');

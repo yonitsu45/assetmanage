@@ -7,7 +7,17 @@
   </a>
   <div class="ms-auto d-flex align-items-center">
     <% if (user) { %>
-      <span class="text-light me-3 d-none d-sm-inline"><i class="bi bi-person-circle me-1"></i><%= user.fullName %></span>
+      <div class="dropdown user-dropdown me-3 d-none d-sm-inline">
+        <span class="text-light dropdown-toggle" role="button">
+          <i class="bi bi-person-circle me-1"></i><%= user.fullName %>
+        </span>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><span class="dropdown-item-text small"><span class="text-muted">Username:</span><br><strong><%= user.fullName %></strong></span></li>
+          <li><span class="dropdown-item-text small"><span class="text-muted">Email:</span><br><%= user.email || '-' %></span></li>
+          <li><span class="dropdown-item-text small"><span class="text-muted">Role:</span><br><%= user.role || '-' %></span></li>
+          <li><span class="dropdown-item-text small"><span class="text-muted">Department:</span><br><%= user.department || '-' %></span></li>
+        </ul>
+      </div>
       <form action="/logout" method="POST" class="m-0">
         <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
       </form>

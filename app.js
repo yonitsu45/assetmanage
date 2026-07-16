@@ -10,6 +10,7 @@ const { requireAuth } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const uploadRoutes = require('./routes/upload');
+const documentsRoutes = require('./routes/documents');
 
 const app = express();
 
@@ -24,6 +25,7 @@ const sessionStore = new MySQLStore({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'asset_management',
+  charset: 'utf8mb4',
   createDatabaseTable: true
 });
 
@@ -36,7 +38,7 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-  res.locals.user = req.session.userId ? { id: req.session.userId, fullName: req.session.fullName, role: req.session.role, department: req.session.department } : null;
+  res.locals.user = req.session.userId ? { id: req.session.userId, fullName: req.session.fullName, email: req.session.email, role: req.session.role, department: req.session.department } : null;
   res.locals.currentPath = req.path;
   next();
 });
@@ -44,6 +46,7 @@ app.use((req, res, next) => {
 app.use('/', authRoutes);
 app.use('/', requireAuth, dashboardRoutes);
 app.use('/upload', requireAuth, uploadRoutes);
+app.use('/documents', requireAuth, documentsRoutes);
 
 const PORT = process.env.PORT || 3000;
 

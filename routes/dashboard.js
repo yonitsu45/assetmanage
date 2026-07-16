@@ -1,8 +1,11 @@
 const { Router } = require('express');
 const router = Router();
 const dashboardController = require('../controllers/dashboardController');
+const { requireAdmin } = require('../middleware/auth');
 
 router.get('/', dashboardController.index);
-router.post('/clear', dashboardController.clear);
+router.post('/clear', requireAdmin, dashboardController.clear);
+router.post('/edit/:asset_id', dashboardController.edit);
+router.post('/delete/:asset_id', dashboardController.deleteAsset);
 
 module.exports = router;

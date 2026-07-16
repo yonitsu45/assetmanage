@@ -77,9 +77,9 @@ const Asset = {
     };
   },
 
-  async bulkInsert(rows) {
+  async bulkInsert(rows, uploaded_by) {
     if (rows.length === 0) return { inserted: 0, skipped: 0, total: 0 };
-    const sql = `INSERT IGNORE INTO assets (business_unit, asset_id, tag_numbe, descr, descr_long, model, plant, serial_id, vendor_id, vendor_name, deptid, dept_name, category, x_asset_status, asset_status, x_asset_reason, x_agreement_id) VALUES ?`;
+    const sql = `INSERT IGNORE INTO assets (business_unit, asset_id, tag_numbe, descr, descr_long, model, plant, serial_id, vendor_id, vendor_name, deptid, dept_name, category, x_asset_status, asset_status, x_asset_reason, x_agreement_id, uploaded_by) VALUES ?`;
     const batchSize = 500;
     let inserted = 0;
     const total = rows.length;
@@ -102,7 +102,8 @@ const Asset = {
         r.x_asset_status || null,
         r.asset_status || null,
         r.x_asset_reason || null,
-        r.x_agreement_id || null
+        r.x_agreement_id || null,
+        uploaded_by || null
       ]);
       const [result] = await pool.query(sql, [values]);
       inserted += result.affectedRows;
@@ -110,8 +111,32 @@ const Asset = {
     return { inserted, skipped: total - inserted, total };
   },
 
+  async getById(assetId) {
+    const [rows] = await pool.query('SELECT * FROM assets WHERE asset_id = ?', [assetId]);
+    return rows[0] || null;
+  },
+
   async deleteAll() {
     const [result] = await pool.query('DELETE FROM assets');
+    return result.affectedRows;
+  },
+
+  async update(assetId, data) {
+    const fields = [];
+    const params = [];
+    for (const [key, value] of Object.entries(data)) {
+      fields.push(`\`${key}\` = ?`);
+      params.push(value === '' ? null : value);
+    }
+    if (fields.length === 0) return 0;
+    params.push(assetId);
+    const sql = `UPDATE assets SET ${fields.join(', ')} WHERE asset_id = ?`;
+    const [result] = await pool.query(sql, params);
+    return result.affectedRows;
+  },
+
+  async deleteById(assetId) {
+    const [result] = await pool.query('DELETE FROM assets WHERE asset_id = ?', [assetId]);
     return result.affectedRows;
   }
 };

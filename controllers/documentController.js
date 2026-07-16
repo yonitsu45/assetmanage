@@ -63,9 +63,15 @@ const documentController = {
   async delete(req, res) {
     try {
       const doc = await Document.findById(req.params.id);
-      if (!doc) {
-        return res.redirect('/documents');
+      if (!doc) return res.redirect('/documents');
+
+      const userId = req.session.userId;
+      const userRole = req.session.role;
+      if (userRole !== 'admin' && doc.uploaded_by !== userId) {
+        const documents = await Document.getAll();
+        return res.render('documents', { documents, error: 'คุณไม่มีสิทธิ์ลบไฟล์นี้' });
       }
+
       fs.unlink(doc.filepath, () => {});
       await Document.deleteById(doc.id);
       res.redirect('/documents');
