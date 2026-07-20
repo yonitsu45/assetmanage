@@ -100,7 +100,26 @@ const initDB = async () => {
   `);
 
   try { await pool.query(`ALTER TABLE documents CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE documents ADD COLUMN department VARCHAR(100) AFTER uploaded_by`); } catch (e) {}
 
+  try { await pool.query(`UPDATE users SET role = 'super_admin' WHERE role = 'admin'`); } catch (e) {}
+
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS departments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    const [existing] = await pool.query('SELECT COUNT(*) AS cnt FROM departments');
+    if (existing[0].cnt === 0) {
+      const [depts] = await pool.query('SELECT DISTINCT department FROM users WHERE department IS NOT NULL AND department != \'\'');
+      for (const d of depts) {
+        await pool.query('INSERT IGNORE INTO departments (name) VALUES (?)', [d.department]);
+      }
+    }
+  } catch (e) {}
 };
 
 module.exports = { pool, initDB };

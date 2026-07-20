@@ -1,9 +1,9 @@
 const { pool } = require('../config/db');
 
 const Document = {
-  async create({ filename, original_name, filepath, filesize, uploaded_by }) {
-    const sql = 'INSERT INTO documents (filename, original_name, filepath, filesize, uploaded_by) VALUES (?, ?, ?, ?, ?)';
-    const [result] = await pool.query(sql, [filename, original_name, filepath, filesize, uploaded_by || null]);
+  async create({ filename, original_name, filepath, filesize, uploaded_by, department }) {
+    const sql = 'INSERT INTO documents (filename, original_name, filepath, filesize, uploaded_by, department) VALUES (?, ?, ?, ?, ?, ?)';
+    const [result] = await pool.query(sql, [filename, original_name, filepath, filesize, uploaded_by || null, department || null]);
     return result.insertId;
   },
 

@@ -15,6 +15,16 @@ const requireAdmin = (req, res, next) => {
   res.redirect('/login');
 };
 
+const requireSuperAdmin = (req, res, next) => {
+  if (req.session && req.session.role === 'super_admin') {
+    return next();
+  }
+  if (req.session && req.session.userId) {
+    return res.redirect('/');
+  }
+  res.redirect('/login');
+};
+
 const redirectIfAuth = (req, res, next) => {
   if (req.session && req.session.userId) {
     return res.redirect('/');
@@ -22,4 +32,4 @@ const redirectIfAuth = (req, res, next) => {
   next();
 };
 
-module.exports = { requireAuth, requireAdmin, redirectIfAuth };
+module.exports = { requireAuth, requireAdmin, requireSuperAdmin, redirectIfAuth };

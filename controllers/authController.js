@@ -33,7 +33,12 @@ const authController = {
   },
 
   showRegister(req, res) {
-    res.render('register', { error: null });
+    const Department = require('../models/department');
+    Department.getAll().then(departments => {
+      res.render('register', { error: null, departments });
+    }).catch(() => {
+      res.render('register', { error: null, departments: [] });
+    });
   },
 
   async register(req, res) {
@@ -60,7 +65,7 @@ const authController = {
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    await User.create({ username, email, password: hashedPassword, full_name, role: role || 'user', department });
+    await User.create({ username, email, password: hashedPassword, full_name, role: 'user', department });
 
     res.redirect('/login');
   },

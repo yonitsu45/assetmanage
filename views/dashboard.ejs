@@ -235,7 +235,7 @@
                 <td><%= a.x_asset_reason || '-' %></td>
                 <td><%= a.x_agreement_id || '-' %></td>
                 <td class="text-center">
-                  <% if (user.role === 'admin' || (a.uploaded_by && a.uploaded_by === user.id)) { %>
+                  <% var canEdit = (user.role === 'super_admin') || (user.role === 'admin' && a.dept_name && a.dept_name === user.department) || (user.role === 'user' && a.uploaded_by && a.uploaded_by === user.id); if (canEdit) { %>
                   <button class="btn btn-sm btn-outline-primary edit-btn" title="Edit"
                     data-asset_id="<%= a.asset_id %>"
                     data-business_unit="<%= a.business_unit || '' %>"

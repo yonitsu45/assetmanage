@@ -69,8 +69,14 @@ const dashboardController = {
 
       const asset = await Asset.getById(asset_id);
       if (!asset) return res.redirect('/?error=not_found');
-      if (role !== 'admin' && (!asset.uploaded_by || asset.uploaded_by !== userId)) {
-        return res.redirect('/?error=permission_denied');
+      if (role !== 'super_admin') {
+        if (role === 'admin' && asset.dept_name && req.session.department && asset.dept_name === req.session.department) {
+          // department admin, same department — allowed
+        } else if (role === 'user' && asset.uploaded_by && asset.uploaded_by === userId) {
+          // regular user, own upload — allowed
+        } else {
+          return res.redirect('/?error=permission_denied');
+        }
       }
 
       const allowed = ['business_unit', 'tag_numbe', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id'];
@@ -102,8 +108,14 @@ const dashboardController = {
 
       const asset = await Asset.getById(asset_id);
       if (!asset) return res.redirect('/?error=not_found');
-      if (role !== 'admin' && (!asset.uploaded_by || asset.uploaded_by !== userId)) {
-        return res.redirect('/?error=permission_denied');
+      if (role !== 'super_admin') {
+        if (role === 'admin' && asset.dept_name && req.session.department && asset.dept_name === req.session.department) {
+          // department admin, same department — allowed
+        } else if (role === 'user' && asset.uploaded_by && asset.uploaded_by === userId) {
+          // regular user, own upload — allowed
+        } else {
+          return res.redirect('/?error=permission_denied');
+        }
       }
 
       await Asset.deleteById(asset_id);

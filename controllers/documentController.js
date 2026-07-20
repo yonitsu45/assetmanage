@@ -6,7 +6,7 @@ const documentController = {
   async index(req, res) {
     try {
       const documents = await Document.getAll();
-      res.render('documents', { documents, error: null });
+      res.render('documents', { documents, error: null, userId: req.session.userId, userRole: req.session.role, userDept: req.session.department });
     } catch (err) {
       console.error('Document list error:', err);
       res.status(500).send('Server error');
@@ -16,7 +16,7 @@ const documentController = {
   async upload(req, res) {
     if (!req.file) {
       const documents = await Document.getAll();
-      return res.render('documents', { documents, error: 'กรุณาเลือกไฟล์ PDF' });
+      return res.render('documents', { documents, error: 'กรุณาเลือกไฟล์ PDF', userId: req.session.userId, userRole: req.session.role, userDept: req.session.department });
     }
 
     try {
@@ -26,14 +26,15 @@ const documentController = {
         original_name: file.originalname,
         filepath: file.path,
         filesize: file.size,
-        uploaded_by: req.session.userId
+        uploaded_by: req.session.userId,
+        department: req.session.department
       });
       res.redirect('/documents');
     } catch (err) {
       console.error('Document upload error:', err);
       fs.unlink(req.file.path, () => {});
       const documents = await Document.getAll();
-      res.render('documents', { documents, error: 'อัปโหลดไฟล์ล้มเหลว' });
+      res.render('documents', { documents, error: 'อัปโหลดไฟล์ล้มเหลว', userId: req.session.userId, userRole: req.session.role, userDept: req.session.department });
     }
   },
 
@@ -67,9 +68,17 @@ const documentController = {
 
       const userId = req.session.userId;
       const userRole = req.session.role;
-      if (userRole !== 'admin' && doc.uploaded_by !== userId) {
-        const documents = await Document.getAll();
-        return res.render('documents', { documents, error: 'คุณไม่มีสิทธิ์ลบไฟล์นี้' });
+      const userDept = req.session.department;
+
+      if (userRole !== 'super_admin') {
+        if (userRole === 'admin' && doc.department && userDept && doc.department === userDept) {
+          // department admin, same department — allowed
+        } else if (userRole === 'user' && doc.uploaded_by === userId) {
+          // regular user, own upload — allowed
+        } else {
+          const documents = await Document.getAll();
+          return res.render('documents', { documents, error: 'คุณไม่มีสิทธิ์ลบไฟล์นี้', userId, userRole: req.session.role, userDept: req.session.department });
+        }
       }
 
       fs.unlink(doc.filepath, () => {});

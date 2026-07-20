@@ -12,6 +12,15 @@
           <% } %>
           <form action="/register" method="POST">
             <div class="mb-3">
+              <label class="form-label">Department</label>
+              <select name="department" class="form-select">
+                <option value="">-- Select Department --</option>
+                <% (departments || []).forEach(function(d) { %>
+                  <option value="<%= d.name %>"><%= d.name %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Full Name</label>
               <input type="text" name="full_name" class="form-control">
             </div>
@@ -30,17 +39,6 @@
             <div class="mb-3">
               <label class="form-label">Confirm Password</label>
               <input type="password" name="confirm_password" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Role</label>
-              <select name="role" class="form-select">
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Department</label>
-              <input type="text" name="department" class="form-control" placeholder="e.g. IT, HR, Finance">
             </div>
             <button type="submit" class="btn btn-primary w-100">Register</button>
           </form>

@@ -5,7 +5,7 @@ const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 
 const { pool, initDB } = require('./config/db');
-const { requireAuth } = require('./middleware/auth');
+const { requireAuth, requireSuperAdmin } = require('./middleware/auth');
 
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
@@ -47,6 +47,9 @@ app.use('/', authRoutes);
 app.use('/', requireAuth, dashboardRoutes);
 app.use('/upload', requireAuth, uploadRoutes);
 app.use('/documents', requireAuth, documentsRoutes);
+
+const adminRoutes = require('./routes/admin');
+app.use('/admin', requireAuth, requireSuperAdmin, adminRoutes);
 
 const PORT = process.env.PORT || 3000;
 

@@ -69,12 +69,12 @@ const mapFormRow = (body) => {
 
 const uploadController = {
   showUpload(req, res) {
-    res.render('upload', { result: null, error: null });
+    res.render('upload', { result: null, error: null, isWarning: false });
   },
 
   async handleUpload(req, res) {
     if (!req.file) {
-      return res.render('upload', { result: null, error: 'กรุณาเลือกไฟล์ที่ต้องการอัปโหลด' });
+      return res.render('upload', { result: null, error: 'กรุณาเลือกไฟล์ที่ต้องการอัปโหลด', isWarning: false });
     }
 
     const filePath = req.file.path;
@@ -110,7 +110,7 @@ const uploadController = {
       const sheetRef = bestSheet['!ref'] || 'unknown';
 
       if (!rawRows || rawRows.length < 2) {
-        return res.render('upload', { result: null, error: 'File must have at least a header row and one data row' });
+        return res.render('upload', { result: null, error: 'File must have at least a header row and one data row', isWarning: false });
       }
 
       const headerRow = rawRows[0];
@@ -195,7 +195,7 @@ const uploadController = {
       });
     } catch (err) {
       console.error('Upload error:', err);
-      res.render('upload', { result: null, error: 'Failed to process file: ' + err.message });
+      res.render('upload', { result: null, error: 'Failed to process file: ' + err.message, isWarning: false });
     } finally {
       fs.unlink(filePath, () => {});
     }
@@ -207,18 +207,21 @@ const uploadController = {
       const { inserted } = await Asset.bulkInsert([row], req.session.userId);
       if (inserted === 0) {
         return res.render('upload', {
-          result: null,
-          error: `Asset ID "${row.asset_id}" already exists`
+          result: `Asset ID "${row.asset_id}" already exists`,
+          isWarning: true,
+          info: null,
+          error: null
         });
       }
       res.render('upload', {
         result: 'Asset added successfully',
         info: null,
-        error: null
+        error: null,
+        isWarning: false
       });
     } catch (err) {
       console.error('Manual entry error:', err);
-      res.render('upload', { result: null, error: 'Failed to add asset: ' + err.message });
+      res.render('upload', { result: null, error: 'Failed to add asset: ' + err.message, info: null, isWarning: false });
     }
   }
 };
