@@ -1,10 +1,31 @@
 <%
 const isActive = (path) => currentPath === path ? 'active' : '';
+var isDashboard = currentPath === '/';
+var isDocuments = currentPath.startsWith('/documents');
+var q = typeof reqQuery !== 'undefined' ? reqQuery : (typeof query !== 'undefined' ? query : {});
+var currentDeptName = isDashboard ? (q.departments || '') : (q.dept || '');
+var btnLabel = currentDeptName || 'ทั้งหมด';
 %>
 <div class="sidebar d-flex flex-column flex-shrink-0 bg-dark text-white" id="sidebar">
   <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom border-secondary">
-    <span class="sidebar-text fw-bold fs-6">Navigation</span>
-    <button class="btn btn-sm btn-outline-secondary text-white" id="sidebarToggle" type="button">
+    <% if (user.role === 'super_admin') { %>
+    <div class="dropdown w-100">
+      <button class="btn btn-sm btn-outline-secondary text-white dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-building me-1"></i>
+        <span class="sidebar-text"><%= btnLabel %></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-dark shadow-sm w-100">
+        <li><a class="dropdown-item<% if (!btnLabel) { %> active<% } %>" href="<%= isDocuments ? '/documents' : '/' %>"><i class="bi bi-globe me-2"></i>ทั้งหมด</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <% (deptList || []).forEach(function(d) { %>
+        <li><a class="dropdown-item<% if (d.name === currentDeptName) { %> active<% } %>" href="<%= isDocuments ? '/documents?dept=' + encodeURIComponent(d.name) : '/?departments=' + encodeURIComponent(d.name) %>"><i class="bi bi-building me-2"></i><%= d.name %></a></li>
+        <% }); %>
+      </ul>
+    </div>
+    <% } else { %>
+    <span class="sidebar-text fw-bold fs-6"><i class="bi bi-building me-1"></i><%= user.department || 'Navigation' %></span>
+    <% } %>
+    <button class="btn btn-sm btn-outline-secondary text-white ms-2" id="sidebarToggle" type="button">
       <i class="bi bi-layout-sidebar"></i>
     </button>
   </div>

@@ -6,6 +6,7 @@ const path = require('path');
 
 const { pool, initDB } = require('./config/db');
 const { requireAuth, requireSuperAdmin } = require('./middleware/auth');
+const Department = require('./models/department');
 
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
@@ -40,6 +41,19 @@ app.use(session({
 app.use((req, res, next) => {
   res.locals.user = req.session.userId ? { id: req.session.userId, fullName: req.session.fullName, email: req.session.email, role: req.session.role, department: req.session.department } : null;
   res.locals.currentPath = req.path;
+  res.locals.query = req.query;
+  next();
+});
+
+app.use(async (req, res, next) => {
+  try {
+    const depts = await Department.getAll();
+    res.locals.departments = depts;
+    res.locals.deptList = depts;
+  } catch (e) {
+    res.locals.departments = [];
+    res.locals.deptList = [];
+  }
   next();
 });
 

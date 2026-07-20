@@ -7,10 +7,15 @@ const Document = {
     return result.insertId;
   },
 
-  async getAll() {
-    const [rows] = await pool.query(
-      'SELECT d.*, u.full_name AS uploader_name FROM documents d LEFT JOIN users u ON d.uploaded_by = u.id ORDER BY d.uploaded_at DESC'
-    );
+  async getAll({ department } = {}) {
+    let sql = 'SELECT d.*, u.full_name AS uploader_name FROM documents d LEFT JOIN users u ON d.uploaded_by = u.id';
+    const params = [];
+    if (department) {
+      sql += ' WHERE d.department = ?';
+      params.push(department);
+    }
+    sql += ' ORDER BY d.uploaded_at DESC';
+    const [rows] = await pool.query(sql, params);
     return rows;
   },
 
