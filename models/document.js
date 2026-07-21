@@ -7,14 +7,30 @@ const Document = {
     return result.insertId;
   },
 
-  async getAll({ department } = {}) {
+  async getAll({ department, search, sortBy, order } = {}) {
     let sql = 'SELECT d.*, u.full_name AS uploader_name FROM documents d LEFT JOIN users u ON d.uploaded_by = u.id';
     const params = [];
+    const conditions = [];
+
     if (department) {
-      sql += ' WHERE d.department = ?';
+      conditions.push('d.department = ?');
       params.push(department);
     }
-    sql += ' ORDER BY d.uploaded_at DESC';
+    if (search) {
+      conditions.push('d.original_name LIKE ?');
+      params.push(`%${search}%`);
+    }
+
+    if (conditions.length) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    const sortWhitelist = ['original_name', 'filesize', 'uploaded_at', 'uploader_name', 'department'];
+    const orderWhitelist = ['ASC', 'DESC'];
+    const safeSort = sortWhitelist.includes(sortBy) ? sortBy : 'uploaded_at';
+    const safeOrder = orderWhitelist.includes(order) ? order : 'DESC';
+    sql += ` ORDER BY ${safeSort} ${safeOrder}`;
+
     const [rows] = await pool.query(sql, params);
     return rows;
   },

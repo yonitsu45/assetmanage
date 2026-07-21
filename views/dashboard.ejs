@@ -8,9 +8,11 @@
   <div class="main-content flex-grow-1 p-4">
     <h4 class="mb-4">
       <i class="bi bi-speedometer2 me-2"></i>Dashboard
-      <form action="/clear" method="POST" class="d-inline float-end" onsubmit="return confirm('ลบข้อมูลทั้งหมดในตาราง?')">
+      <% if (user.role === 'super_admin') { %>
+      <form action="/clear" method="POST" class="d-inline float-end" data-confirm="ลบข้อมูลทั้งหมดในตาราง?" data-confirm-title="ยืนยันลบข้อมูลทั้งหมด">
         <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash3 me-1"></i>Clear All Data</button>
       </form>
+      <% } %>
     </h4>
 
     <% if (typeof cleared !== 'undefined' && cleared) { %>
@@ -50,7 +52,7 @@
             <% summary.byStatus.forEach(function(s) { %>
               <div class="d-flex justify-content-between small">
                 <span><%= s.label %></span>
-                <span class="badge bg-success"><%= s.value %></span>
+                <span class="badge bg-success mb-1"><%= s.value %></span>
               </div>
             <% }); %>
           </div>
@@ -63,7 +65,7 @@
             <% summary.byCategory.forEach(function(c) { %>
               <div class="d-flex justify-content-between small">
                 <span><%= c.label %></span>
-                <span class="badge bg-info"><%= c.value %></span>
+                <span class="badge bg-info mb-1"><%= c.value %></span>
               </div>
             <% }); %>
           </div>
@@ -76,7 +78,7 @@
             <% summary.byDept.forEach(function(d) { %>
               <div class="d-flex justify-content-between small">
                 <span><%= d.label %></span>
-                <span class="badge bg-warning"><%= d.value %></span>
+                <span class="badge bg-warning mb-1"><%= d.value %></span>
               </div>
             <% }); %>
           </div>
@@ -257,7 +259,7 @@
                     data-bs-toggle="modal" data-bs-target="#editModal">
                     <i class="bi bi-pencil"></i>
                   </button>
-                  <form action="/delete/<%= encodeURIComponent(a.asset_id) %>" method="POST" class="d-inline" onsubmit="return confirm('ลบ asset <%= a.asset_id %>?')">
+                  <form action="/delete/<%= encodeURIComponent(a.asset_id) %>" method="POST" class="d-inline" data-confirm="ลบ asset <%= a.asset_id %>?">
                     <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
                   </form>
                   <% } %>

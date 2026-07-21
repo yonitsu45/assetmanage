@@ -2,12 +2,55 @@ const fs = require('fs');
 const path = require('path');
 const Document = require('../models/document');
 
+function formatDocs(docs) {
+  return docs.map(function(d) {
+    d.formatted_date = d.uploaded_at
+      ? (typeof d.uploaded_at === 'string'
+          ? d.uploaded_at.slice(0, 10).replace(/-/g, '/')
+          : d.uploaded_at.toLocaleDateString('en-CA').replace(/-/g, '/'))
+      : '';
+    return d;
+  });
+}
+
+function buildOptsFromQuery(req) {
+  return {
+    department: req.query.dept || undefined,
+    search: req.query.search || undefined,
+    sortBy: req.query.sort_by || 'uploaded_at',
+    order: req.query.order || 'DESC',
+    currentDept: req.query.dept || '',
+    currentSearch: req.query.search || '',
+    currentSortBy: req.query.sort_by || 'uploaded_at',
+    currentOrder: req.query.order || 'DESC'
+  };
+}
+
+function buildQueryString(opts) {
+  const qs = new URLSearchParams();
+  if (opts.currentDept) qs.set('dept', opts.currentDept);
+  if (opts.currentSearch) qs.set('search', opts.currentSearch);
+  if (opts.currentSortBy !== 'uploaded_at') qs.set('sort_by', opts.currentSortBy);
+  if (opts.currentOrder !== 'DESC') qs.set('order', opts.currentOrder);
+  return qs.toString();
+}
+
 const documentController = {
   async index(req, res) {
     try {
-      const deptFilter = req.query.dept || '';
-      const documents = await Document.getAll({ department: deptFilter || undefined });
-      res.render('documents', { documents, error: null, userId: req.session.userId, userRole: req.session.role, userDept: req.session.department, currentDept: deptFilter });
+      const o = buildOptsFromQuery(req);
+      const docs = await Document.getAll({ department: o.department, search: o.search, sortBy: o.sortBy, order: o.order });
+      const documents = formatDocs(docs);
+      res.render('documents', {
+        documents, error: null,
+        userId: req.session.userId,
+        userRole: req.session.role,
+        userDept: req.session.department,
+        currentDept: o.currentDept,
+        searchKeyword: o.currentSearch,
+        currentSortBy: o.currentSortBy,
+        currentOrder: o.currentOrder
+      });
     } catch (err) {
       console.error('Document list error:', err);
       res.status(500).send('Server error');
@@ -15,10 +58,18 @@ const documentController = {
   },
 
   async upload(req, res) {
-    const currentDept = req.query.dept || '';
+    const o = buildOptsFromQuery(req);
+    const queryOpts = { department: o.department, search: o.search, sortBy: o.sortBy, order: o.order };
+
     if (!req.file) {
-      const documents = await Document.getAll({ department: currentDept || undefined });
-      return res.render('documents', { documents, error: 'กรุณาเลือกไฟล์ PDF', userId: req.session.userId, userRole: req.session.role, userDept: req.session.department, currentDept: currentDept || '' });
+      const docs = await Document.getAll(queryOpts);
+      const documents = formatDocs(docs);
+      return res.render('documents', {
+        documents, error: 'กรุณาเลือกไฟล์ PDF',
+        userId: req.session.userId, userRole: req.session.role, userDept: req.session.department,
+        currentDept: o.currentDept, searchKeyword: o.currentSearch,
+        currentSortBy: o.currentSortBy, currentOrder: o.currentOrder
+      });
     }
 
     try {
@@ -31,12 +82,19 @@ const documentController = {
         uploaded_by: req.session.userId,
         department: req.session.department
       });
-      res.redirect('/documents');
+      const qstr = buildQueryString(o);
+      res.redirect('/documents' + (qstr ? '?' + qstr : ''));
     } catch (err) {
       console.error('Document upload error:', err);
       fs.unlink(req.file.path, () => {});
-      const documents = await Document.getAll({ department: currentDept || undefined });
-      res.render('documents', { documents, error: 'อัปโหลดไฟล์ล้มเหลว', userId: req.session.userId, userRole: req.session.role, userDept: req.session.department, currentDept: currentDept || '' });
+      const docs = await Document.getAll(queryOpts);
+      const documents = formatDocs(docs);
+      res.render('documents', {
+        documents, error: 'อัปโหลดไฟล์ล้มเหลว',
+        userId: req.session.userId, userRole: req.session.role, userDept: req.session.department,
+        currentDept: o.currentDept, searchKeyword: o.currentSearch,
+        currentSortBy: o.currentSortBy, currentOrder: o.currentOrder
+      });
     }
   },
 
@@ -68,25 +126,33 @@ const documentController = {
       const doc = await Document.findById(req.params.id);
       if (!doc) return res.redirect('/documents');
 
+      const o = buildOptsFromQuery(req);
       const userId = req.session.userId;
       const userRole = req.session.role;
       const userDept = req.session.department;
-      const currentDept = req.query.dept || '';
 
       if (userRole !== 'super_admin') {
-        if (userRole === 'admin' && doc.department && userDept && doc.department === userDept) {
-          // department admin, same department — allowed
-        } else if (userRole === 'user' && doc.uploaded_by === userId) {
-          // regular user, own upload — allowed
-        } else {
-          const documents = await Document.getAll({ department: currentDept || undefined });
-          return res.render('documents', { documents, error: 'คุณไม่มีสิทธิ์ลบไฟล์นี้', userId, userRole: req.session.role, userDept: req.session.department, currentDept });
+        let allowed = false;
+        if (userRole === 'admin' && doc.department && userDept && doc.department === userDept) allowed = true;
+        else if (userRole === 'user' && doc.uploaded_by === userId) allowed = true;
+        if (!allowed) {
+          const queryOpts = { department: o.department, search: o.search, sortBy: o.sortBy, order: o.order };
+          const docs = await Document.getAll(queryOpts);
+          const documents = formatDocs(docs);
+          return res.render('documents', {
+            documents, error: 'คุณไม่มีสิทธิ์ลบไฟล์นี้',
+            userId, userRole: req.session.role, userDept: req.session.department,
+            currentDept: o.currentDept, searchKeyword: o.currentSearch,
+            currentSortBy: o.currentSortBy, currentOrder: o.currentOrder
+          });
         }
       }
 
       fs.unlink(doc.filepath, () => {});
       await Document.deleteById(doc.id);
-      res.redirect('/documents');
+
+      const qstr = buildQueryString(o);
+      res.redirect('/documents' + (qstr ? '?' + qstr : ''));
     } catch (err) {
       console.error('Document delete error:', err);
       res.status(500).send('Server error');

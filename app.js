@@ -12,11 +12,13 @@ const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const uploadRoutes = require('./routes/upload');
 const documentsRoutes = require('./routes/documents');
+const profileRoutes = require('./routes/profile');
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -39,7 +41,15 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-  res.locals.user = req.session.userId ? { id: req.session.userId, fullName: req.session.fullName, email: req.session.email, role: req.session.role, department: req.session.department } : null;
+  res.locals.user = req.session.userId ? {
+    id: req.session.userId,
+    username: req.session.username,
+    fullName: req.session.fullName,
+    email: req.session.email,
+    role: req.session.role,
+    department: req.session.department,
+    profilePicture: req.session.profilePicture
+  } : null;
   res.locals.currentPath = req.path;
   res.locals.query = req.query;
   next();
@@ -59,6 +69,7 @@ app.use(async (req, res, next) => {
 
 app.use('/', authRoutes);
 app.use('/', requireAuth, dashboardRoutes);
+app.use('/', requireAuth, profileRoutes);
 app.use('/upload', requireAuth, uploadRoutes);
 app.use('/documents', requireAuth, documentsRoutes);
 

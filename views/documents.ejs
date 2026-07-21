@@ -6,60 +6,184 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <div class="main-content flex-grow-1 p-4">
-    <h4 class="mb-4"><i class="bi bi-file-earmark-pdf me-2"></i>Documents</h4>
+    <h4 class="mb-3"><i class="bi bi-file-earmark-pdf me-2"></i>Documents</h4>
 
     <% if (error) { %>
       <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
-    <div class="card shadow-sm mb-4">
-      <div class="card-body">
-        <form action="/documents/upload" method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Upload PDF File</label>
-            <input type="file" name="file" class="form-control" accept=".pdf" required>
+    <%
+      var qBase = '';
+      if (searchKeyword) qBase += '&search=' + encodeURIComponent(searchKeyword);
+      if (currentDept) qBase += '&dept=' + encodeURIComponent(currentDept);
+      var qUpload = '';
+      if (currentDept) qUpload += '&dept=' + encodeURIComponent(currentDept);
+      if (searchKeyword) qUpload += '&search=' + encodeURIComponent(searchKeyword);
+      if (currentSortBy !== 'uploaded_at') qUpload += '&sort_by=' + currentSortBy;
+      if (currentOrder !== 'DESC') qUpload += '&order=' + currentOrder;
+    %>
+
+    <div class="doc-toolbar d-flex flex-wrap align-items-center gap-2 mb-3">
+      <div class="search-bar flex-grow-1" style="min-width:200px;max-width:350px;">
+        <form action="/documents" method="GET" class="d-flex gap-1 align-items-center">
+          <% if (currentDept) { %><input type="hidden" name="dept" value="<%= currentDept %>"><% } %>
+          <% if (currentSortBy !== 'uploaded_at') { %><input type="hidden" name="sort_by" value="<%= currentSortBy %>"><% } %>
+          <% if (currentOrder !== 'DESC') { %><input type="hidden" name="order" value="<%= currentOrder %>"><% } %>
+          <div class="input-group input-group-sm">
+            <input type="text" name="search" class="form-control" placeholder="Search by filename..." value="<%= searchKeyword %>">
+            <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
+            <% if (searchKeyword) { %>
+              <a href="/documents?dept=<%= encodeURIComponent(currentDept || '') %><%= currentSortBy !== 'uploaded_at' ? '&sort_by=' + currentSortBy : '' %><%= currentOrder !== 'DESC' ? '&order=' + currentOrder : '' %>" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+            <% } %>
           </div>
-          <div class="col-md-2">
-            <button type="submit" class="btn btn-danger w-100"><i class="bi bi-cloud-upload me-1"></i> Upload</button>
-          </div>
+        </form>
+      </div>
+
+      <div class="view-toggle d-flex" role="group">
+        <button class="btn" id="viewToggleGrid" title="Grid view"><i class="bi bi-grid-3x3-gap-fill me-1"></i>Grid</button>
+        <button class="btn" id="viewToggleList" title="List view"><i class="bi bi-list-ul me-1"></i>List</button>
+      </div>
+
+      <div class="ms-auto">
+        <form action="/documents/upload<%= qUpload ? '?' + qUpload.slice(1) : '' %>" method="POST" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
+          <input type="file" name="file" class="form-control form-control-sm" accept=".pdf" required style="max-width:220px;">
+          <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-cloud-upload me-1"></i> Upload</button>
         </form>
       </div>
     </div>
 
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <% if (documents.length === 0) { %>
-          <p class="text-muted text-center py-4 mb-0">ไม่มีเอกสาร PDF</p>
-        <% } else { %>
-          <div class="row g-3">
-            <% documents.forEach(function(doc) { %>
-              <div class="col-md-3 col-sm-4 col-6">
-                <div class="card h-100 border-light shadow-sm">
-                  <div class="card-body text-center d-flex flex-column align-items-center">
-                    <a href="/documents/view/<%= doc.id %>" class="text-decoration-none">
-                      <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size:3rem;"></i>
-                      <p class="mt-2 mb-0 small fw-bold text-truncate" style="max-width:150px;" title="<%= doc.original_name %>"><%= doc.original_name %></p>
-                    </a>
-                    <span class="small text-muted"><%= (doc.filesize / 1024).toFixed(1) %> KB</span>
-                    <span class="small text-muted"><%= doc.uploader_name || 'Unknown' %></span>
-                    <div class="mt-2 d-flex gap-1">
-                      <a href="/documents/view/<%= doc.id %>" class="btn btn-sm btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
-                      <a href="/documents/download/<%= doc.id %>" class="btn btn-sm btn-outline-success" title="Download"><i class="bi bi-download"></i></a>
-                      <% var canDel = (userRole === 'super_admin') || (userRole === 'admin' && doc.department && userDept && doc.department === userDept) || (userRole === 'user' && doc.uploaded_by === userId); if (canDel) { %>
-                      <form action="/documents/delete/<%= doc.id %>" method="POST" class="d-inline" onsubmit="return confirm('ลบไฟล์นี้?')">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                      </form>
-                      <% } %>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <% }); %>
-          </div>
-        <% } %>
+    <% if (searchKeyword) { %>
+      <div class="search-results-bar">
+        Found <strong><%= documents.length %></strong> document(s) for "<strong><%= searchKeyword %></strong>"
+        <a href="/documents?dept=<%= encodeURIComponent(currentDept || '') %><%= currentSortBy !== 'uploaded_at' ? '&sort_by=' + currentSortBy : '' %><%= currentOrder !== 'DESC' ? '&order=' + currentOrder : '' %>" class="btn btn-sm btn-outline-secondary ms-2"><i class="bi bi-x-lg me-1"></i>Clear</a>
       </div>
-    </div>
+    <% } %>
+
+    <% if (documents.length === 0) { %>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="text-muted text-center py-4 mb-0">ไม่มีเอกสาร PDF</p>
+        </div>
+      </div>
+    <% } else { %>
+
+      <div class="row g-3 doc-grid active" id="docGrid">
+        <% documents.forEach(function(doc) { %>
+          <div class="col-md-3 col-sm-4 col-6">
+            <div class="card doc-card h-100 border-light shadow-sm">
+              <a href="/documents/view/<%= doc.id %>" class="text-decoration-none doc-icon">
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+              </a>
+              <a href="/documents/view/<%= doc.id %>" class="text-decoration-none">
+                <p class="doc-name" title="<%= doc.original_name %>"><%= doc.original_name %></p>
+              </a>
+              <div class="doc-meta">
+                <span><%= (doc.filesize / 1024).toFixed(1) %> KB</span>
+                <span><%= doc.uploader_name || 'Unknown' %></span>
+                <span><%= doc.formatted_date %></span>
+              </div>
+              <div>
+                <% if (doc.department) { %>
+                  <span class="badge bg-primary doc-dept"><%= doc.department %></span>
+                <% } else { %>
+                  <span class="badge bg-secondary doc-dept">—</span>
+                <% } %>
+              </div>
+              <div class="doc-actions">
+                <a href="/documents/view/<%= doc.id %>" class="btn btn-sm btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                <a href="/documents/download/<%= doc.id %>" class="btn btn-sm btn-outline-success" title="Download"><i class="bi bi-download"></i></a>
+                <% var canDel = (userRole === 'super_admin') || (userRole === 'admin' && doc.department && userDept && doc.department === userDept) || (userRole === 'user' && doc.uploaded_by === userId); if (canDel) { %>
+                <form action="/documents/delete/<%= doc.id %>" method="POST" class="d-inline" data-confirm="ลบไฟล์นี้?">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                </form>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="doc-list" id="docList">
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-bordered-columns mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:35%;"><a href="?sort_by=original_name&order=<%= currentSortBy === 'original_name' && currentOrder === 'ASC' ? 'DESC' : 'ASC' %><%= qBase %>">Name <% if (currentSortBy === 'original_name') { %><i class="bi bi-arrow-<%= currentOrder === 'ASC' ? 'up' : 'down' %>"></i><% } %></a></th>
+                    <th style="width:10%;"><a href="?sort_by=filesize&order=<%= currentSortBy === 'filesize' && currentOrder === 'ASC' ? 'DESC' : 'ASC' %><%= qBase %>">Size <% if (currentSortBy === 'filesize') { %><i class="bi bi-arrow-<%= currentOrder === 'ASC' ? 'up' : 'down' %>"></i><% } %></a></th>
+                    <th style="width:12%;"><a href="?sort_by=department&order=<%= currentSortBy === 'department' && currentOrder === 'ASC' ? 'DESC' : 'ASC' %><%= qBase %>">Dept <% if (currentSortBy === 'department') { %><i class="bi bi-arrow-<%= currentOrder === 'ASC' ? 'up' : 'down' %>"></i><% } %></a></th>
+                    <th style="width:15%;"><a href="?sort_by=uploader_name&order=<%= currentSortBy === 'uploader_name' && currentOrder === 'ASC' ? 'DESC' : 'ASC' %><%= qBase %>">Uploaded By <% if (currentSortBy === 'uploader_name') { %><i class="bi bi-arrow-<%= currentOrder === 'ASC' ? 'up' : 'down' %>"></i><% } %></a></th>
+                    <th style="width:13%;"><a href="?sort_by=uploaded_at&order=<%= currentSortBy === 'uploaded_at' && currentOrder === 'ASC' ? 'DESC' : 'ASC' %><%= qBase %>">Date <% if (currentSortBy === 'uploaded_at') { %><i class="bi bi-arrow-<%= currentOrder === 'ASC' ? 'up' : 'down' %>"></i><% } %></a></th>
+                    <th style="width:15%;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% documents.forEach(function(doc) { %>
+                    <tr>
+                      <td><a href="/documents/view/<%= doc.id %>" class="text-decoration-none doc-name-cell"><%= doc.original_name %></a></td>
+                      <td class="text-muted"><%= (doc.filesize / 1024).toFixed(1) %> KB</td>
+                      <td>
+                        <% if (doc.department) { %>
+                          <span class="badge bg-primary"><%= doc.department %></span>
+                        <% } else { %>
+                          <span class="badge bg-secondary">—</span>
+                        <% } %>
+                      </td>
+                      <td class="text-muted"><%= doc.uploader_name || 'Unknown' %></td>
+                      <td class="text-muted"><%= doc.formatted_date %></td>
+                      <td>
+                        <div class="d-flex gap-1">
+                          <a href="/documents/view/<%= doc.id %>" class="btn btn-sm btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                          <a href="/documents/download/<%= doc.id %>" class="btn btn-sm btn-outline-success" title="Download"><i class="bi bi-download"></i></a>
+                          <% var canDel = (userRole === 'super_admin') || (userRole === 'admin' && doc.department && userDept && doc.department === userDept) || (userRole === 'user' && doc.uploaded_by === userId); if (canDel) { %>
+                          <form action="/documents/delete/<%= doc.id %>" method="POST" class="d-inline" data-confirm="ลบไฟล์นี้?">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                          </form>
+                          <% } %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <% } %>
   </div>
 </div>
+
+<script>
+(function() {
+  var view = localStorage.getItem('am-doc-view') || 'grid';
+  var grid = document.getElementById('docGrid');
+  var list = document.getElementById('docList');
+  var toggleGrid = document.getElementById('viewToggleGrid');
+  var toggleList = document.getElementById('viewToggleList');
+
+  function setView(v) {
+    if (v === 'list') {
+      grid.classList.remove('active');
+      list.classList.add('active');
+      toggleGrid.classList.remove('active');
+      toggleList.classList.add('active');
+    } else {
+      list.classList.remove('active');
+      grid.classList.add('active');
+      toggleList.classList.remove('active');
+      toggleGrid.classList.add('active');
+    }
+    localStorage.setItem('am-doc-view', v);
+  }
+
+  if (toggleGrid) toggleGrid.addEventListener('click', function(e) { e.preventDefault(); setView('grid'); });
+  if (toggleList) toggleList.addEventListener('click', function(e) { e.preventDefault(); setView('list'); });
+
+  setView(view);
+})();
+</script>
 
 <%- include('partials/footer') %>

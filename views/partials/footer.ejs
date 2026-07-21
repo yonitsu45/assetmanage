@@ -1,4 +1,42 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/js/sidebar.js"></script>
+  <script>
+  (function() {
+    var toggle = document.getElementById('themeToggle');
+    if (!toggle) return;
+    var icon = document.getElementById('themeIcon');
+    var html = document.documentElement;
+    toggle.addEventListener('click', function() {
+      html.classList.toggle('dark-mode');
+      var isDark = html.classList.contains('dark-mode');
+      if (icon) icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars';
+      localStorage.setItem('am-theme', isDark ? 'dark' : 'light');
+    });
+  })();
+
+  document.addEventListener('submit', function(e) {
+    var form = e.target;
+    var msg = form.getAttribute('data-confirm');
+    if (msg && !form.dataset.confirming) {
+      e.preventDefault();
+      Swal.fire({
+        title: form.getAttribute('data-confirm-title') || 'ยืนยัน',
+        text: msg,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      }).then(function(result) {
+        if (result.isConfirmed) {
+          form.dataset.confirming = 'true';
+          form.submit();
+        }
+      });
+    }
+  });
+  </script>
 </body>
 </html>

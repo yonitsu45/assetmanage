@@ -6,15 +6,14 @@ var q = typeof reqQuery !== 'undefined' ? reqQuery : (typeof query !== 'undefine
 var currentDeptName = isDashboard ? (q.departments || '') : (q.dept || '');
 var btnLabel = currentDeptName || 'ทั้งหมด';
 %>
-<div class="sidebar d-flex flex-column flex-shrink-0 bg-dark text-white" id="sidebar">
-  <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom border-secondary">
+<div class="sidebar d-flex flex-column flex-shrink-0" id="sidebar">
+  <div class="sidebar-header d-flex align-items-center justify-content-between">
     <% if (user.role === 'super_admin') { %>
     <div class="dropdown w-100">
-      <button class="btn btn-sm btn-outline-secondary text-white dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-building me-1"></i>
-        <span class="sidebar-text"><%= btnLabel %></span>
+      <button class="dept-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-funnel me-1"></i> <span class="sidebar-text"><%= btnLabel %></span>
       </button>
-      <ul class="dropdown-menu dropdown-menu-dark shadow-sm w-100">
+      <ul class="dropdown-menu shadow-sm w-100">
         <li><a class="dropdown-item<% if (!btnLabel) { %> active<% } %>" href="<%= isDocuments ? '/documents' : '/' %>"><i class="bi bi-globe me-2"></i>ทั้งหมด</a></li>
         <li><hr class="dropdown-divider"></li>
         <% (deptList || []).forEach(function(d) { %>
@@ -25,25 +24,25 @@ var btnLabel = currentDeptName || 'ทั้งหมด';
     <% } else { %>
     <span class="sidebar-text fw-bold fs-6"><i class="bi bi-building me-1"></i><%= user.department || 'Navigation' %></span>
     <% } %>
-    <button class="btn btn-sm btn-outline-secondary text-white ms-2" id="sidebarToggle" type="button">
+    <button class="btn btn-sm" id="sidebarToggle" type="button">
       <i class="bi bi-layout-sidebar"></i>
     </button>
   </div>
   <ul class="nav nav-pills flex-column mb-auto mt-2">
     <li class="nav-item">
-      <a href="/" class="nav-link text-white <%= isActive('/') %>">
+      <a href="/" class="nav-link <%= isActive('/') %>">
         <i class="bi bi-speedometer2 me-2 fs-5"></i>
         <span class="sidebar-text">Dashboard</span>
       </a>
     </li>
     <li class="nav-item">
-      <a href="/upload" class="nav-link text-white <%= isActive('/upload') %>">
+      <a href="/upload" class="nav-link <%= isActive('/upload') %>">
         <i class="bi bi-upload me-2 fs-5"></i>
         <span class="sidebar-text">Upload</span>
       </a>
     </li>
     <li class="nav-item">
-      <a href="/documents" class="nav-link text-white <%= isActive('/documents') %>">
+      <a href="/documents" class="nav-link <%= isActive('/documents') %>">
         <i class="bi bi-file-earmark-pdf me-2 fs-5"></i>
         <span class="sidebar-text">Documents</span>
       </a>

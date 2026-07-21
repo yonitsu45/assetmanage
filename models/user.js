@@ -18,7 +18,7 @@ const User = {
   },
 
   async findById(id) {
-    const [rows] = await pool.query('SELECT id, username, email, full_name, role, department, created_at FROM users WHERE id = ?', [id]);
+    const [rows] = await pool.query('SELECT id, username, email, full_name, profile_picture, role, department, created_at FROM users WHERE id = ?', [id]);
     return rows[0] || null;
   },
 
@@ -26,7 +26,7 @@ const User = {
     const allowedSorts = ['id', 'username', 'email', 'full_name', 'role', 'department', 'created_at'];
     const sort = allowedSorts.includes(sortBy) ? sortBy : 'created_at';
     const dir = order === 'ASC' ? 'ASC' : 'DESC';
-    const [rows] = await pool.query(`SELECT id, username, email, full_name, role, department, created_at FROM users ORDER BY \`${sort}\` ${dir}`);
+    const [rows] = await pool.query(`SELECT id, username, email, full_name, profile_picture, role, department, created_at FROM users ORDER BY \`${sort}\` ${dir}`);
     return rows;
   },
 

@@ -46,6 +46,7 @@ const initDB = async () => {
   // Migrate existing table if columns don't exist
   try { await pool.query(`ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user' AFTER full_name`); } catch (e) {}
   try { await pool.query(`ALTER TABLE users ADD COLUMN department VARCHAR(100) AFTER role`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE users ADD COLUMN profile_picture VARCHAR(255) AFTER full_name`); } catch (e) {}
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS assets (

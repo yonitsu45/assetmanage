@@ -60,3 +60,32 @@ const uploadPdf = multer({
 
 module.exports = upload;
 module.exports.uploadPdf = uploadPdf;
+
+const profileDir = path.join(__dirname, '..', 'uploads', 'profiles');
+if (!fs.existsSync(profileDir)) {
+  fs.mkdirSync(profileDir, { recursive: true });
+}
+
+const profileFilter = (req, file, cb) => {
+  const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowed.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files (jpg, png, gif, webp) are allowed'), false);
+  }
+};
+
+const uploadProfile = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, profileDir),
+    filename: (req, file, cb) => {
+      const uniqueName = 'profile_' + Date.now() + path.extname(file.originalname);
+      cb(null, uniqueName);
+    }
+  }),
+  fileFilter: profileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+module.exports.uploadProfile = uploadProfile;
