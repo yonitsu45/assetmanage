@@ -1,5 +1,6 @@
 node_modules/
 .env
+demo-design.html
 uploads/*
 !uploads/.gitkeep
 documents/*

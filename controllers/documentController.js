@@ -61,6 +61,17 @@ const documentController = {
     const o = buildOptsFromQuery(req);
     const queryOpts = { department: o.department, search: o.search, sortBy: o.sortBy, order: o.order };
 
+    if (req.session.role === 'user') {
+      const docs = await Document.getAll(queryOpts);
+      const documents = formatDocs(docs);
+      return res.render('documents', {
+        documents, error: 'คุณไม่มีสิทธิ์อัปโหลดเอกสาร',
+        userId: req.session.userId, userRole: req.session.role, userDept: req.session.department,
+        currentDept: o.currentDept, searchKeyword: o.currentSearch,
+        currentSortBy: o.currentSortBy, currentOrder: o.currentOrder
+      });
+    }
+
     if (!req.file) {
       const docs = await Document.getAll(queryOpts);
       const documents = formatDocs(docs);
@@ -134,7 +145,6 @@ const documentController = {
       if (userRole !== 'super_admin') {
         let allowed = false;
         if (userRole === 'admin' && doc.department && userDept && doc.department === userDept) allowed = true;
-        else if (userRole === 'user' && doc.uploaded_by === userId) allowed = true;
         if (!allowed) {
           const queryOpts = { department: o.department, search: o.search, sortBy: o.sortBy, order: o.order };
           const docs = await Document.getAll(queryOpts);

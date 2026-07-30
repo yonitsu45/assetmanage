@@ -10,9 +10,9 @@ const Asset = {
     const conditions = [];
     const params = [];
     if (search) {
-      conditions.push(`(asset_id LIKE ? OR tag_numbe LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR model LIKE ?)`);
+      conditions.push(`(asset_id LIKE ? OR tag_numbe LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR model LIKE ? OR business_unit LIKE ?)`);
       const s = `%${search}%`;
-      params.push(s, s, s, s, s, s, s, s);
+      params.push(s, s, s, s, s, s, s, s, s, s);
     }
     if (categories && categories.length > 0) {
       conditions.push(`category IN (${categories.map(() => '?').join(',')})`);

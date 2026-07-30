@@ -35,12 +35,14 @@ var btnLabel = currentDeptName || 'ทั้งหมด';
         <span class="sidebar-text">Dashboard</span>
       </a>
     </li>
+    <% if (user.role !== 'user') { %>
     <li class="nav-item">
       <a href="/upload" class="nav-link <%= isActive('/upload') %>">
         <i class="bi bi-upload me-2 fs-5"></i>
         <span class="sidebar-text">Upload</span>
       </a>
     </li>
+    <% } %>
     <li class="nav-item">
       <a href="/documents" class="nav-link <%= isActive('/documents') %>">
         <i class="bi bi-file-earmark-pdf me-2 fs-5"></i>

@@ -72,8 +72,6 @@ const dashboardController = {
       if (role !== 'super_admin') {
         if (role === 'admin' && asset.dept_name && req.session.department && asset.dept_name === req.session.department) {
           // department admin, same department — allowed
-        } else if (role === 'user' && asset.uploaded_by && asset.uploaded_by === userId) {
-          // regular user, own upload — allowed
         } else {
           return res.redirect('/?error=permission_denied');
         }
@@ -111,8 +109,6 @@ const dashboardController = {
       if (role !== 'super_admin') {
         if (role === 'admin' && asset.dept_name && req.session.department && asset.dept_name === req.session.department) {
           // department admin, same department — allowed
-        } else if (role === 'user' && asset.uploaded_by && asset.uploaded_by === userId) {
-          // regular user, own upload — allowed
         } else {
           return res.redirect('/?error=permission_denied');
         }

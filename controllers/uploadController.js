@@ -73,6 +73,9 @@ const uploadController = {
   },
 
   async handleUpload(req, res) {
+    if (req.session.role === 'user') {
+      return res.render('upload', { result: null, error: 'คุณไม่มีสิทธิ์อัปโหลด', isWarning: false });
+    }
     if (!req.file) {
       return res.render('upload', { result: null, error: 'กรุณาเลือกไฟล์ที่ต้องการอัปโหลด', isWarning: false });
     }
@@ -202,6 +205,9 @@ const uploadController = {
   },
 
   async handleManualEntry(req, res) {
+    if (req.session.role === 'user') {
+      return res.render('upload', { result: null, error: 'คุณไม่มีสิทธิ์เพิ่มข้อมูล', isWarning: false });
+    }
     try {
       const row = mapFormRow(req.body);
       const { inserted } = await Asset.bulkInsert([row], req.session.userId);
