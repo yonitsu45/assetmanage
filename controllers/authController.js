@@ -11,17 +11,17 @@ const authController = {
   async login(req, res) {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res.render('login', { error: 'Username and password are required' });
+      return res.render('login', { error: req.__('auth.error_required') });
     }
 
     const user = await User.findByUsername(username);
     if (!user) {
-      return res.render('login', { error: 'Invalid username or password' });
+      return res.render('login', { error: req.__('auth.error_invalid') });
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.render('login', { error: 'Invalid username or password' });
+      return res.render('login', { error: req.__('auth.error_invalid') });
     }
 
     req.session.userId = user.id;
@@ -47,23 +47,23 @@ const authController = {
     const { username, email, password, confirm_password, full_name, role, department } = req.body;
 
     if (!username || !email || !password) {
-      return res.render('register', { error: 'Please fill in all required fields' });
+      return res.render('register', { error: req.__('auth.error_required') });
     }
     if (password !== confirm_password) {
-      return res.render('register', { error: 'Passwords do not match' });
+      return res.render('register', { error: req.__('auth.error_password_match') });
     }
     if (password.length < 6) {
-      return res.render('register', { error: 'Password must be at least 6 characters' });
+      return res.render('register', { error: req.__('auth.error_password_length') });
     }
 
     const existingUser = await User.findByUsername(username);
     if (existingUser) {
-      return res.render('register', { error: 'Username already taken' });
+      return res.render('register', { error: req.__('auth.error_username_taken') });
     }
 
     const existingEmail = await User.findByEmail(email);
     if (existingEmail) {
-      return res.render('register', { error: 'Email already registered' });
+      return res.render('register', { error: req.__('auth.error_email_taken') });
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);

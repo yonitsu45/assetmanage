@@ -8,6 +8,7 @@ const { pool, initDB } = require('./config/db');
 const { requireAuth, requireSuperAdmin } = require('./middleware/auth');
 const Department = require('./models/department');
 
+const localeMiddleware = require('./middleware/locale');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const uploadRoutes = require('./routes/upload');
@@ -39,6 +40,15 @@ app.use(session({
   saveUninitialized: false,
   cookie: { maxAge: parseInt(process.env.SESSION_EXPIRY) || 86400000 }
 }));
+
+app.use(localeMiddleware);
+
+app.get('/lang/:lang', (req, res) => {
+  if (['en', 'th'].includes(req.params.lang)) {
+    req.session.lang = req.params.lang;
+  }
+  res.redirect(req.get('Referer') || '/');
+});
 
 app.use((req, res, next) => {
   res.locals.user = req.session.userId ? {

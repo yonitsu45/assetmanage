@@ -74,10 +74,10 @@ const uploadController = {
 
   async handleUpload(req, res) {
     if (req.session.role === 'user') {
-      return res.render('upload', { result: null, error: 'คุณไม่มีสิทธิ์อัปโหลด', isWarning: false });
+      return res.render('upload', { result: null, error: req.__('upload.error_no_permission_upload'), isWarning: false });
     }
     if (!req.file) {
-      return res.render('upload', { result: null, error: 'กรุณาเลือกไฟล์ที่ต้องการอัปโหลด', isWarning: false });
+      return res.render('upload', { result: null, error: req.__('upload.error_no_file'), isWarning: false });
     }
 
     const filePath = req.file.path;
@@ -113,7 +113,7 @@ const uploadController = {
       const sheetRef = bestSheet['!ref'] || 'unknown';
 
       if (!rawRows || rawRows.length < 2) {
-        return res.render('upload', { result: null, error: 'File must have at least a header row and one data row', isWarning: false });
+        return res.render('upload', { result: null, error: req.__('upload.error_process', 'File must have a header row and data row'), isWarning: false });
       }
 
       const headerRow = rawRows[0];
@@ -179,9 +179,9 @@ const uploadController = {
       }
 
       const colCount = headerRow.length;
-      let resultMsg = `นำเข้าข้อมูล ${inserted} จาก ${rows.length} รายการ`;
+      let resultMsg = req.__('upload.result_imported', inserted, rows.length);
       const isWarning = inserted === 0 && skipped > 0;
-      if (skipped > 0) resultMsg += ` (ข้าม ${skipped} รายการ — asset_id ซ้ำ)`;
+      if (skipped > 0) resultMsg += ' ' + req.__('upload.result_skipped', skipped);
 
       res.render('upload', {
         result: resultMsg,
@@ -198,7 +198,7 @@ const uploadController = {
       });
     } catch (err) {
       console.error('Upload error:', err);
-      res.render('upload', { result: null, error: 'Failed to process file: ' + err.message, isWarning: false });
+      res.render('upload', { result: null, error: req.__('upload.error_process', err.message), isWarning: false });
     } finally {
       fs.unlink(filePath, () => {});
     }
@@ -206,28 +206,28 @@ const uploadController = {
 
   async handleManualEntry(req, res) {
     if (req.session.role === 'user') {
-      return res.render('upload', { result: null, error: 'คุณไม่มีสิทธิ์เพิ่มข้อมูล', isWarning: false });
+      return res.render('upload', { result: null, error: req.__('upload.error_no_permission_add'), isWarning: false });
     }
     try {
       const row = mapFormRow(req.body);
       const { inserted } = await Asset.bulkInsert([row], req.session.userId);
       if (inserted === 0) {
         return res.render('upload', {
-          result: `Asset ID "${row.asset_id}" already exists`,
+          result: req.__('upload.result_duplicate', row.asset_id),
           isWarning: true,
           info: null,
           error: null
         });
       }
       res.render('upload', {
-        result: 'Asset added successfully',
+        result: req.__('upload.result_added'),
         info: null,
         error: null,
         isWarning: false
       });
     } catch (err) {
       console.error('Manual entry error:', err);
-      res.render('upload', { result: null, error: 'Failed to add asset: ' + err.message, info: null, isWarning: false });
+      res.render('upload', { result: null, error: req.__('upload.error_process', err.message), info: null, isWarning: false });
     }
   }
 };

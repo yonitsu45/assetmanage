@@ -6,23 +6,23 @@
     <div class="col-md-5">
       <div class="card shadow">
         <div class="card-body p-4">
-          <h3 class="card-title text-center mb-4">Login</h3>
+          <h3 class="card-title text-center mb-4"><%= __('auth.login_title') %></h3>
           <% if (error) { %>
             <div class="alert alert-danger"><%= error %></div>
           <% } %>
           <form action="/login" method="POST">
             <div class="mb-3">
-              <label class="form-label">Username</label>
+              <label class="form-label"><%= __('auth.username') %></label>
               <input type="text" name="username" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Password</label>
+              <label class="form-label"><%= __('auth.password') %></label>
               <input type="password" name="password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <button type="submit" class="btn btn-primary w-100"><%= __('auth.login_btn') %></button>
           </form>
           <p class="text-center mt-3 mb-0">
-            Don't have an account? <a href="/register">Register</a>
+            <%= __('auth.no_account') %> <a href="/register"><%= __('auth.register_btn') %></a>
           </p>
         </div>
       </div>

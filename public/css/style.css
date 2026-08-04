@@ -119,6 +119,15 @@ body {
   transform: scale(1.05);
 }
 
+.lang-switcher .btn {
+  font-size: 0.8rem;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+.lang-switcher .dropdown-menu {
+  min-width: 130px;
+}
+
 /* ─── Sidebar ─── */
 .sidebar {
   width: 250px;
@@ -576,6 +585,15 @@ hr {
 }
 .dark-mode .border-dashed {
   border-color: var(--input-border) !important;
+}
+.dark-mode .card-body p {
+  color: var(--text-color) !important;
+}
+.dark-mode .card-body p a {
+  color: var(--primary-hover);
+}
+.dark-mode .card-body p a:hover {
+  color: var(--primary);
 }
 .dark-mode .table .badge {
   color: #fff;

@@ -103,8 +103,6 @@ const initDB = async () => {
   try { await pool.query(`ALTER TABLE documents CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`); } catch (e) {}
   try { await pool.query(`ALTER TABLE documents ADD COLUMN department VARCHAR(100) AFTER uploaded_by`); } catch (e) {}
 
-  try { await pool.query(`UPDATE users SET role = 'super_admin' WHERE role = 'admin'`); } catch (e) {}
-
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS departments (

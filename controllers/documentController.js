@@ -65,7 +65,7 @@ const documentController = {
       const docs = await Document.getAll(queryOpts);
       const documents = formatDocs(docs);
       return res.render('documents', {
-        documents, error: 'คุณไม่มีสิทธิ์อัปโหลดเอกสาร',
+        documents, error: req.__('documents.error_no_permission_upload'),
         userId: req.session.userId, userRole: req.session.role, userDept: req.session.department,
         currentDept: o.currentDept, searchKeyword: o.currentSearch,
         currentSortBy: o.currentSortBy, currentOrder: o.currentOrder
@@ -76,7 +76,7 @@ const documentController = {
       const docs = await Document.getAll(queryOpts);
       const documents = formatDocs(docs);
       return res.render('documents', {
-        documents, error: 'กรุณาเลือกไฟล์ PDF',
+        documents, error: req.__('documents.error_no_file'),
         userId: req.session.userId, userRole: req.session.role, userDept: req.session.department,
         currentDept: o.currentDept, searchKeyword: o.currentSearch,
         currentSortBy: o.currentSortBy, currentOrder: o.currentOrder
@@ -101,7 +101,7 @@ const documentController = {
       const docs = await Document.getAll(queryOpts);
       const documents = formatDocs(docs);
       res.render('documents', {
-        documents, error: 'อัปโหลดไฟล์ล้มเหลว',
+        documents, error: req.__('documents.error_upload'),
         userId: req.session.userId, userRole: req.session.role, userDept: req.session.department,
         currentDept: o.currentDept, searchKeyword: o.currentSearch,
         currentSortBy: o.currentSortBy, currentOrder: o.currentOrder
@@ -150,7 +150,7 @@ const documentController = {
           const docs = await Document.getAll(queryOpts);
           const documents = formatDocs(docs);
           return res.render('documents', {
-            documents, error: 'คุณไม่มีสิทธิ์ลบไฟล์นี้',
+            documents, error: req.__('documents.error_delete'),
             userId, userRole: req.session.role, userDept: req.session.department,
             currentDept: o.currentDept, searchKeyword: o.currentSearch,
             currentSortBy: o.currentSortBy, currentOrder: o.currentOrder

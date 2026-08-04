@@ -6,51 +6,51 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <div class="main-content flex-grow-1 p-4">
-    <h4 class="mb-4"><i class="bi bi-people me-2"></i>User Management</h4>
+    <h4 class="mb-4"><i class="bi bi-people me-2"></i><%= __('admin.title') %></h4>
 
     <% if (reqQuery.success === 'updated') { %>
-      <div class="alert alert-success">อัปเดตผู้ใช้สำเร็จ</div>
+      <div class="alert alert-success"><%= __('admin.success_updated') %></div>
     <% } else if (reqQuery.success === 'password_changed') { %>
-      <div class="alert alert-success">เปลี่ยนรหัสผ่านสำเร็จ</div>
+      <div class="alert alert-success"><%= __('admin.success_password') %></div>
     <% } else if (reqQuery.success === 'user_deleted') { %>
-      <div class="alert alert-success">ลบผู้ใช้สำเร็จ</div>
+      <div class="alert alert-success"><%= __('admin.success_deleted') %></div>
     <% } else if (reqQuery.success === 'dept_added') { %>
-      <div class="alert alert-success">เพิ่มแผนกสำเร็จ</div>
+      <div class="alert alert-success"><%= __('admin.success_dept_added') %></div>
     <% } else if (reqQuery.success === 'dept_deleted') { %>
-      <div class="alert alert-success">ลบแผนกสำเร็จ</div>
+      <div class="alert alert-success"><%= __('admin.success_dept_deleted') %></div>
     <% } else if (reqQuery.error === 'edit_failed') { %>
-      <div class="alert alert-danger">แก้ไขผู้ใช้ล้มเหลว</div>
+      <div class="alert alert-danger"><%= __('admin.error_edit_failed') %></div>
     <% } else if (reqQuery.error === 'cannot_change_own_role') { %>
-      <div class="alert alert-danger">ไม่สามารถเปลี่ยน Role ของตัวเองได้</div>
+      <div class="alert alert-danger"><%= __('admin.error_cannot_change_own_role') %></div>
     <% } else if (reqQuery.error === 'cannot_delete_self') { %>
-      <div class="alert alert-danger">ไม่สามารถลบบัญชีตัวเองได้</div>
+      <div class="alert alert-danger"><%= __('admin.error_cannot_delete_self') %></div>
     <% } else if (reqQuery.error === 'wrong_password') { %>
-      <div class="alert alert-danger">รหัสผ่านไม่ถูกต้อง</div>
+      <div class="alert alert-danger"><%= __('admin.error_wrong_password') %></div>
     <% } else if (reqQuery.error === 'delete_user_failed') { %>
-      <div class="alert alert-danger">ลบผู้ใช้ล้มเหลว</div>
+      <div class="alert alert-danger"><%= __('admin.error_delete_user_failed') %></div>
     <% } else if (reqQuery.error === 'password_short') { %>
-      <div class="alert alert-warning">รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร</div>
+      <div class="alert alert-warning"><%= __('admin.error_password_short') %></div>
     <% } else if (reqQuery.error === 'password_failed') { %>
-      <div class="alert alert-danger">เปลี่ยนรหัสผ่านล้มเหลว</div>
+      <div class="alert alert-danger"><%= __('admin.error_password_failed') %></div>
     <% } else if (reqQuery.error === 'dept_name_required') { %>
-      <div class="alert alert-warning">กรุณากรอกชื่อแผนก</div>
+      <div class="alert alert-warning"><%= __('admin.error_dept_name_required') %></div>
     <% } else if (reqQuery.error === 'dept_exists') { %>
-      <div class="alert alert-warning">ชื่อแผนกนี้มีอยู่แล้ว</div>
+      <div class="alert alert-warning"><%= __('admin.error_dept_exists') %></div>
     <% } else if (reqQuery.error === 'dept_add_failed') { %>
-      <div class="alert alert-danger">เพิ่มแผนกล้มเหลว</div>
+      <div class="alert alert-danger"><%= __('admin.error_dept_add_failed') %></div>
     <% } else if (reqQuery.error === 'dept_delete_failed') { %>
-      <div class="alert alert-danger">ลบแผนกล้มเหลว</div>
+      <div class="alert alert-danger"><%= __('admin.error_dept_delete_failed') %></div>
     <% } %>
 
     <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#usersTab" type="button" role="tab">
-          <i class="bi bi-people me-1"></i>Users
+          <i class="bi bi-people me-1"></i><%= __('admin.users_tab') %>
         </button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="departments-tab" data-bs-toggle="tab" data-bs-target="#departmentsTab" type="button" role="tab">
-          <i class="bi bi-building me-1"></i>Departments
+          <i class="bi bi-building me-1"></i><%= __('admin.departments_tab') %>
         </button>
       </li>
     </ul>
@@ -65,13 +65,13 @@
                 <thead class="table-dark">
                   <tr>
                     <% var cols = [
-                      {key:'id', label:'ID'},
-                      {key:'username', label:'Username'},
-                      {key:'email', label:'Email'},
-                      {key:'full_name', label:'Full Name'},
-                      {key:'role', label:'Role'},
-                      {key:'department', label:'Department'},
-                      {key:'created_at', label:'Created'}
+                      {key:'id', label:__('admin.table.id')},
+                      {key:'username', label:__('admin.table.username')},
+                      {key:'email', label:__('admin.table.email')},
+                      {key:'full_name', label:__('admin.table.full_name')},
+                      {key:'role', label:__('admin.table.role')},
+                      {key:'department', label:__('admin.table.department')},
+                      {key:'created_at', label:__('admin.table.created_at')}
                     ]; %>
                     <% cols.forEach(function(c) {
                       var newOrder = sortBy === c.key && order === 'ASC' ? 'DESC' : 'ASC';
@@ -98,7 +98,7 @@
                     <td><%= u.department || '-' %></td>
                     <td class="small"><%= u.created_at ? new Date(u.created_at).toLocaleDateString() : '-' %></td>
                     <td class="text-center">
-                      <button class="btn btn-sm btn-outline-primary edit-user-btn" title="Edit"
+                      <button class="btn btn-sm btn-outline-primary edit-user-btn" title="<%= __('common.edit') %>"
                         data-id="<%= u.id %>"
                         data-username="<%= u.username %>"
                         data-email="<%= u.email || '' %>"
@@ -109,14 +109,14 @@
                         data-bs-toggle="modal" data-bs-target="#editUserModal">
                         <i class="bi bi-pencil"></i>
                       </button>
-                      <button class="btn btn-sm btn-outline-warning password-user-btn" title="Change Password"
+                      <button class="btn btn-sm btn-outline-warning password-user-btn" title="<%= __('admin.password_modal.change') %>"
                         data-id="<%= u.id %>"
                         data-username="<%= u.username %>"
                         data-bs-toggle="modal" data-bs-target="#passwordModal">
                         <i class="bi bi-key"></i>
                       </button>
                       <% if (!isSelf) { %>
-                      <button class="btn btn-sm btn-outline-danger delete-user-btn" title="Delete"
+                      <button class="btn btn-sm btn-outline-danger delete-user-btn" title="<%= __('common.delete') %>"
                         data-id="<%= u.id %>"
                         data-username="<%= u.username %>"
                         data-bs-toggle="modal" data-bs-target="#deleteUserModal">
@@ -139,11 +139,11 @@
           <div class="col-md-6">
             <div class="card shadow-sm">
               <div class="card-body">
-                <h5 class="card-title mb-3"><i class="bi bi-building-add me-1"></i>Add Department</h5>
+                <h5 class="card-title mb-3"><i class="bi bi-building-add me-1"></i><%= __('admin.add_dept') %></h5>
                 <form action="/admin/departments/add" method="POST">
                   <div class="input-group">
-                    <input type="text" name="name" class="form-control" placeholder="Department name" required>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add</button>
+                    <input type="text" name="name" class="form-control" placeholder="<%= __('admin.dept_name') %>" required>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i><%= __('admin.add_dept_btn') %></button>
                   </div>
                 </form>
               </div>
@@ -152,17 +152,17 @@
           <div class="col-md-6">
             <div class="card shadow-sm">
               <div class="card-body">
-                <h5 class="card-title mb-3"><i class="bi bi-list me-1"></i>Existing Departments</h5>
+                <h5 class="card-title mb-3"><i class="bi bi-list me-1"></i><%= __('admin.departments_tab') %></h5>
                 <% if (departments.length === 0) { %>
-                  <p class="text-muted mb-0">ไม่มีแผนก</p>
+                  <p class="text-muted mb-0"><%= __('admin.no_departments') %></p>
                 <% } else { %>
                   <div class="table-responsive">
                     <table class="table table-sm table-hover align-middle">
                       <thead class="table-light">
                         <tr>
-                          <th>Name</th>
-                          <th>Created</th>
-                          <th class="text-center">Delete</th>
+                          <th><%= __('admin.dept_name') %></th>
+                          <th><%= __('admin.table.created_at') %></th>
+                          <th class="text-center"><%= __('common.delete') %></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -171,7 +171,7 @@
                           <td><%= d.name %></td>
                           <td class="small"><%= d.created_at ? new Date(d.created_at).toLocaleDateString() : '-' %></td>
                           <td class="text-center">
-                            <form action="/admin/departments/delete/<%= d.id %>" method="POST" class="d-inline" data-confirm="ลบแผนก <%= d.name %>?">
+                            <form action="/admin/departments/delete/<%= d.id %>" method="POST" class="d-inline" data-confirm="<%= __('admin.delete_dept_confirm', d.name) %>">
                               <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                             </form>
                           </td>
@@ -196,35 +196,35 @@
     <div class="modal-content">
       <form method="POST" id="editUserForm">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit User</h5>
+          <h5 class="modal-title"><i class="bi bi-pencil me-2"></i><%= __('admin.edit_modal.title') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label fw-bold">Username</label>
+            <label class="form-label fw-bold"><%= __('admin.table.username') %></label>
             <input name="username" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-bold">Email</label>
+            <label class="form-label fw-bold"><%= __('admin.table.email') %></label>
             <input name="email" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label fw-bold">Full Name</label>
+            <label class="form-label fw-bold"><%= __('admin.table.full_name') %></label>
             <input name="full_name" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label fw-bold">Role</label>
+            <label class="form-label fw-bold"><%= __('admin.table.role') %></label>
             <select name="role" class="form-select" id="editRoleSelect">
               <option value="user">user</option>
               <option value="admin">admin</option>
               <option value="super_admin">super_admin</option>
             </select>
-            <small class="text-muted d-none" id="roleLockHint"><i class="bi bi-lock me-1"></i>ไม่สามารถเปลี่ยน Role ของตัวเองได้</small>
+            <small class="text-muted d-none" id="roleLockHint"><i class="bi bi-lock me-1"></i><%= __('admin.edit_modal.role_hint') %></small>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-bold">Department</label>
+            <label class="form-label fw-bold"><%= __('admin.table.department') %></label>
             <select name="department" class="form-select" id="editDeptSelect">
-              <option value="">-- Select Department --</option>
+              <option value=""><%= __('auth.select_dept') %></option>
               <% (departments || []).forEach(function(d) { %>
                 <option value="<%= d.name %>"><%= d.name %></option>
               <% }); %>
@@ -232,8 +232,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= __('admin.edit_modal.cancel') %></button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i><%= __('admin.edit_modal.save') %></button>
         </div>
       </form>
     </div>
@@ -246,19 +246,19 @@
     <div class="modal-content">
       <form method="POST" id="passwordForm">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-key me-2"></i>Change Password</h5>
+          <h5 class="modal-title"><i class="bi bi-key me-2"></i><%= __('admin.password_modal.title') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small">Changing password for: <strong id="passwordUserLabel"></strong></p>
+          <p class="text-muted small"><%= __('admin.password_modal.title') %>: <strong id="passwordUserLabel"></strong></p>
           <div class="mb-3">
-            <label class="form-label fw-bold">New Password</label>
+            <label class="form-label fw-bold"><%= __('admin.password_modal.new_password') %></label>
             <input name="new_password" type="password" class="form-control" minlength="6" required>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-warning"><i class="bi bi-key me-1"></i>Change Password</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= __('admin.password_modal.cancel') %></button>
+          <button type="submit" class="btn btn-warning"><i class="bi bi-key me-1"></i><%= __('admin.password_modal.change') %></button>
         </div>
       </form>
     </div>
@@ -271,22 +271,22 @@
     <div class="modal-content">
       <form method="POST" id="deleteUserForm">
         <div class="modal-header">
-          <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Delete User</h5>
+          <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i><%= __('admin.delete_modal.title') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p>คุณแน่ใจที่จะลบผู้ใช้ <strong id="deleteUserLabel"></strong>?</p>
+          <p><%= __('admin.delete_modal.confirm') %> <strong id="deleteUserLabel"></strong>?</p>
           <div class="alert alert-warning">
-            <i class="bi bi-lock me-1"></i>กรุณากรอกรหัสผ่านของคุณเพื่อยืนยัน
+            <i class="bi bi-lock me-1"></i><%= __('admin.delete_modal.password_hint') %>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-bold">Your Password</label>
+            <label class="form-label fw-bold"><%= __('auth.password') %></label>
             <input name="confirm_password" type="password" class="form-control" required>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Delete User</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= __('admin.delete_modal.cancel') %></button>
+          <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i><%= __('admin.delete_modal.delete') %></button>
         </div>
       </form>
     </div>

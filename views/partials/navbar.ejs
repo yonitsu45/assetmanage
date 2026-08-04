@@ -3,9 +3,18 @@
     <i class="bi bi-list"></i>
   </button>
   <a class="navbar-brand fw-bold" href="/">
-    <i class="bi bi-building-gear me-2"></i>Asset Management
+    <i class="bi bi-building-gear me-2"></i><%= __('nav.brand') %>
   </a>
   <div class="ms-auto d-flex align-items-center gap-2">
+    <div class="lang-switcher dropdown">
+      <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-globe2 me-1"></i><%= lang === 'th' ? 'TH' : 'EN' %>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+        <li><a class="dropdown-item <% if (lang === 'en') { %>active<% } %>" href="/lang/en">English</a></li>
+        <li><a class="dropdown-item <% if (lang === 'th') { %>active<% } %>" href="/lang/th">ภาษาไทย</a></li>
+      </ul>
+    </div>
     <% if (user) { %>
       <div class="user-info" id="userInfoBtn" data-bs-toggle="modal" data-bs-target="#profileModal">
         <div class="user-avatar-wrapper">
@@ -25,17 +34,17 @@
         <i class="bi bi-moon-stars" id="themeIcon"></i>
       </button>
       <% if (user.role === 'super_admin') { %>
-        <a href="/admin/users" class="btn btn-outline-light btn-sm">Admin</a>
+        <a href="/admin/users" class="btn btn-outline-light btn-sm"><%= __('nav.admin') %></a>
       <% } %>
       <form action="/logout" method="POST" class="m-0">
-        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+        <button class="btn btn-outline-light btn-sm" type="submit"><%= __('nav.logout') %></button>
       </form>
     <% } else { %>
       <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
         <i class="bi bi-moon-stars" id="themeIcon"></i>
       </button>
-      <a href="/login" class="btn btn-outline-light btn-sm me-2">Login</a>
-      <a href="/register" class="btn btn-light btn-sm">Register</a>
+      <a href="/login" class="btn btn-outline-light btn-sm me-2"><%= __('nav.login') %></a>
+      <a href="/register" class="btn btn-light btn-sm"><%= __('nav.register') %></a>
     <% } %>
   </div>
 </nav>
@@ -46,7 +55,7 @@
     <div class="modal-content">
       <form action="/profile/update" method="POST" enctype="multipart/form-data">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-person-gear me-2"></i>Edit Profile</h5>
+          <h5 class="modal-title"><i class="bi bi-person-gear me-2"></i><%= __('nav.profile') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -62,17 +71,17 @@
             <input type="file" name="profile_picture" class="form-control form-control-sm" accept="image/*" id="profileFileInput" style="display:none;">
           </div>
           <div class="mb-3">
-            <label class="form-label small fw-bold">Username</label>
+            <label class="form-label small fw-bold"><%= __('nav.username') %></label>
             <input type="text" name="username" class="form-control" value="<%= user.username %>">
           </div>
           <div class="mb-3">
-            <label class="form-label small fw-bold">Full Name</label>
+            <label class="form-label small fw-bold"><%= __('nav.full_name') %></label>
             <input type="text" name="full_name" class="form-control" value="<%= user.fullName %>">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg me-1"></i>Save</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><%= __('nav.cancel') %></button>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg me-1"></i><%= __('nav.save') %></button>
         </div>
       </form>
     </div>
@@ -112,9 +121,9 @@
 
   var params = new URLSearchParams(window.location.search);
   var msg = null;
-  if (params.get('profile_success')) msg = { type: 'success', text: 'Profile updated successfully!' };
-  else if (params.get('profile_error') === 'username_taken') msg = { type: 'danger', text: 'Username already taken' };
-  else if (params.get('profile_error') === 'update_failed') msg = { type: 'danger', text: 'Profile update failed' };
+  if (params.get('profile_success')) msg = { type: 'success', text: "<%= __('nav.profile_updated') %>" };
+  else if (params.get('profile_error') === 'username_taken') msg = { type: 'danger', text: "<%= __('nav.username_taken') %>" };
+  else if (params.get('profile_error') === 'update_failed') msg = { type: 'danger', text: "<%= __('nav.update_failed') %>" };
   if (msg) {
     var alert = document.createElement('div');
     alert.className = 'alert alert-' + msg.type + ' alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-2 z-3 py-2 px-4';

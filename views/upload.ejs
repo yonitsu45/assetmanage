@@ -7,9 +7,9 @@
 
   <div class="main-content flex-grow-1 p-4">
     <% if (user.role === 'user') { %>
-      <div class="alert alert-danger">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</div>
+      <div class="alert alert-danger"><%= __('upload.no_permission') %></div>
     <% } else { %>
-    <h4 class="mb-4"><i class="bi bi-upload me-2"></i>Add Asset</h4>
+    <h4 class="mb-4"><i class="bi bi-upload me-2"></i><%= __('upload.title') %></h4>
 
     <% if (error) { %>
       <div class="alert alert-danger"><%= error %></div>
@@ -19,12 +19,12 @@
       <% if (info) { %>
         <div class="card mb-3 bg-light">
           <div class="card-body small" style="font-family:monospace; word-break:break-all;">
-            <p class="mb-1"><strong>Sheet range:</strong> <%= info.sheetRef %> | <strong>Columns found:</strong> <%= info.colCount %></p>
-            <p class="mb-1"><strong>Headers found in file:</strong></p>
+            <p class="mb-1"><strong><%= __('upload.info_sheet') %>:</strong> <%= info.sheetRef %> | <strong><%= __('upload.info_columns_found') %>:</strong> <%= info.colCount %></p>
+            <p class="mb-1"><strong><%= __('upload.info_headers') %>:</strong></p>
             <p class="mb-2"><%= info.rawHeaders %></p>
-            <p class="mb-1"><strong>Matched to system columns:</strong> <%= info.mapped %></p>
-            <p class="mb-1"><strong>Not found in file:</strong> <%= info.unmapped %></p>
-            <p class="mb-0"><strong>First row data:</strong> <%= info.sample %></p>
+            <p class="mb-1"><strong><%= __('upload.info_matched') %>:</strong> <%= info.mapped %></p>
+            <p class="mb-1"><strong><%= __('upload.info_not_found') %>:</strong> <%= info.unmapped %></p>
+            <p class="mb-0"><strong><%= __('upload.info_first_row') %>:</strong> <%= info.sample %></p>
           </div>
         </div>
       <% } %>
@@ -33,12 +33,12 @@
     <ul class="nav nav-tabs mb-3" id="uploadTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#fileTab" type="button" role="tab">
-          <i class="bi bi-file-earmark-excel me-1"></i>Upload Excel File
+          <i class="bi bi-file-earmark-excel me-1"></i><%= __('upload.excel_tab') %>
         </button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manualTab" type="button" role="tab">
-          <i class="bi bi-pencil-square me-1"></i>Manual Entry
+          <i class="bi bi-pencil-square me-1"></i><%= __('upload.manual_tab') %>
         </button>
       </li>
     </ul>
@@ -50,18 +50,18 @@
           <div class="card-body">
             <form action="/upload/file" method="POST" enctype="multipart/form-data">
               <div class="mb-4">
-                <label class="form-label fw-bold">Select Excel File (.xlsx / .xls)</label>
+                <label class="form-label fw-bold"><%= __('upload.select_file') %></label>
                 <div class="upload-zone border border-2 border-dashed rounded p-5 text-center" id="dropZone">
                   <i class="bi bi-file-earmark-excel display-4 text-success"></i>
-                  <p class="mt-3 mb-1 fw-bold">Drag & drop your file here</p>
-                  <p class="text-muted small">or click to browse</p>
+                  <p class="mt-3 mb-1 fw-bold"><%= __('upload.drag_drop') %></p>
+                  <p class="text-muted small"><%= __('upload.click_browse') %></p>
                   <input type="file" name="file" id="fileInput" class="form-control d-none" accept=".xlsx,.xls">
                   <div id="fileName" class="mt-2 text-success fw-bold d-none"></div>
                 </div>
               </div>
               <div class="mb-3">
                 <button type="submit" class="btn btn-primary px-4" id="uploadBtn" disabled>
-                  <i class="bi bi-cloud-upload me-1"></i> Upload
+                  <i class="bi bi-cloud-upload me-1"></i> <%= __('upload.upload_btn') %>
                 </button>
               </div>
             </form>
@@ -146,7 +146,7 @@
               </div>
               <div class="mt-4">
                 <button type="submit" class="btn btn-success px-4">
-                  <i class="bi bi-plus-circle me-1"></i> Add Asset
+                  <i class="bi bi-plus-circle me-1"></i> <%= __('upload.add_btn') %>
                 </button>
               </div>
             </form>
@@ -157,7 +157,7 @@
 
     <div class="card mt-4">
       <div class="card-body">
-        <h6>Expected Columns:</h6>
+        <h6><%= __('upload.expected_columns') %>:</h6>
         <div class="row small text-muted">
           <div class="col-md-4">BUSINESS_UNIT</div>
           <div class="col-md-4">ASSET_ID</div>
@@ -214,7 +214,7 @@ document.getElementById('fileInput').addEventListener('change', function() {
 });
 
 function handleFile(name) {
-  document.getElementById('fileName').textContent = 'Selected: ' + name;
+  document.getElementById('fileName').textContent = "<%= __('upload.selected') %>: " + name;
   document.getElementById('fileName').classList.remove('d-none');
   document.getElementById('uploadBtn').disabled = false;
 }

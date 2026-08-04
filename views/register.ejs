@@ -6,44 +6,44 @@
     <div class="col-md-5">
       <div class="card shadow">
         <div class="card-body p-4">
-          <h3 class="card-title text-center mb-4">Register</h3>
+          <h3 class="card-title text-center mb-4"><%= __('auth.register_title') %></h3>
           <% if (error) { %>
             <div class="alert alert-danger"><%= error %></div>
           <% } %>
           <form action="/register" method="POST">
             <div class="mb-3">
-              <label class="form-label">Department</label>
+              <label class="form-label"><%= __('auth.department') %></label>
               <select name="department" class="form-select">
-                <option value="">-- Select Department --</option>
+                <option value=""><%= __('auth.select_dept') %></option>
                 <% (departments || []).forEach(function(d) { %>
                   <option value="<%= d.name %>"><%= d.name %></option>
                 <% }); %>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Full Name</label>
+              <label class="form-label"><%= __('auth.full_name') %></label>
               <input type="text" name="full_name" class="form-control">
             </div>
             <div class="mb-3">
-              <label class="form-label">Username</label>
+              <label class="form-label"><%= __('auth.username') %></label>
               <input type="text" name="username" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label"><%= __('auth.email') %></label>
               <input type="email" name="email" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Password</label>
+              <label class="form-label"><%= __('auth.password') %></label>
               <input type="password" name="password" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Confirm Password</label>
+              <label class="form-label"><%= __('auth.confirm_password') %></label>
               <input type="password" name="confirm_password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Register</button>
+            <button type="submit" class="btn btn-primary w-100"><%= __('auth.register_btn') %></button>
           </form>
           <p class="text-center mt-3 mb-0">
-            Already have an account? <a href="/login">Login</a>
+            <%= __('auth.has_account') %> <a href="/login"><%= __('auth.login_btn') %></a>
           </p>
         </div>
       </div>
