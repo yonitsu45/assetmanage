@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Document = require('../models/document');
+const ActivityLog = require('../models/activityLog');
 
 function formatDocs(docs) {
   return docs.map(function(d) {
@@ -93,6 +94,14 @@ const documentController = {
         uploaded_by: req.session.userId,
         department: req.session.department
       });
+      await ActivityLog.create({
+        userId: req.session.userId,
+        username: req.session.username,
+        action: 'upload',
+        module: 'document',
+        target: file.originalname,
+        details: JSON.stringify({ filesize: file.size })
+      });
       const qstr = buildQueryString(o);
       res.redirect('/documents' + (qstr ? '?' + qstr : ''));
     } catch (err) {
@@ -160,6 +169,14 @@ const documentController = {
 
       fs.unlink(doc.filepath, () => {});
       await Document.deleteById(doc.id);
+      await ActivityLog.create({
+        userId: req.session.userId,
+        username: req.session.username,
+        action: 'delete',
+        module: 'document',
+        target: doc.original_name,
+        details: JSON.stringify({ department: doc.department })
+      });
 
       const qstr = buildQueryString(o);
       res.redirect('/documents' + (qstr ? '?' + qstr : ''));

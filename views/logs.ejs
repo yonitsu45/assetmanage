@@ -1,0 +1,100 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="d-flex position-relative">
+  <%- include('partials/sidebar') %>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-content flex-grow-1 p-4">
+    <h4 class="mb-4"><i class="bi bi-clock-history me-2"></i><%= __('logs.title') %></h4>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="GET" action="/logs" class="row g-2 mb-3">
+          <div class="col-md-3">
+            <select name="module" class="form-select form-select-sm">
+              <option value=""><%= __('logs.all_modules') %></option>
+              <% (modules || []).forEach(function(m) { %>
+                <option value="<%= m %>" <%= module === m ? 'selected' : '' %>><%= m %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select name="action" class="form-select form-select-sm">
+              <option value=""><%= __('logs.all_actions') %></option>
+              <% (actions || []).forEach(function(a) { %>
+                <option value="<%= a %>" <%= action === a ? 'selected' : '' %>><%= a %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <input type="text" name="search" class="form-control form-control-sm" placeholder="<%= __('logs.search_placeholder') %>" value="<%= search %>">
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary flex-fill"><i class="bi bi-search me-1"></i><%= __('dashboard.filter.apply') %></button>
+            <% if (module || action || search) { %>
+              <a href="/logs" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></a>
+            <% } %>
+          </div>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th><%= __('logs.table.time') %></th>
+                <th><%= __('logs.table.user') %></th>
+                <th><%= __('logs.table.module') %></th>
+                <th><%= __('logs.table.action') %></th>
+                <th><%= __('logs.table.target') %></th>
+                <th><%= __('logs.table.details') %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (logs.length === 0) { %>
+                <tr><td colspan="6" class="text-center text-muted py-4"><%= __('logs.no_logs') %></td></tr>
+              <% } %>
+              <% logs.forEach(function(log) { %>
+              <tr>
+                <td class="text-nowrap small"><%= new Date(log.created_at).toLocaleString() %></td>
+                <td><%= log.username || '-' %></td>
+                <td><span class="badge bg-secondary"><%= log.module || '-' %></span></td>
+                <td>
+                  <% var badgeClass = log.action === 'delete' || log.action === 'clear' ? 'bg-danger' : (log.action === 'update' ? 'bg-warning text-dark' : (log.action === 'create' ? 'bg-success' : 'bg-primary')); %>
+                  <span class="badge <%= badgeClass %>"><%= log.action || '-' %></span>
+                </td>
+                <td class="small"><%= log.target || '-' %></td>
+                <td class="small text-muted" style="max-width:320px; word-break:break-all;"><%= log.details || '' %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if (totalPages > 1) { %>
+        <nav>
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item <%= page <= 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="/logs?module=<%= encodeURIComponent(module) %>&action=<%= encodeURIComponent(action) %>&search=<%= encodeURIComponent(search) %>&page=<%= page - 1 %>&limit=<%= limit %>"><%= __('logs.previous') %></a>
+            </li>
+            <% for (let p = 1; p <= totalPages; p++) { %>
+              <% if (p === page || p === 1 || p === totalPages || Math.abs(p - page) <= 2) { %>
+                <li class="page-item <%= p === page ? 'active' : '' %>">
+                  <a class="page-link" href="/logs?module=<%= encodeURIComponent(module) %>&action=<%= encodeURIComponent(action) %>&search=<%= encodeURIComponent(search) %>&page=<%= p %>&limit=<%= limit %>"><%= p %></a>
+                </li>
+              <% } else if (p === page - 3 || p === page + 3) { %>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+              <% } %>
+            <% } %>
+            <li class="page-item <%= page >= totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="/logs?module=<%= encodeURIComponent(module) %>&action=<%= encodeURIComponent(action) %>&search=<%= encodeURIComponent(search) %>&page=<%= page + 1 %>&limit=<%= limit %>"><%= __('logs.next') %></a>
+            </li>
+          </ul>
+        </nav>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

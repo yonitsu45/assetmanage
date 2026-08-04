@@ -14,6 +14,8 @@ const dashboardRoutes = require('./routes/dashboard');
 const uploadRoutes = require('./routes/upload');
 const documentsRoutes = require('./routes/documents');
 const profileRoutes = require('./routes/profile');
+const updateRoutes = require('./routes/update');
+const logsRoutes = require('./routes/logs');
 
 const app = express();
 
@@ -82,6 +84,8 @@ app.use('/', requireAuth, dashboardRoutes);
 app.use('/', requireAuth, profileRoutes);
 app.use('/upload', requireAuth, uploadRoutes);
 app.use('/documents', requireAuth, documentsRoutes);
+app.use('/update', requireAuth, updateRoutes);
+app.use('/logs', requireAuth, logsRoutes);
 
 const adminRoutes = require('./routes/admin');
 app.use('/admin', requireAuth, requireSuperAdmin, adminRoutes);

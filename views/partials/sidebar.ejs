@@ -42,6 +42,18 @@ var btnLabel = currentDeptName || __('sidebar.all');
         <span class="sidebar-text"><%= __('sidebar.upload') %></span>
       </a>
     </li>
+    <li class="nav-item">
+      <a href="/update" class="nav-link <%= isActive('/update') %>">
+        <i class="bi bi-pencil-square me-2 fs-5"></i>
+        <span class="sidebar-text"><%= __('sidebar.update') %></span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/logs" class="nav-link <%= isActive('/logs') %>">
+        <i class="bi bi-clock-history me-2 fs-5"></i>
+        <span class="sidebar-text"><%= __('sidebar.logs') %></span>
+      </a>
+    </li>
     <% } %>
     <li class="nav-item">
       <a href="/documents" class="nav-link <%= isActive('/documents') %>">

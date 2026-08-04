@@ -1,32 +1,37 @@
 const { pool } = require('../config/db');
 
+const ALLOWED_SORT = ['asset_id', 'tag_numbe', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'business_unit', 'created_at', 'updated_at'];
+
+function buildConditions({ search, categories, statuses, departments }) {
+  const conditions = [];
+  const params = [];
+  if (search) {
+    conditions.push(`(asset_id LIKE ? OR tag_numbe LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR model LIKE ? OR business_unit LIKE ?)`);
+    const s = `%${search}%`;
+    params.push(s, s, s, s, s, s, s, s, s, s);
+  }
+  if (categories && categories.length > 0) {
+    conditions.push(`category IN (${categories.map(() => '?').join(',')})`);
+    params.push(...categories);
+  }
+  if (statuses && statuses.length > 0) {
+    conditions.push(`asset_status IN (${statuses.map(() => '?').join(',')})`);
+    params.push(...statuses);
+  }
+  if (departments && departments.length > 0) {
+    conditions.push(`dept_name IN (${departments.map(() => '?').join(',')})`);
+    params.push(...departments);
+  }
+  return { conditions, params };
+}
+
 const Asset = {
   async getAll({ search, categories, statuses, departments, sortBy, order, page, limit }) {
     const offset = (page - 1) * limit;
-    const allowedSort = ['asset_id', 'tag_numbe', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'business_unit'];
-    const sort = allowedSort.includes(sortBy) ? sortBy : 'created_at';
+    const sort = ALLOWED_SORT.includes(sortBy) ? sortBy : 'created_at';
     const dir = order === 'ASC' ? 'ASC' : 'DESC';
 
-    const conditions = [];
-    const params = [];
-    if (search) {
-      conditions.push(`(asset_id LIKE ? OR tag_numbe LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR model LIKE ? OR business_unit LIKE ?)`);
-      const s = `%${search}%`;
-      params.push(s, s, s, s, s, s, s, s, s, s);
-    }
-    if (categories && categories.length > 0) {
-      conditions.push(`category IN (${categories.map(() => '?').join(',')})`);
-      params.push(...categories);
-    }
-    if (statuses && statuses.length > 0) {
-      conditions.push(`asset_status IN (${statuses.map(() => '?').join(',')})`);
-      params.push(...statuses);
-    }
-    if (departments && departments.length > 0) {
-      conditions.push(`dept_name IN (${departments.map(() => '?').join(',')})`);
-      params.push(...departments);
-    }
-
+    const { conditions, params } = buildConditions({ search, categories, statuses, departments });
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const countSql = `SELECT COUNT(*) as total FROM assets ${where}`;
@@ -39,6 +44,17 @@ const Asset = {
     const [rows] = await pool.query(sql, params);
 
     return { rows, total, page, totalPages: Math.ceil(total / limit) };
+  },
+
+  async getAllForExport({ search, categories, statuses, departments, sortBy, order }) {
+    const sort = ALLOWED_SORT.includes(sortBy) ? sortBy : 'asset_id';
+    const dir = order === 'ASC' ? 'ASC' : 'DESC';
+
+    const { conditions, params } = buildConditions({ search, categories, statuses, departments });
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const sql = `SELECT * FROM assets ${where} ORDER BY ${sort} ${dir}`;
+    const [rows] = await pool.query(sql, params);
+    return rows;
   },
 
   async getCategories() {
@@ -116,12 +132,20 @@ const Asset = {
     return rows[0] || null;
   },
 
+  async getByAssetIds(ids) {
+    if (!ids || ids.length === 0) return new Map();
+    const [rows] = await pool.query(`SELECT * FROM assets WHERE asset_id IN (${ids.map(() => '?').join(',')})`, ids);
+    const map = new Map();
+    rows.forEach(r => map.set(r.asset_id, r));
+    return map;
+  },
+
   async deleteAll() {
     const [result] = await pool.query('DELETE FROM assets');
     return result.affectedRows;
   },
 
-  async update(assetId, data) {
+  async update(assetId, data, updatedBy) {
     const fields = [];
     const params = [];
     for (const [key, value] of Object.entries(data)) {
@@ -129,6 +153,9 @@ const Asset = {
       params.push(value === '' ? null : value);
     }
     if (fields.length === 0) return 0;
+    fields.push('updated_at = NOW()');
+    fields.push('updated_by = ?');
+    params.push(updatedBy || null);
     params.push(assetId);
     const sql = `UPDATE assets SET ${fields.join(', ')} WHERE asset_id = ?`;
     const [result] = await pool.query(sql, params);
@@ -137,6 +164,13 @@ const Asset = {
 
   async deleteById(assetId) {
     const [result] = await pool.query('DELETE FROM assets WHERE asset_id = ?', [assetId]);
+    return result.affectedRows;
+  },
+
+  async bulkUpdateStatus(ids, status, updatedBy) {
+    if (!ids || ids.length === 0) return 0;
+    const sql = `UPDATE assets SET asset_status = ?, updated_at = NOW(), updated_by = ? WHERE asset_id IN (${ids.map(() => '?').join(',')})`;
+    const [result] = await pool.query(sql, [status, updatedBy || null, ...ids]);
     return result.affectedRows;
   }
 };

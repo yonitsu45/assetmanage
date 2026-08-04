@@ -19,6 +19,8 @@
     "all": "All",
     "dashboard": "Dashboard",
     "upload": "Upload",
+    "update": "Update",
+    "logs": "Logs",
     "documents": "Documents"
   },
   "dashboard": {
@@ -43,6 +45,23 @@
     "delete_confirm": "Delete asset %s?",
     "updated": "Asset updated",
     "deleted": "Asset deleted",
+    "qr": {
+      "title": "Asset QR Code",
+      "download": "Download",
+      "print": "Print Label",
+      "print_selected": "Print Selected"
+    },
+    "select_all": "Select all on page",
+    "select_hint": "Select assets to print their labels together",
+    "bulk_status_placeholder": "-- Select status --",
+    "bulk_status_apply": "Set Status",
+    "bulk_status_confirm_title": "Confirm Bulk Status Update",
+    "bulk_status_confirm": "Change status of %s selected asset(s) to \"%s\"?",
+    "bulk_status_done": "Updated status of %d assets",
+    "bulk_status_no_selection": "Please select at least one asset",
+    "bulk_status_no_status": "Please choose a status",
+    "bulk_status_failed": "Bulk status update failed",
+    "export_excel": "Export Excel",
     "table": {
       "asset_id": "Asset ID",
       "business_unit": "Business Unit",
@@ -61,6 +80,8 @@
       "asset_status": "Status",
       "x_asset_reason": "Reason",
       "x_agreement_id": "Agreement ID",
+      "uploaded_at": "Uploaded",
+      "modified_at": "Modified",
       "actions": "Actions"
     },
     "filter": {
@@ -78,6 +99,15 @@
       "next": "Next",
       "showing": "Showing %d of %d"
     }
+  },
+  "asset_detail": {
+    "title": "Asset Details",
+    "back": "Back to Dashboard",
+    "not_found": "Asset not found",
+    "info": "Asset Information",
+    "qr_title": "QR Code",
+    "download": "Download",
+    "print": "Print Label"
   },
   "documents": {
     "title": "Documents",
@@ -140,6 +170,52 @@
     "info_matched": "Matched to system columns",
     "info_not_found": "Not found in file",
     "info_first_row": "First row data"
+  },
+  "update": {
+    "title": "Update Assets",
+    "subtitle": "Upload a new Excel file to compare and update existing assets. Rows are matched by Asset ID. For matched rows you can choose which columns to overwrite. Rows with a new Asset ID will be added as new assets.",
+    "select_file": "Select Excel File (.xlsx / .xls)",
+    "drag_drop": "Drag & drop your file here",
+    "click_browse": "or click to browse",
+    "preview_btn": "Preview Changes",
+    "error_no_file": "Please select a file",
+    "error_session": "Your preview has expired. Please upload the file again.",
+    "error_apply": "Failed to apply changes",
+    "badge_changed": "Changed",
+    "badge_new": "New",
+    "badge_unchanged": "Unchanged",
+    "no_changes": "No changes found in this file.",
+    "col_column": "Column",
+    "col_old": "Old Value",
+    "col_new": "New Value",
+    "col_choice": "Choose",
+    "use_new": "Use new",
+    "keep_old": "Keep old",
+    "use_new_all": "Use new (all)",
+    "keep_old_all": "Keep old (all)",
+    "new_hint": "will be added as new assets",
+    "confirm_apply": "Apply Changes",
+    "cancel": "Cancel",
+    "empty": "(empty)",
+    "result_done": "Updated %d assets, added %d new assets",
+    "result_unchanged": "(%d skipped — no changes)"
+  },
+  "logs": {
+    "title": "Activity Logs",
+    "all_modules": "All modules",
+    "all_actions": "All actions",
+    "search_placeholder": "Search by user, target or details...",
+    "no_logs": "No activity recorded",
+    "previous": "Previous",
+    "next": "Next",
+    "table": {
+      "time": "Time",
+      "user": "User",
+      "module": "Module",
+      "action": "Action",
+      "target": "Target",
+      "details": "Details"
+    }
   },
   "auth": {
     "login_title": "Login",

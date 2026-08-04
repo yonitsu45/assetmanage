@@ -293,10 +293,60 @@ npm start
 
 ---
 
-## 12. Future Enhancements (Ideas)
-- User roles (admin, viewer)
-- Edit asset records inline
+## 12. Completed Work (Implemented)
+
+### 12.1 Localization (EN/TH)
+- Created `locales/en.json` + `locales/th.json` with all UI strings
+- Added `middleware/locale.js` — detects language from `req.session.lang` → `Accept-Language` → EN default
+- Added `GET /lang/:lang` route to switch language (stored in session)
+- Replaced all hardcoded strings in views/controllers with `__()` calls
+- Navbar language switcher dropdown (EN / ไทย)
+
+### 12.2 Role System & Permissions
+- Roles: `user`, `admin`, `super_admin`
+- Admin panel (`/admin`) restricted to `super_admin`
+- Dashboard edit/delete restricted to `super_admin` (admin cannot edit/delete assets directly)
+- Upload (file + manual) available to `admin` + `super_admin`
+
+### 12.3 Bug Fixes
+- Dark mode login/register footer text invisible → fixed via CSS `!important` rule
+- Super admin role reverted on restart → removed migration `UPDATE users SET role='super_admin'` from `config/db.js` `initDB()`
+- `req.__ is not a function` → locale middleware now sets both `req.__` and `res.locals.__`
+- Clear All Data button silent-fail → `__()` in `<script>` blocks must be wrapped with `<%= %>` in EJS
+
+### 12.4 Documents
+- PDF upload/download/view/delete with department tagging
+- Search, grid/list view
+
+---
+
+## 13. New Features (Implemented)
+
+### 13.1 Edit-by-Upload Page (`/update`) — admin + super_admin
+Flow:
+1. `GET /update` — upload form (same as Add Asset)
+2. `POST /update/preview` — parse Excel, compare against DB by `asset_id`:
+   - **matched + identical** → `unchanged` (auto-skip, shown as count)
+   - **matched + differences** → `changed` → comparison table per column (old vs new) with radio choice (use new / keep old) + row shortcuts
+   - **unmatched** → `new` → offered to insert as new asset (checkbox per row)
+   - Preview stored in `req.session.updatePreview`
+3. `POST /update/apply` — apply chosen columns / insert new rows → log → redirect to dashboard
+
+### 13.2 Activity Log Page (`/logs`) — admin + super_admin
+- Records: asset upload/update/create/delete/clear + document upload/delete
+- Table: time, user, module, action, target, details
+- Filters: module, action, search + pagination
+
+### 13.3 Schema Changes
+- `assets`: added `updated_at DATETIME`, `updated_by INT` (FK → users ON DELETE SET NULL)
+- New table `activity_logs`: `id, user_id, username, action, module, target, details TEXT, created_at`
+
+### 13.4 Dashboard Summary Card
+- Added card showing last upload (date + user) and last modification (date + user)
+
+---
+
+## 14. Future Enhancements (Ideas)
 - Export data to Excel
-- File history / audit log
 - Advanced filtering (multi-select, date range)
 - API endpoints for external integration

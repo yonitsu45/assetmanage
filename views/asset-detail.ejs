@@ -1,0 +1,125 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="d-flex position-relative">
+  <%- include('partials/sidebar') %>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-content flex-grow-1 p-4">
+    <% if (error) { %>
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i><%= error %>
+      </div>
+      <a href="/" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-1"></i><%= __('asset_detail.back') %></a>
+    <% } else { %>
+      <div class="d-flex align-items-center mb-4">
+        <a href="/" class="btn btn-outline-secondary btn-sm me-3"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="mb-0">
+          <i class="bi bi-box-seam me-2"></i><%= __('asset_detail.title') %>
+        </h4>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-8">
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+              <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i><%= __('asset_detail.info') %></h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-bordered-columns mb-0">
+                <tbody>
+                  <% [
+                    {k:'asset_id', v: asset.asset_id, l: __('dashboard.table.asset_id')},
+                    {k:'business_unit', v: asset.business_unit, l: __('dashboard.table.business_unit')},
+                    {k:'tag_numbe', v: asset.tag_numbe, l: __('dashboard.table.tag_numbe')},
+                    {k:'descr', v: asset.descr, l: __('dashboard.table.descr')},
+                    {k:'descr_long', v: asset.descr_long, l: __('dashboard.table.descr_long')},
+                    {k:'model', v: asset.model, l: __('dashboard.table.model')},
+                    {k:'plant', v: asset.plant, l: __('dashboard.table.plant')},
+                    {k:'serial_id', v: asset.serial_id, l: __('dashboard.table.serial_id')},
+                    {k:'vendor_id', v: asset.vendor_id, l: __('dashboard.table.vendor_id')},
+                    {k:'vendor_name', v: asset.vendor_name, l: __('dashboard.table.vendor_name')},
+                    {k:'deptid', v: asset.deptid, l: __('dashboard.table.deptid')},
+                    {k:'dept_name', v: asset.dept_name, l: __('dashboard.table.dept_name')},
+                    {k:'category', v: asset.category, l: __('dashboard.table.category')},
+                    {k:'x_asset_status', v: asset.x_asset_status, l: __('dashboard.table.x_asset_status')},
+                    {k:'asset_status', v: asset.asset_status, l: __('dashboard.table.asset_status')},
+                    {k:'x_asset_reason', v: asset.x_asset_reason, l: __('dashboard.table.x_asset_reason')},
+                    {k:'x_agreement_id', v: asset.x_agreement_id, l: __('dashboard.table.x_agreement_id')},
+                    {k:'uploaded_at', v: asset.created_at, l: __('dashboard.table.uploaded_at')},
+                    {k:'modified_at', v: asset.updated_at, l: __('dashboard.table.modified_at')}
+                  ].forEach(function(f) { %>
+                    <tr>
+                      <th class="text-nowrap" style="width:30%;"><%= f.l %></th>
+                      <td>
+                        <% if (f.k === 'uploaded_at' || f.k === 'modified_at') { %>
+                          <%= f.v ? new Date(f.v).toLocaleString() : '-' %>
+                        <% } else if (f.k === 'category') { %>
+                          <span class="badge bg-secondary"><%= f.v || '-' %></span>
+                        <% } else if (f.k === 'asset_status') { %>
+                          <span class="badge <%= (f.v || '').toLowerCase() === 'active' ? 'bg-success' : 'bg-secondary' %>"><%= f.v || '-' %></span>
+                        <% } else { %>
+                          <%= f.v || '-' %>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card shadow-sm text-center">
+            <div class="card-header bg-success text-white">
+              <h6 class="mb-0"><i class="bi bi-qr-code me-2"></i><%= __('asset_detail.qr_title') %></h6>
+            </div>
+            <div class="card-body">
+              <div id="qrContainer" class="d-inline-block p-2 border rounded bg-white"></div>
+              <div class="fw-bold mt-3"><%= asset.asset_id %></div>
+              <div class="text-muted small mb-3"><%= asset.descr || '' %></div>
+              <div class="d-flex justify-content-center gap-2">
+                <a id="qrDownload" class="btn btn-sm btn-success" download><i class="bi bi-download me-1"></i><%= __('asset_detail.download') %></a>
+                <button id="qrPrint" class="btn btn-sm btn-outline-secondary"><i class="bi bi-printer me-1"></i><%= __('asset_detail.print') %></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="/js/qr.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var container = document.getElementById('qrContainer');
+  if (!container) return;
+  renderQR(container, window.location.href, 220);
+
+  var dl = document.getElementById('qrDownload');
+  dl.addEventListener('click', function () {
+    if (container.dataset.qrUrl) {
+      dl.setAttribute('href', container.dataset.qrUrl);
+      dl.setAttribute('download', 'qr-<%= asset ? asset.asset_id : 'asset' %>.gif');
+    }
+  });
+
+  document.getElementById('qrPrint').addEventListener('click', function () {
+    printLabel({
+      qrUrl: container.dataset.qrUrl,
+      title: '<%= asset ? asset.asset_id : '' %>',
+      tag: '<%= asset ? asset.tag_numbe : '' %>',
+      descr: '<%= asset ? asset.descr : '' %>',
+      agreement: '<%= asset ? asset.x_agreement_id : '' %>',
+      vendor: '<%= asset ? asset.vendor_name : '' %>',
+      labelAgreement: '<%= __('dashboard.table.x_agreement_id') %>',
+      labelVendor: '<%= __('dashboard.table.vendor_name') %>'
+    });
+  });
+});
+</script>
+
+<%- include('partials/footer') %>

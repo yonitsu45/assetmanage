@@ -1,0 +1,210 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="d-flex position-relative">
+  <%- include('partials/sidebar') %>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-content flex-grow-1 p-4">
+    <h4 class="mb-4"><i class="bi bi-pencil-square me-2"></i><%= __('update.title') %></h4>
+
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+    <% if (result) { %>
+      <div class="alert alert-success">
+        <i class="bi bi-check-circle me-1"></i>
+        <%= __('update.result_done', result.updated, result.added) %>
+        <% if (result.unchanged > 0) { %> <span class="text-muted"><%= __('update.result_unchanged', result.unchanged) %></span><% } %>
+      </div>
+    <% } %>
+
+    <% if (step === 'form') { %>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="text-muted small mb-3"><%= __('update.subtitle') %></p>
+          <form action="/update/preview" method="POST" enctype="multipart/form-data">
+            <div class="mb-4">
+              <label class="form-label fw-bold"><%= __('update.select_file') %></label>
+              <div class="upload-zone border border-2 border-dashed rounded p-5 text-center" id="dropZone">
+                <i class="bi bi-file-earmark-excel display-4 text-primary"></i>
+                <p class="mt-3 mb-1 fw-bold"><%= __('update.drag_drop') %></p>
+                <p class="text-muted small"><%= __('update.click_browse') %></p>
+                <input type="file" name="file" id="fileInput" class="form-control d-none" accept=".xlsx,.xls">
+                <div id="fileName" class="mt-2 text-primary fw-bold d-none"></div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary px-4" id="uploadBtn" disabled>
+              <i class="bi bi-search me-1"></i> <%= __('update.preview_btn') %>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-body">
+          <h6><%= __('upload.expected_columns') %>:</h6>
+          <div class="row small text-muted">
+            <div class="col-md-4">BUSINESS_UNIT</div>
+            <div class="col-md-4">ASSET_ID</div>
+            <div class="col-md-4">TAG_NUMBE</div>
+            <div class="col-md-4">DESCR</div>
+            <div class="col-md-4">DESCR_LONG</div>
+            <div class="col-md-4">MODEL</div>
+            <div class="col-md-4">PLANT</div>
+            <div class="col-md-4">SERIAL_ID</div>
+            <div class="col-md-4">VENDOR_ID</div>
+            <div class="col-md-4">VENDOR_NAME</div>
+            <div class="col-md-4">DEPTID</div>
+            <div class="col-md-4">DEPT_NAME</div>
+            <div class="col-md-4">CATEGORY</div>
+            <div class="col-md-4">X_ASSET_STATUS</div>
+            <div class="col-md-4">ASSET_STATUS</div>
+            <div class="col-md-4">X_ASSET_REASON</div>
+            <div class="col-md-4">X_AGREEMENT_ID</div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (step === 'preview' && preview) { %>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-success"><%= __('update.badge_changed') %>: <%= preview.changed.length %></span>
+        <span class="badge bg-primary"><%= __('update.badge_new') %>: <%= preview.toCreate.length %></span>
+        <span class="badge bg-secondary"><%= __('update.badge_unchanged') %>: <%= preview.unchanged.length %></span>
+        <span class="ms-auto text-muted small"><i class="bi bi-file-earmark-excel me-1"></i><%= preview.filename %></span>
+      </div>
+
+      <form method="POST" action="/update/apply">
+        <% if (preview.changed.length === 0 && preview.toCreate.length === 0) { %>
+          <div class="alert alert-info"><%= __('update.no_changes') %></div>
+        <% } %>
+
+        <% preview.changed.forEach(function(item) { %>
+        <div class="card mb-3">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <strong><i class="bi bi-arrow-repeat me-1"></i><%= __('update.badge_changed') %>: <%= item.assetId %></strong>
+            <div>
+              <button type="button" class="btn btn-sm btn-outline-success use-new-all" data-key="<%= item.key %>"><%= __('update.use_new_all') %></button>
+              <button type="button" class="btn btn-sm btn-outline-secondary keep-old-all" data-key="<%= item.key %>"><%= __('update.keep_old_all') %></button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered-columns mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width:20%;"><%= __('update.col_column') %></th>
+                    <th style="width:30%;"><%= __('update.col_old') %></th>
+                    <th style="width:30%;"><%= __('update.col_new') %></th>
+                    <th style="width:20%;"><%= __('update.col_choice') %></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% item.diff.forEach(function(d) { %>
+                  <tr>
+                    <td><%= __(d.labelKey) %></td>
+                    <td class="text-muted small"><%= d.old !== null && d.old !== '' ? d.old : __('update.empty') %></td>
+                    <td class="small <%= (d.new === null || d.new === '') ? 'text-danger' : 'text-success' %>">
+                      <%= d.new !== null && d.new !== '' ? d.new : __('update.empty') %>
+                    </td>
+                    <td>
+                      <select name="choice_<%= item.key %>_<%= d.col %>" class="form-select form-select-sm col-choice">
+                        <option value="new" selected><%= __('update.use_new') %></option>
+                        <option value="old"><%= __('update.keep_old') %></option>
+                      </select>
+                    </td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+
+        <% if (preview.toCreate.length > 0) { %>
+        <div class="card mb-3">
+          <div class="card-header"><strong><i class="bi bi-plus-circle me-1"></i><%= __('update.badge_new') %> — <%= __('update.new_hint') %></strong></div>
+          <div class="card-body">
+            <% preview.toCreate.forEach(function(item) { %>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="include_<%= item.key %>" value="1" id="inc_<%= item.key %>" checked>
+              <label class="form-check-label" for="inc_<%= item.key %>">
+                <code><%= item.assetId %></code>
+                <% if (item.row.descr) { %>— <%= item.row.descr %><% } %>
+                <% if (item.row.dept_name) { %><span class="badge bg-info-subtle text-info-emphasis ms-1"><%= item.row.dept_name %></span><% } %>
+              </label>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+        <% } %>
+
+        <div class="d-flex gap-2 mb-2">
+          <button type="submit" class="btn btn-success px-4">
+            <i class="bi bi-check-lg me-1"></i> <%= __('update.confirm_apply') %>
+          </button>
+        </div>
+      </form>
+
+      <form method="POST" action="/update/cancel" class="d-inline">
+        <button type="submit" class="btn btn-outline-secondary px-4">
+          <i class="bi bi-x-lg me-1"></i> <%= __('update.cancel') %>
+        </button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<% if (step === 'form') { %>
+<script>
+document.getElementById('dropZone').addEventListener('click', function() {
+  document.getElementById('fileInput').click();
+});
+document.getElementById('dropZone').addEventListener('dragover', function(e) {
+  e.preventDefault();
+  this.classList.add('border-primary');
+});
+document.getElementById('dropZone').addEventListener('dragleave', function(e) {
+  e.preventDefault();
+  this.classList.remove('border-primary');
+});
+document.getElementById('dropZone').addEventListener('drop', function(e) {
+  e.preventDefault();
+  this.classList.remove('border-primary');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('fileInput').files = files;
+    handleFile(files[0].name);
+  }
+});
+document.getElementById('fileInput').addEventListener('change', function() {
+  if (this.files.length > 0) handleFile(this.files[0].name);
+});
+function handleFile(name) {
+  document.getElementById('fileName').textContent = "<%= __('upload.selected') %>: " + name;
+  document.getElementById('fileName').classList.remove('d-none');
+  document.getElementById('uploadBtn').disabled = false;
+}
+</script>
+<% } %>
+
+<% if (step === 'preview') { %>
+<script>
+document.querySelectorAll('.use-new-all').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const key = btn.getAttribute('data-key');
+    document.querySelectorAll('select[name^="choice_' + key + '_"]').forEach(function(s) { s.value = 'new'; });
+  });
+});
+document.querySelectorAll('.keep-old-all').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const key = btn.getAttribute('data-key');
+    document.querySelectorAll('select[name^="choice_' + key + '_"]').forEach(function(s) { s.value = 'old'; });
+  });
+});
+</script>
+<% } %>
+
+<%- include('partials/footer') %>

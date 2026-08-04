@@ -86,6 +86,25 @@ const initDB = async () => {
   try { await pool.query(`ALTER TABLE assets ADD COLUMN uploaded_by INT AFTER x_agreement_id`); } catch (e) {}
   try { await pool.query(`ALTER TABLE assets ADD FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL`); } catch (e) {}
 
+  try { await pool.query(`ALTER TABLE assets ADD COLUMN updated_at DATETIME AFTER uploaded_by`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD COLUMN updated_by INT AFTER updated_at`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL`); } catch (e) {}
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      username VARCHAR(100),
+      action VARCHAR(50),
+      module VARCHAR(20),
+      target VARCHAR(255),
+      details TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_module (module),
+      INDEX idx_action (action),
+      INDEX idx_created_at (created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS documents (
