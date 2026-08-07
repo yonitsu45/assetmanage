@@ -31,7 +31,9 @@
                   <% [
                     {k:'asset_id', v: asset.asset_id, l: __('dashboard.table.asset_id')},
                     {k:'business_unit', v: asset.business_unit, l: __('dashboard.table.business_unit')},
-                    {k:'tag_numbe', v: asset.tag_numbe, l: __('dashboard.table.tag_numbe')},
+                    {k:'tag_number', v: asset.tag_number, l: __('dashboard.table.tag_number')},
+                    {k:'serial_number_asset', v: asset.serial_number_asset, l: __('dashboard.table.serial_number_asset')},
+                    {k:'tag_number_extend', v: asset.tag_number_extend, l: __('dashboard.table.tag_number_extend')},
                     {k:'descr', v: asset.descr, l: __('dashboard.table.descr')},
                     {k:'descr_long', v: asset.descr_long, l: __('dashboard.table.descr_long')},
                     {k:'model', v: asset.model, l: __('dashboard.table.model')},
@@ -42,6 +44,7 @@
                     {k:'deptid', v: asset.deptid, l: __('dashboard.table.deptid')},
                     {k:'dept_name', v: asset.dept_name, l: __('dashboard.table.dept_name')},
                     {k:'category', v: asset.category, l: __('dashboard.table.category')},
+                    {k:'category_name', v: asset.category_name, l: __('dashboard.table.category_name')},
                     {k:'x_asset_status', v: asset.x_asset_status, l: __('dashboard.table.x_asset_status')},
                     {k:'asset_status', v: asset.asset_status, l: __('dashboard.table.asset_status')},
                     {k:'x_asset_reason', v: asset.x_asset_reason, l: __('dashboard.table.x_asset_reason')},
@@ -87,6 +90,41 @@
           </div>
         </div>
       </div>
+
+      <div class="card shadow-sm mt-4">
+        <div class="card-header bg-dark text-white">
+          <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i><%= __('asset_detail.transfer_history') %></h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th><%= __('transfer.col_from') %></th>
+                  <th><%= __('transfer.col_to') %></th>
+                  <th><%= __('transfer.col_by') %></th>
+                  <th><%= __('transfer.col_at') %></th>
+                  <th><%= __('transfer.col_note') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!history || history.length === 0) { %>
+                  <tr><td colspan="5" class="text-center text-muted py-4"><%= __('transfer.no_history') %></td></tr>
+                <% } %>
+                <% (history || []).forEach(function(t) { %>
+                <tr>
+                  <td class="small"><%= t.from_dept || '-' %></td>
+                  <td class="small"><span class="badge bg-primary"><%= t.to_dept || '-' %></span></td>
+                  <td class="small"><%= t.transferred_by_name || '-' %></td>
+                  <td class="small text-nowrap"><%= new Date(t.transferred_at).toLocaleString() %></td>
+                  <td class="small text-muted"><%= t.note || '' %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     <% } %>
   </div>
 </div>
@@ -111,12 +149,12 @@ document.addEventListener('DOMContentLoaded', function () {
     printLabel({
       qrUrl: container.dataset.qrUrl,
       title: '<%= asset ? asset.asset_id : '' %>',
-      tag: '<%= asset ? asset.tag_numbe : '' %>',
+      tag: '<%= asset ? asset.tag_number : '' %>',
       descr: '<%= asset ? asset.descr : '' %>',
       agreement: '<%= asset ? asset.x_agreement_id : '' %>',
       vendor: '<%= asset ? asset.vendor_name : '' %>',
-      labelAgreement: '<%= __('dashboard.table.x_agreement_id') %>',
-      labelVendor: '<%= __('dashboard.table.vendor_name') %>'
+      labelAgreement: <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>,
+      labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>
     });
   });
 });

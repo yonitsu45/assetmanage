@@ -187,9 +187,24 @@ body {
   padding: 8px 12px;
   font-size: 0.85rem;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dept-dropdown-btn .sidebar-text {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: calc(100% - 30px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .dept-dropdown-btn:hover {
   background: var(--sidebar-active-bg);
+}
+.sidebar .dropdown-menu {
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
 }
 
 /* ─── Main ─── */
@@ -223,6 +238,9 @@ body {
 .table-responsive .table {
   min-width: 1600px;
   margin-bottom: 0;
+}
+.table-responsive .asset-table {
+  min-width: 1900px;
 }
 .table-responsive .table,
 .table-responsive .table tbody,
@@ -291,6 +309,21 @@ body {
 .table-dark {
   --bs-table-bg: var(--table-header-bg);
   --bs-table-color: var(--table-header-text);
+}
+
+/* Scrollable department list with sticky header */
+.dept-scroll {
+  max-height: 420px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.dept-scroll .table {
+  min-width: 0;
+}
+.dept-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 /* ─── Forms ─── */
@@ -423,6 +456,9 @@ body {
   color: var(--dropdown-text);
   border-radius: 8px;
   padding: 8px 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .dropdown-menu .dropdown-item:hover {
   background: var(--dropdown-hover);
@@ -588,6 +624,9 @@ hr {
 }
 .dark-mode .card-body p {
   color: var(--text-color) !important;
+}
+.dark-mode .card-title {
+  color: var(--text-color);
 }
 .dark-mode .card-body p a {
   color: var(--primary-hover);

@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const Asset = require('../models/asset');
 const ActivityLog = require('../models/activityLog');
-const { ALL_COLUMNS, parseAssetExcel } = require('../helpers/excelParser');
+const { ALL_COLUMNS, parseAssetExcel, getMissingRequired } = require('../helpers/excelParser');
 
 const mapFormRow = (body) => {
   const r = {};
@@ -35,7 +35,18 @@ const uploadController = {
 
       const { rows, matchedCols, sheetName, sheetRef, headerRow } = parsed;
 
-      const { inserted, skipped } = await Asset.bulkInsert(rows, req.session.userId);
+      const validRows = [];
+      const invalidRows = [];
+      for (const r of rows) {
+        const missing = getMissingRequired(r);
+        if (missing.length === 0) {
+          validRows.push(r);
+        } else {
+          invalidRows.push({ asset_id: r.asset_id, missing });
+        }
+      }
+
+      const { inserted, skipped } = await Asset.bulkInsert(validRows, req.session.userId);
 
       if (inserted > 0) {
         await ActivityLog.create({
@@ -44,39 +55,27 @@ const uploadController = {
           action: 'upload',
           module: 'asset',
           target: req.file.originalname,
-          details: JSON.stringify({ inserted, skipped, rows: rows.length })
+          details: JSON.stringify({ inserted, skipped, rows: rows.length, invalidRows: invalidRows.length })
         });
       }
 
-      const rawHeaders = headerRow.length === 0 ? '(no headers)' : headerRow.map((c, i) => `[${i}] ${c || '(blank)'}`).join(' | ');
-      const mappedNames = matchedCols.length > 0 ? matchedCols.join(', ') : '(none)';
-      const unmapped = ALL_COLUMNS.filter(col => !matchedCols.includes(col)).join(', ');
-      let sampleRow = '';
-      if (rows.length > 0) {
-        const r = rows[0];
-        const sampleParts = [];
-        for (const col of ALL_COLUMNS) {
-          const val = r[col.toLowerCase()];
-          sampleParts.push(`${col}=${val !== null ? val : '(empty)'}`);
-        }
-        sampleRow = sampleParts.join(', ');
-      }
-
-      const colCount = headerRow.length;
-      let resultMsg = req.__('upload.result_imported', inserted, rows.length);
-      const isWarning = inserted === 0 && skipped > 0;
+      let resultMsg = req.__('upload.result_imported', inserted, validRows.length);
+      const isWarning = inserted === 0 && (skipped > 0 || invalidRows.length > 0);
       if (skipped > 0) resultMsg += ' ' + req.__('upload.result_skipped', skipped);
+      if (invalidRows.length > 0) resultMsg += ' ' + req.__('upload.result_skipped_required', invalidRows.length);
+
+      const missingSummary = {};
+      invalidRows.forEach(r => r.missing.forEach(m => {
+        missingSummary[m] = (missingSummary[m] || 0) + 1;
+      }));
 
       res.render('upload', {
         result: resultMsg,
-        isWarning: inserted === 0 && skipped > 0,
-        info: {
-          sheetRef: `${sheetName}: ${sheetRef}`,
-          colCount,
-          rawHeaders,
-          mapped: mappedNames,
-          unmapped: unmapped || '(none - all matched)',
-          sample: sampleRow
+        isWarning,
+        invalid: {
+          rows: invalidRows,
+          summary: missingSummary,
+          sample: invalidRows.slice(0, 3).map(r => `${r.asset_id || '(no id)'} (${r.missing.join(', ')})`)
         },
         error: null
       });
@@ -94,12 +93,19 @@ const uploadController = {
     }
     try {
       const row = mapFormRow(req.body);
+      const missing = getMissingRequired(row);
+      if (missing.length > 0) {
+        return res.render('upload', {
+          result: req.__('upload.error_missing_required', missing.join(', ')),
+          isWarning: true,
+          error: null
+        });
+      }
       const { inserted } = await Asset.bulkInsert([row], req.session.userId);
       if (inserted === 0) {
         return res.render('upload', {
           result: req.__('upload.result_duplicate', row.asset_id),
           isWarning: true,
-          info: null,
           error: null
         });
       }
@@ -113,13 +119,12 @@ const uploadController = {
       });
       res.render('upload', {
         result: req.__('upload.result_added'),
-        info: null,
         error: null,
         isWarning: false
       });
     } catch (err) {
       console.error('Manual entry error:', err);
-      res.render('upload', { result: null, error: req.__('upload.error_process', err.message), info: null, isWarning: false });
+      res.render('upload', { result: null, error: req.__('upload.error_process', err.message), isWarning: false });
     }
   }
 };

@@ -13,11 +13,15 @@ var btnLabel = currentDeptName || __('sidebar.all');
       <button class="dept-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bi bi-funnel me-1"></i> <span class="sidebar-text"><%= btnLabel %></span>
       </button>
-      <ul class="dropdown-menu shadow-sm w-100">
+      <ul class="dropdown-menu shadow-sm w-100" id="deptDropdownMenu">
+        <li class="px-2 pt-2 pb-1">
+          <input type="search" id="deptFilterInput" class="form-control form-control-sm" placeholder="<%= __('sidebar.search_dept') %>" autocomplete="off">
+        </li>
+        <li class="dept-no-match d-none"><span class="dropdown-item-text small text-muted"><%= __('sidebar.no_dept_match') %></span></li>
         <li><a class="dropdown-item<% if (!btnLabel) { %> active<% } %>" href="<%= isDocuments ? '/documents' : '/' %>"><i class="bi bi-globe me-2"></i><%= __('sidebar.all') %></a></li>
         <li><hr class="dropdown-divider"></li>
         <% (deptList || []).forEach(function(d) { %>
-        <li><a class="dropdown-item<% if (d.name === currentDeptName) { %> active<% } %>" href="<%= isDocuments ? '/documents?dept=' + encodeURIComponent(d.name) : '/?departments=' + encodeURIComponent(d.name) %>"><i class="bi bi-building me-2"></i><%= d.name %></a></li>
+        <li class="dept-item"><a class="dropdown-item<% if (d.name === currentDeptName) { %> active<% } %>" href="<%= isDocuments ? '/documents?dept=' + encodeURIComponent(d.name) : '/?departments=' + encodeURIComponent(d.name) %>"><i class="bi bi-building me-2"></i><%= d.name %></a></li>
         <% }); %>
       </ul>
     </div>
@@ -46,6 +50,12 @@ var btnLabel = currentDeptName || __('sidebar.all');
       <a href="/update" class="nav-link <%= isActive('/update') %>">
         <i class="bi bi-pencil-square me-2 fs-5"></i>
         <span class="sidebar-text"><%= __('sidebar.update') %></span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/transfer" class="nav-link <%= isActive('/transfer') %>">
+        <i class="bi bi-arrow-left-right me-2 fs-5"></i>
+        <span class="sidebar-text"><%= __('sidebar.transfer') %></span>
       </a>
     </li>
     <li class="nav-item">

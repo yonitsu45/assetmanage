@@ -16,18 +16,19 @@
     <% } %>
     <% if (result) { %>
       <div class="alert <%= isWarning ? 'alert-warning' : 'alert-success' %>"><%= result %></div>
-      <% if (info) { %>
-        <div class="card mb-3 bg-light">
-          <div class="card-body small" style="font-family:monospace; word-break:break-all;">
-            <p class="mb-1"><strong><%= __('upload.info_sheet') %>:</strong> <%= info.sheetRef %> | <strong><%= __('upload.info_columns_found') %>:</strong> <%= info.colCount %></p>
-            <p class="mb-1"><strong><%= __('upload.info_headers') %>:</strong></p>
-            <p class="mb-2"><%= info.rawHeaders %></p>
-            <p class="mb-1"><strong><%= __('upload.info_matched') %>:</strong> <%= info.mapped %></p>
-            <p class="mb-1"><strong><%= __('upload.info_not_found') %>:</strong> <%= info.unmapped %></p>
-            <p class="mb-0"><strong><%= __('upload.info_first_row') %>:</strong> <%= info.sample %></p>
-          </div>
-        </div>
-      <% } %>
+    <% } %>
+    <% if (typeof invalid !== 'undefined' && invalid && invalid.rows.length > 0) { %>
+      <div class="alert alert-warning">
+        <strong><i class="bi bi-exclamation-triangle me-1"></i><%= __('upload.result_skipped_required', invalid.rows.length) %></strong>
+        <ul class="mb-1 mt-1">
+          <% Object.keys(invalid.summary).forEach(function(m) { %>
+            <li><%= m %>: <%= invalid.summary[m] %></li>
+          <% }); %>
+        </ul>
+        <% if (invalid.sample.length > 0) { %>
+          <p class="mb-0 small text-muted"><%= __('upload.invalid_sample') %>: <%= invalid.sample.join(' | ') %></p>
+        <% } %>
+      </div>
     <% } %>
 
     <ul class="nav nav-tabs mb-3" id="uploadTabs" role="tablist">
@@ -76,20 +77,28 @@
             <form action="/upload/manual" method="POST">
               <div class="row g-3">
                 <div class="col-md-4">
-                  <label class="form-label">BUSINESS_UNIT</label>
-                  <input type="text" name="business_unit" class="form-control form-control-sm">
+                  <label class="form-label">BUSINESS_UNIT <span class="text-danger">*</span></label>
+                  <input type="text" name="business_unit" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">ASSET_ID <span class="text-danger">*</span></label>
                   <input type="text" name="asset_id" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">TAG_NUMBE</label>
-                  <input type="text" name="tag_numbe" class="form-control form-control-sm">
+                  <label class="form-label">TAG_NUMBER <span class="text-danger">*</span></label>
+                  <input type="text" name="tag_number" class="form-control form-control-sm" required>
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label">DESCR</label>
-                  <input type="text" name="descr" class="form-control form-control-sm">
+                <div class="col-md-4">
+                  <label class="form-label">SERIAL_NUMBER_ASSET <span class="text-danger">*</span></label>
+                  <input type="text" name="serial_number_asset" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">TAG_NUMBER_EXTEND <span class="text-danger">*</span></label>
+                  <input type="text" name="tag_number_extend" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">DESCR <span class="text-danger">*</span></label>
+                  <input type="text" name="descr" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">DESCR_LONG</label>
@@ -108,40 +117,44 @@
                   <input type="text" name="serial_id" class="form-control form-control-sm">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">VENDOR_ID</label>
-                  <input type="text" name="vendor_id" class="form-control form-control-sm">
+                  <label class="form-label">VENDOR_ID <span class="text-danger">*</span></label>
+                  <input type="text" name="vendor_id" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">VENDOR_NAME</label>
-                  <input type="text" name="vendor_name" class="form-control form-control-sm">
+                  <label class="form-label">VENDOR_NAME <span class="text-danger">*</span></label>
+                  <input type="text" name="vendor_name" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-2">
-                  <label class="form-label">DEPTID</label>
-                  <input type="text" name="deptid" class="form-control form-control-sm">
+                  <label class="form-label">DEPTID <span class="text-danger">*</span></label>
+                  <input type="text" name="deptid" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">DEPT_NAME</label>
-                  <input type="text" name="dept_name" class="form-control form-control-sm">
+                  <label class="form-label">DEPT_NAME <span class="text-danger">*</span></label>
+                  <input type="text" name="dept_name" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">CATEGORY</label>
-                  <input type="text" name="category" class="form-control form-control-sm">
+                  <label class="form-label">CATEGORY <span class="text-danger">*</span></label>
+                  <input type="text" name="category" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-2">
-                  <label class="form-label">X_ASSET_STATUS</label>
-                  <input type="text" name="x_asset_status" class="form-control form-control-sm">
+                  <label class="form-label">CATEGORY_NAME <span class="text-danger">*</span></label>
+                  <input type="text" name="category_name" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">X_ASSET_STATUS <span class="text-danger">*</span></label>
+                  <input type="text" name="x_asset_status" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">ASSET_STATUS</label>
-                  <input type="text" name="asset_status" class="form-control form-control-sm">
+                  <label class="form-label">ASSET_STATUS <span class="text-danger">*</span></label>
+                  <input type="text" name="asset_status" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">X_ASSET_REASON</label>
                   <input type="text" name="x_asset_reason" class="form-control form-control-sm">
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">X_AGREEMENT_ID</label>
-                  <input type="text" name="x_agreement_id" class="form-control form-control-sm">
+                  <label class="form-label">X_AGREEMENT_ID <span class="text-danger">*</span></label>
+                  <input type="text" name="x_agreement_id" class="form-control form-control-sm" required>
                 </div>
               </div>
               <div class="mt-4">
@@ -159,23 +172,26 @@
       <div class="card-body">
         <h6><%= __('upload.expected_columns') %>:</h6>
         <div class="row small text-muted">
-          <div class="col-md-4">BUSINESS_UNIT</div>
-          <div class="col-md-4">ASSET_ID</div>
-          <div class="col-md-4">TAG_NUMBE</div>
-          <div class="col-md-4">DESCR</div>
+          <div class="col-md-4">BUSINESS_UNIT *</div>
+          <div class="col-md-4">ASSET_ID *</div>
+          <div class="col-md-4">TAG_NUMBER *</div>
+          <div class="col-md-4">SERIAL_NUMBER_ASSET *</div>
+          <div class="col-md-4">TAG_NUMBER_EXTEND *</div>
+          <div class="col-md-4">DESCR *</div>
           <div class="col-md-4">DESCR_LONG</div>
           <div class="col-md-4">MODEL</div>
           <div class="col-md-4">PLANT</div>
           <div class="col-md-4">SERIAL_ID</div>
-          <div class="col-md-4">VENDOR_ID</div>
-          <div class="col-md-4">VENDOR_NAME</div>
-          <div class="col-md-4">DEPTID</div>
-          <div class="col-md-4">DEPT_NAME</div>
-          <div class="col-md-4">CATEGORY</div>
-          <div class="col-md-4">X_ASSET_STATUS</div>
-          <div class="col-md-4">ASSET_STATUS</div>
+          <div class="col-md-4">VENDOR_ID *</div>
+          <div class="col-md-4">VENDOR_NAME *</div>
+          <div class="col-md-4">DEPTID *</div>
+          <div class="col-md-4">DEPT_NAME *</div>
+          <div class="col-md-4">CATEGORY *</div>
+          <div class="col-md-4">CATEGORY_NAME *</div>
+          <div class="col-md-4">X_ASSET_STATUS *</div>
+          <div class="col-md-4">ASSET_STATUS *</div>
           <div class="col-md-4">X_ASSET_REASON</div>
-          <div class="col-md-4">X_AGREEMENT_ID</div>
+          <div class="col-md-4">X_AGREEMENT_ID *</div>
         </div>
       </div>
     </div>
@@ -214,7 +230,7 @@ document.getElementById('fileInput').addEventListener('change', function() {
 });
 
 function handleFile(name) {
-  document.getElementById('fileName').textContent = "<%= __('upload.selected') %>: " + name;
+  document.getElementById('fileName').textContent = <%- JSON.stringify(__('upload.selected')) %> + ": " + name;
   document.getElementById('fileName').classList.remove('d-none');
   document.getElementById('uploadBtn').disabled = false;
 }

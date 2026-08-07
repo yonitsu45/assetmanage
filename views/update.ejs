@@ -47,7 +47,9 @@
           <div class="row small text-muted">
             <div class="col-md-4">BUSINESS_UNIT</div>
             <div class="col-md-4">ASSET_ID</div>
-            <div class="col-md-4">TAG_NUMBE</div>
+            <div class="col-md-4">TAG_NUMBER</div>
+            <div class="col-md-4">SERIAL_NUMBER_ASSET</div>
+            <div class="col-md-4">TAG_NUMBER_EXTEND</div>
             <div class="col-md-4">DESCR</div>
             <div class="col-md-4">DESCR_LONG</div>
             <div class="col-md-4">MODEL</div>
@@ -58,6 +60,7 @@
             <div class="col-md-4">DEPTID</div>
             <div class="col-md-4">DEPT_NAME</div>
             <div class="col-md-4">CATEGORY</div>
+            <div class="col-md-4">CATEGORY_NAME</div>
             <div class="col-md-4">X_ASSET_STATUS</div>
             <div class="col-md-4">ASSET_STATUS</div>
             <div class="col-md-4">X_ASSET_REASON</div>
@@ -183,7 +186,7 @@ document.getElementById('fileInput').addEventListener('change', function() {
   if (this.files.length > 0) handleFile(this.files[0].name);
 });
 function handleFile(name) {
-  document.getElementById('fileName').textContent = "<%= __('upload.selected') %>: " + name;
+  document.getElementById('fileName').textContent = <%- JSON.stringify(__('upload.selected')) %> + ": " + name;
   document.getElementById('fileName').classList.remove('d-none');
   document.getElementById('uploadBtn').disabled = false;
 }

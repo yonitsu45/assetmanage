@@ -12,6 +12,10 @@
       <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
+    <% if (userDeptEmpty) { %>
+      <div class="alert alert-warning"><%= __('documents.no_department') %></div>
+    <% } %>
+
     <%
       var qBase = '';
       if (searchKeyword) qBase += '&search=' + encodeURIComponent(searchKeyword);
@@ -46,7 +50,15 @@
       </div>
 
       <div class="ms-auto">
-        <form action="/documents/upload<%= qUpload ? '?' + qUpload.slice(1) : '' %>" method="POST" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
+        <form id="uploadForm" action="/documents/upload<%= qUpload ? '?' + qUpload.slice(1) : '' %>" method="POST" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
+          <% if (userRole === 'super_admin') { %>
+            <select id="uploadDept" class="form-select form-select-sm" required style="max-width:200px;">
+              <option value="" disabled <%= currentDept ? '' : 'selected' %>><%= __('documents.select_dept') %></option>
+              <% departments.forEach(function(d) { %>
+                <option value="<%= d.name %>" <%= d.name === currentDept ? 'selected' : '' %>><%= d.name %></option>
+              <% }); %>
+            </select>
+          <% } %>
           <input type="file" name="file" class="form-control form-control-sm" accept=".pdf" required style="max-width:220px;">
           <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-cloud-upload me-1"></i> <%= __('documents.upload') %></button>
         </form>
@@ -183,6 +195,16 @@
 
   if (toggleGrid) toggleGrid.addEventListener('click', function(e) { e.preventDefault(); setView('grid'); });
   if (toggleList) toggleList.addEventListener('click', function(e) { e.preventDefault(); setView('list'); });
+
+  var uploadForm = document.getElementById('uploadForm');
+  var uploadDept = document.getElementById('uploadDept');
+  if (uploadForm && uploadDept) {
+    uploadForm.addEventListener('submit', function() {
+      var u = new URL(uploadForm.action, window.location.origin);
+      if (uploadDept.value) u.searchParams.set('dept', uploadDept.value);
+      uploadForm.action = u.pathname + u.search;
+    });
+  }
 
   setView(view);
 })();

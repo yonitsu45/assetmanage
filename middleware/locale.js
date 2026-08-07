@@ -31,8 +31,7 @@ function t(lang, key, ...args) {
   }
   if (typeof val === 'string') {
     let i = 0;
-    return val.replace(/%s/g, () => args[i++] !== undefined ? args[i - 1] : '%s')
-              .replace(/%d/g, () => args[i++] !== undefined ? args[i - 1] : '%d');
+    return val.replace(/%s|%d/g, (m) => args[i] !== undefined ? args[i++] : m);
   }
   return key;
 }

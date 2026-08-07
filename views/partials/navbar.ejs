@@ -121,9 +121,9 @@
 
   var params = new URLSearchParams(window.location.search);
   var msg = null;
-  if (params.get('profile_success')) msg = { type: 'success', text: "<%= __('nav.profile_updated') %>" };
-  else if (params.get('profile_error') === 'username_taken') msg = { type: 'danger', text: "<%= __('nav.username_taken') %>" };
-  else if (params.get('profile_error') === 'update_failed') msg = { type: 'danger', text: "<%= __('nav.update_failed') %>" };
+  if (params.get('profile_success')) msg = { type: 'success', text: <%- JSON.stringify(__('nav.profile_updated')) %> };
+  else if (params.get('profile_error') === 'username_taken') msg = { type: 'danger', text: <%- JSON.stringify(__('nav.username_taken')) %> };
+  else if (params.get('profile_error') === 'update_failed') msg = { type: 'danger', text: <%- JSON.stringify(__('nav.update_failed')) %> };
   if (msg) {
     var alert = document.createElement('div');
     alert.className = 'alert alert-' + msg.type + ' alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-2 z-3 py-2 px-4';

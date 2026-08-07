@@ -18,6 +18,8 @@
       <div class="alert alert-success"><%= __('admin.success_dept_added') %></div>
     <% } else if (reqQuery.success === 'dept_deleted') { %>
       <div class="alert alert-success"><%= __('admin.success_dept_deleted') %></div>
+    <% } else if (reqQuery.success === 'dept_imported') { %>
+      <div class="alert alert-success"><%= __('admin.success_dept_imported', reqQuery.inserted || 0, reqQuery.updated || 0, reqQuery.skippedRows || 0, reqQuery.skippedSheets || 0) %></div>
     <% } else if (reqQuery.error === 'edit_failed') { %>
       <div class="alert alert-danger"><%= __('admin.error_edit_failed') %></div>
     <% } else if (reqQuery.error === 'cannot_change_own_role') { %>
@@ -40,6 +42,46 @@
       <div class="alert alert-danger"><%= __('admin.error_dept_add_failed') %></div>
     <% } else if (reqQuery.error === 'dept_delete_failed') { %>
       <div class="alert alert-danger"><%= __('admin.error_dept_delete_failed') %></div>
+    <% } else if (reqQuery.error === 'dept_costcenter_exists') { %>
+      <div class="alert alert-warning"><%= __('admin.error_dept_costcenter_exists') %></div>
+    <% } else if (reqQuery.error === 'dept_file_required') { %>
+      <div class="alert alert-warning"><%= __('admin.error_dept_file_required') %></div>
+    <% } else if (reqQuery.error === 'dept_no_valid_rows') { %>
+      <div class="alert alert-warning"><%= __('admin.error_dept_no_valid_rows') %></div>
+    <% } else if (reqQuery.error === 'dept_bad_file') { %>
+      <div class="alert alert-danger"><%= __('admin.error_dept_bad_file') %></div>
+    <% } else if (reqQuery.error === 'dept_file_too_large') { %>
+      <div class="alert alert-danger"><%= __('admin.error_dept_file_too_large') %></div>
+    <% } else if (reqQuery.error === 'dept_import_failed') { %>
+      <div class="alert alert-danger"><%= __('admin.error_dept_import_failed') %></div>
+    <% } else if (reqQuery.success === 'cat_added') { %>
+      <div class="alert alert-success"><%= __('admin.success_category_added') %></div>
+    <% } else if (reqQuery.success === 'cat_deleted') { %>
+      <div class="alert alert-success"><%= __('admin.success_category_deleted') %></div>
+    <% } else if (reqQuery.success === 'cat_imported') { %>
+      <div class="alert alert-success"><%= __('admin.success_category_imported', reqQuery.inserted || 0, reqQuery.updated || 0, reqQuery.skippedRows || 0, reqQuery.skippedSheets || 0) %></div>
+    <% } else if (reqQuery.error === 'cat_code_required') { %>
+      <div class="alert alert-warning"><%= __('admin.error_category_code_required') %></div>
+    <% } else if (reqQuery.error === 'cat_name_required') { %>
+      <div class="alert alert-warning"><%= __('admin.error_category_name_required') %></div>
+    <% } else if (reqQuery.error === 'cat_exists') { %>
+      <div class="alert alert-warning"><%= __('admin.error_category_exists') %></div>
+    <% } else if (reqQuery.error === 'cat_code_exists') { %>
+      <div class="alert alert-warning"><%= __('admin.error_category_code_exists') %></div>
+    <% } else if (reqQuery.error === 'cat_add_failed') { %>
+      <div class="alert alert-danger"><%= __('admin.error_category_add_failed') %></div>
+    <% } else if (reqQuery.error === 'cat_delete_failed') { %>
+      <div class="alert alert-danger"><%= __('admin.error_category_delete_failed') %></div>
+    <% } else if (reqQuery.error === 'cat_file_required') { %>
+      <div class="alert alert-warning"><%= __('admin.error_category_file_required') %></div>
+    <% } else if (reqQuery.error === 'cat_no_valid_rows') { %>
+      <div class="alert alert-warning"><%= __('admin.error_category_no_valid_rows') %></div>
+    <% } else if (reqQuery.error === 'cat_bad_file') { %>
+      <div class="alert alert-danger"><%= __('admin.error_category_bad_file') %></div>
+    <% } else if (reqQuery.error === 'cat_file_too_large') { %>
+      <div class="alert alert-danger"><%= __('admin.error_category_file_too_large') %></div>
+    <% } else if (reqQuery.error === 'cat_import_failed') { %>
+      <div class="alert alert-danger"><%= __('admin.error_category_import_failed') %></div>
     <% } %>
 
     <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
@@ -51,6 +93,11 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="departments-tab" data-bs-toggle="tab" data-bs-target="#departmentsTab" type="button" role="tab">
           <i class="bi bi-building me-1"></i><%= __('admin.departments_tab') %>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categoriesTab" type="button" role="tab">
+          <i class="bi bi-tags me-1"></i><%= __('admin.categories_tab') %>
         </button>
       </li>
     </ul>
@@ -135,12 +182,28 @@
 
       <!-- Departments Tab -->
       <div class="tab-pane fade" id="departmentsTab" role="tabpanel">
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h5 class="card-title mb-1"><i class="bi bi-file-earmark-excel me-1"></i><%= __('admin.import_dept') %></h5>
+            <p class="text-muted small mb-2"><%= __('admin.import_dept_hint') %></p>
+            <form action="/admin/departments/import" method="POST" enctype="multipart/form-data">
+              <div class="input-group">
+                <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
+                <button type="submit" class="btn btn-success"><i class="bi bi-upload me-1"></i><%= __('admin.import_dept_btn') %></button>
+              </div>
+            </form>
+          </div>
+        </div>
         <div class="row">
           <div class="col-md-6">
             <div class="card shadow-sm">
               <div class="card-body">
                 <h5 class="card-title mb-3"><i class="bi bi-building-add me-1"></i><%= __('admin.add_dept') %></h5>
                 <form action="/admin/departments/add" method="POST">
+                  <div class="mb-2">
+                    <label class="form-label small fw-bold mb-1"><%= __('admin.dept_costcenter') %></label>
+                    <input type="text" name="costcenter" class="form-control" placeholder="<%= __('admin.dept_costcenter_placeholder') %>">
+                  </div>
                   <div class="input-group">
                     <input type="text" name="name" class="form-control" placeholder="<%= __('admin.dept_name') %>" required>
                     <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i><%= __('admin.add_dept_btn') %></button>
@@ -156,10 +219,11 @@
                 <% if (departments.length === 0) { %>
                   <p class="text-muted mb-0"><%= __('admin.no_departments') %></p>
                 <% } else { %>
-                  <div class="table-responsive">
+                  <div class="table-responsive dept-scroll">
                     <table class="table table-sm table-hover align-middle">
                       <thead class="table-light">
                         <tr>
+                          <th><%= __('admin.dept_costcenter') %></th>
                           <th><%= __('admin.dept_name') %></th>
                           <th><%= __('admin.table.created_at') %></th>
                           <th class="text-center"><%= __('common.delete') %></th>
@@ -168,10 +232,82 @@
                       <tbody>
                         <% departments.forEach(function(d) { %>
                         <tr>
+                          <td><%= d.costcenter || '-' %></td>
                           <td><%= d.name %></td>
                           <td class="small"><%= d.created_at ? new Date(d.created_at).toLocaleDateString() : '-' %></td>
                           <td class="text-center">
                             <form action="/admin/departments/delete/<%= d.id %>" method="POST" class="d-inline" data-confirm="<%= __('admin.delete_dept_confirm', d.name) %>">
+                              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                          </td>
+                        </tr>
+                        <% }); %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Tab -->
+      <div class="tab-pane fade" id="categoriesTab" role="tabpanel">
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h5 class="card-title mb-1"><i class="bi bi-file-earmark-excel me-1"></i><%= __('admin.import_category') %></h5>
+            <p class="text-muted small mb-2"><%= __('admin.import_category_hint') %></p>
+            <form action="/admin/categories/import" method="POST" enctype="multipart/form-data">
+              <div class="input-group">
+                <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
+                <button type="submit" class="btn btn-success"><i class="bi bi-upload me-1"></i><%= __('admin.import_category_btn') %></button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title mb-3"><i class="bi bi-tags me-1"></i><%= __('admin.add_category') %></h5>
+                <form action="/admin/categories/add" method="POST">
+                  <div class="input-group mb-2">
+                    <input type="text" name="code" class="form-control" placeholder="CATEGORY (code)" required>
+                  </div>
+                  <div class="input-group">
+                    <input type="text" name="name" class="form-control" placeholder="Category Name" required>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i><%= __('admin.add_category_btn') %></button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title mb-3"><i class="bi bi-list me-1"></i><%= __('admin.categories_tab') %></h5>
+                <% if (categories.length === 0) { %>
+                  <p class="text-muted mb-0"><%= __('admin.no_categories') %></p>
+                <% } else { %>
+                  <div class="table-responsive dept-scroll">
+                    <table class="table table-sm table-hover align-middle">
+                      <thead class="table-light">
+                        <tr>
+                          <th>CATEGORY</th>
+                          <th>Category Name</th>
+                          <th><%= __('admin.table.created_at') %></th>
+                          <th class="text-center"><%= __('common.delete') %></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% categories.forEach(function(c) { %>
+                        <tr>
+                          <td><%= c.code || '-' %></td>
+                          <td><%= c.name %></td>
+                          <td class="small"><%= c.created_at ? new Date(c.created_at).toLocaleDateString() : '-' %></td>
+                          <td class="text-center">
+                            <form action="/admin/categories/delete/<%= c.id %>" method="POST" class="d-inline" data-confirm="<%= __('admin.delete_category_confirm', c.name) %>">
                               <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                             </form>
                           </td>

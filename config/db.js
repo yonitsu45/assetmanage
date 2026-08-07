@@ -52,7 +52,9 @@ const initDB = async () => {
     CREATE TABLE IF NOT EXISTS assets (
       asset_id VARCHAR(100) NOT NULL,
       business_unit VARCHAR(100),
-      tag_numbe VARCHAR(100),
+      tag_number VARCHAR(100),
+      tag_number_extend VARCHAR(100),
+      serial_number_asset VARCHAR(100),
       descr VARCHAR(255),
       descr_long TEXT,
       model VARCHAR(100),
@@ -63,15 +65,18 @@ const initDB = async () => {
       deptid VARCHAR(100),
       dept_name VARCHAR(255),
       category VARCHAR(100),
+      category_name VARCHAR(100),
       x_asset_status VARCHAR(100),
       asset_status VARCHAR(100),
       x_asset_reason VARCHAR(255),
       x_agreement_id VARCHAR(100),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (asset_id),
-      INDEX idx_tag_numbe (tag_numbe),
+      INDEX idx_tag_number (tag_number),
+      INDEX idx_serial_number_asset (serial_number_asset),
       INDEX idx_serial_id (serial_id),
       INDEX idx_category (category),
+      INDEX idx_category_name (category_name),
       INDEX idx_asset_status (asset_status)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
@@ -89,6 +94,15 @@ const initDB = async () => {
   try { await pool.query(`ALTER TABLE assets ADD COLUMN updated_at DATETIME AFTER uploaded_by`); } catch (e) {}
   try { await pool.query(`ALTER TABLE assets ADD COLUMN updated_by INT AFTER updated_at`); } catch (e) {}
   try { await pool.query(`ALTER TABLE assets ADD FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL`); } catch (e) {}
+
+  try { await pool.query(`ALTER TABLE assets CHANGE COLUMN tag_numbe tag_number VARCHAR(100)`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets DROP INDEX idx_tag_numbe`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD INDEX idx_tag_number (tag_number)`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD COLUMN tag_number_extend VARCHAR(100) AFTER tag_number`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD COLUMN serial_number_asset VARCHAR(100) AFTER tag_number_extend`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD COLUMN category_name VARCHAR(100) AFTER category`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD INDEX idx_serial_number_asset (serial_number_asset)`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD INDEX idx_category_name (category_name)`); } catch (e) {}
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS activity_logs (
@@ -119,6 +133,21 @@ const initDB = async () => {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS asset_transfers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      asset_id VARCHAR(100) NOT NULL,
+      from_dept VARCHAR(255),
+      to_dept VARCHAR(255),
+      note VARCHAR(500),
+      transferred_by INT,
+      transferred_by_name VARCHAR(100),
+      transferred_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_transfer_asset (asset_id),
+      INDEX idx_transfer_at (transferred_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
   try { await pool.query(`ALTER TABLE documents CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`); } catch (e) {}
   try { await pool.query(`ALTER TABLE documents ADD COLUMN department VARCHAR(100) AFTER uploaded_by`); } catch (e) {}
 
@@ -127,9 +156,12 @@ const initDB = async () => {
       CREATE TABLE IF NOT EXISTS departments (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL UNIQUE,
+        costcenter VARCHAR(50) NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+    try { await pool.query(`ALTER TABLE departments ADD COLUMN costcenter VARCHAR(50) NULL AFTER name`); } catch (e) {}
+    try { await pool.query(`ALTER TABLE departments ADD UNIQUE KEY uq_dept_costcenter (costcenter)`); } catch (e) {}
     const [existing] = await pool.query('SELECT COUNT(*) AS cnt FROM departments');
     if (existing[0].cnt === 0) {
       const [depts] = await pool.query('SELECT DISTINCT department FROM users WHERE department IS NOT NULL AND department != \'\'');
@@ -137,6 +169,17 @@ const initDB = async () => {
         await pool.query('INSERT IGNORE INTO departments (name) VALUES (?)', [d.department]);
       }
     }
+  } catch (e) {}
+
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code VARCHAR(50) NOT NULL UNIQUE,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
   } catch (e) {}
 };
 

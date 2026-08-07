@@ -40,6 +40,11 @@ const ActivityLog = {
     return { rows, total, page: safePage, totalPages: Math.ceil(total / safeLimit), limit: safeLimit };
   },
 
+  async getById(id) {
+    const [rows] = await pool.query('SELECT * FROM activity_logs WHERE id = ?', [id]);
+    return rows[0] || null;
+  },
+
   async getModules() {
     const [rows] = await pool.query(`SELECT DISTINCT module FROM activity_logs WHERE module IS NOT NULL AND module != '' ORDER BY module`);
     return rows.map(r => r.module);

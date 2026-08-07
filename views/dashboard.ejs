@@ -18,6 +18,9 @@
     <% if (typeof cleared !== 'undefined' && cleared) { %>
       <div class="alert alert-success"><%= __('dashboard.cleared', cleared) %></div>
     <% } %>
+    <% if (userDeptEmpty) { %>
+      <div class="alert alert-warning"><%= __('dashboard.no_department') %></div>
+    <% } %>
     <% if (reqQuery.updated) { %>
       <div class="alert alert-success"><%= __('dashboard.updated') %>: <%= reqQuery.updated %></div>
     <% } %>
@@ -152,6 +155,7 @@
                   </div>
                 </div>
                 <div class="col-md-4">
+                  <% if (user.role === 'super_admin') { %>
                   <label class="fw-bold small mb-2"><%= __('dashboard.filter.departments') %></label>
                   <div style="max-height:200px; overflow-y:auto;">
                     <% (allDepartments || []).forEach(function(d) { %>
@@ -164,6 +168,7 @@
                       <span class="text-muted small"><%= __('dashboard.no_data') %></span>
                     <% } %>
                   </div>
+                  <% } %>
                 </div>
               </div>
               <div class="mt-2">
@@ -197,7 +202,7 @@
         </div>
 
         <div class="table-responsive">
-          <table class="table table-hover table-striped table-sm align-middle table-bordered-columns">
+          <table class="table table-hover table-striped table-sm align-middle table-bordered-columns asset-table">
             <thead class="table-dark">
               <tr>
                 <th class="text-center" style="width:36px;">
@@ -205,25 +210,28 @@
                 </th>
                 <% 
                 const columns = [
-                  {key:'business_unit', label:__('dashboard.table.business_unit')},
-                  {key:'asset_id', label:__('dashboard.table.asset_id')},
-                  {key:'tag_numbe', label:__('dashboard.table.tag_numbe')},
-                  {key:'descr', label:__('dashboard.table.descr')},
-                  {key:'descr_long', label:__('dashboard.table.descr_long')},
-                  {key:'model', label:__('dashboard.table.model')},
-                  {key:'plant', label:__('dashboard.table.plant')},
-                  {key:'serial_id', label:__('dashboard.table.serial_id')},
-                  {key:'vendor_id', label:__('dashboard.table.vendor_id')},
-                  {key:'vendor_name', label:__('dashboard.table.vendor_name')},
-                  {key:'deptid', label:__('dashboard.table.deptid')},
-                  {key:'dept_name', label:__('dashboard.table.dept_name')},
-                  {key:'category', label:__('dashboard.table.category')},
-                  {key:'x_asset_status', label:__('dashboard.table.x_asset_status')},
-                  {key:'asset_status', label:__('dashboard.table.asset_status')},
-                  {key:'x_asset_reason', label:__('dashboard.table.x_asset_reason')},
-                  {key:'x_agreement_id', label:__('dashboard.table.x_agreement_id')},
-                  {key:'created_at', label:__('dashboard.table.uploaded_at')},
-                  {key:'updated_at', label:__('dashboard.table.modified_at')}
+                  {key:'business_unit', label:'BUSINESS_UNIT'},
+                  {key:'asset_id', label:'ASSET_ID'},
+                  {key:'tag_number', label:'TAG_NUMBER'},
+                  {key:'serial_number_asset', label:'SERIAL_NUMBER_ASSET'},
+                  {key:'tag_number_extend', label:'TAG_NUMBER_EXTEND'},
+                  {key:'descr', label:'DESCR'},
+                  {key:'descr_long', label:'DESCR_LONG'},
+                  {key:'model', label:'MODEL'},
+                  {key:'plant', label:'PLANT'},
+                  {key:'serial_id', label:'SERIAL_ID'},
+                  {key:'vendor_id', label:'VENDOR_ID'},
+                  {key:'vendor_name', label:'VENDOR_NAME'},
+                  {key:'deptid', label:'DEPTID'},
+                  {key:'dept_name', label:'DEPT_NAME'},
+                  {key:'category', label:'CATEGORY'},
+                  {key:'category_name', label:'CATEGORY_NAME'},
+                  {key:'x_asset_status', label:'X_ASSET_STATUS'},
+                  {key:'asset_status', label:'ASSET_STATUS'},
+                  {key:'x_asset_reason', label:'X_ASSET_REASON'},
+                  {key:'x_agreement_id', label:'X_AGREEMENT_ID'},
+                  {key:'created_at', label:'CREATED_AT'},
+                  {key:'updated_at', label:'UPDATED_AT'}
                 ];
                 %>
                 <%
@@ -248,12 +256,12 @@
             </thead>
             <tbody>
               <% if (assets.length === 0) { %>
-                <tr><td colspan="21" class="text-center text-muted py-4"><%= __('dashboard.no_data') %></td></tr>
+                <tr><td colspan="24" class="text-center text-muted py-4"><%= __('dashboard.no_data') %></td></tr>
               <% } %>
               <% assets.forEach(function(a) { %>
               <tr class="asset-row"
                 data-asset_id="<%= a.asset_id %>"
-                data-tag_numbe="<%= a.tag_numbe || '' %>"
+                data-tag_number="<%= a.tag_number || '' %>"
                 data-descr="<%= a.descr || '' %>"
                 data-x_agreement_id="<%= a.x_agreement_id || '' %>"
                 data-vendor_name="<%= a.vendor_name || '' %>">
@@ -262,7 +270,9 @@
                 </td>
                 <td><%= a.business_unit || '-' %></td>
                 <td><%= a.asset_id || '-' %></td>
-                <td><%= a.tag_numbe || '-' %></td>
+                <td><%= a.tag_number || '-' %></td>
+                <td><%= a.serial_number_asset || '-' %></td>
+                <td><%= a.tag_number_extend || '-' %></td>
                 <td><%= a.descr || '-' %></td>
                 <td><%= a.descr_long || '-' %></td>
                 <td><%= a.model || '-' %></td>
@@ -273,6 +283,7 @@
                 <td><%= a.deptid || '-' %></td>
                 <td><%= a.dept_name || '-' %></td>
                 <td><span class="badge bg-secondary"><%= a.category || '-' %></span></td>
+                <td><%= a.category_name || '-' %></td>
                 <td><%= a.x_asset_status || '-' %></td>
                 <td>
                   <span class="badge <%= (a.asset_status || '').toLowerCase() === 'active' ? 'bg-success' : 'bg-secondary' %>">
@@ -286,7 +297,7 @@
                 <td class="text-center">
                   <button class="btn btn-sm btn-outline-success qr-btn" title="<%= __('dashboard.qr.title') %>"
                     data-asset_id="<%= a.asset_id %>"
-                    data-tag_numbe="<%= a.tag_numbe || '' %>"
+                    data-tag_number="<%= a.tag_number || '' %>"
                     data-descr="<%= a.descr || '' %>"
                     data-x_agreement_id="<%= a.x_agreement_id || '' %>"
                     data-vendor_name="<%= a.vendor_name || '' %>"
@@ -297,7 +308,9 @@
                   <button class="btn btn-sm btn-outline-primary edit-btn" title="<%= __('dashboard.edit') %>"
                     data-asset_id="<%= a.asset_id %>"
                     data-business_unit="<%= a.business_unit || '' %>"
-                    data-tag_numbe="<%= a.tag_numbe || '' %>"
+                    data-tag_number="<%= a.tag_number || '' %>"
+                    data-tag_number_extend="<%= a.tag_number_extend || '' %>"
+                    data-serial_number_asset="<%= a.serial_number_asset || '' %>"
                     data-descr="<%= a.descr || '' %>"
                     data-descr_long="<%= a.descr_long || '' %>"
                     data-model="<%= a.model || '' %>"
@@ -308,6 +321,7 @@
                     data-deptid="<%= a.deptid || '' %>"
                     data-dept_name="<%= a.dept_name || '' %>"
                     data-category="<%= a.category || '' %>"
+                    data-category_name="<%= a.category_name || '' %>"
                     data-x_asset_status="<%= a.x_asset_status || '' %>"
                     data-asset_status="<%= a.asset_status || '' %>"
                     data-x_asset_reason="<%= a.x_asset_reason || '' %>"
@@ -372,8 +386,16 @@
               <input name="business_unit" class="form-control form-control-sm">
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-bold small"><%= __('dashboard.table.tag_numbe') %></label>
-              <input name="tag_numbe" class="form-control form-control-sm">
+              <label class="form-label fw-bold small"><%= __('dashboard.table.tag_number') %></label>
+              <input name="tag_number" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small"><%= __('dashboard.table.serial_number_asset') %></label>
+              <input name="serial_number_asset" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small"><%= __('dashboard.table.tag_number_extend') %></label>
+              <input name="tag_number_extend" class="form-control form-control-sm">
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold small"><%= __('dashboard.table.model') %></label>
@@ -398,6 +420,10 @@
             <div class="col-md-4">
               <label class="form-label fw-bold small"><%= __('dashboard.table.category') %></label>
               <input name="category" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small"><%= __('dashboard.table.category_name') %></label>
+              <input name="category_name" class="form-control form-control-sm">
             </div>
             <div class="col-md-4">
               <label class="form-label fw-bold small"><%= __('dashboard.table.vendor_id') %></label>
@@ -478,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
   editModal.addEventListener('show.bs.modal', function(event) {
     const btn = event.relatedTarget;
     const form = this.querySelector('#editForm');
-    const fields = ['asset_id','business_unit','tag_numbe','descr','descr_long','model','plant','serial_id','vendor_id','vendor_name','deptid','dept_name','category','x_asset_status','asset_status','x_asset_reason','x_agreement_id'];
+    const fields = ['asset_id','business_unit','tag_number','tag_number_extend','serial_number_asset','descr','descr_long','model','plant','serial_id','vendor_id','vendor_name','deptid','dept_name','category','category_name','x_asset_status','asset_status','x_asset_reason','x_agreement_id'];
     fields.forEach(function(f) {
       const val = btn.getAttribute('data-' + f) || '';
       const el = form.querySelector('[name="' + f + '"]');
@@ -515,12 +541,12 @@ document.addEventListener('DOMContentLoaded', function() {
     printLabel({
       qrUrl: qrContainer.dataset.qrUrl,
       title: get('data-asset_id'),
-      tag: get('data-tag_numbe'),
+      tag: get('data-tag_number'),
       descr: get('data-descr'),
       agreement: get('data-x_agreement_id'),
       vendor: get('data-vendor_name'),
-      labelAgreement: '<%= __('dashboard.table.x_agreement_id') %>',
-      labelVendor: '<%= __('dashboard.table.vendor_name') %>'
+      labelAgreement: <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>,
+      labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>
     });
   });
 
@@ -530,8 +556,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const btnBulkStatus = document.getElementById('btnBulkStatus');
   const bulkStatus = document.getElementById('bulkStatus');
   const selectedCountEl = document.getElementById('selectedCount');
-  const labelAgreement = '<%= __('dashboard.table.x_agreement_id') %>';
-  const labelVendor = '<%= __('dashboard.table.vendor_name') %>';
+  const labelAgreement = <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>;
+  const labelVendor = <%- JSON.stringify(__('dashboard.table.vendor_name')) %>;
 
   function updateSelected() {
     const n = rowChecks.filter(function(c) { return c.checked; }).length;
@@ -555,8 +581,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = '/bulk-status';
-      form.dataset.confirm = '<%= __('dashboard.bulk_status_confirm') %>'.replace('%s', ids.length).replace('%s', bulkStatus.value);
-      form.dataset.confirmTitle = '<%= __('dashboard.bulk_status_confirm_title') %>';
+      form.dataset.confirm = <%- JSON.stringify(__('dashboard.bulk_status_confirm')) %>.replace('%s', ids.length).replace('%s', bulkStatus.value);
+      form.dataset.confirmTitle = <%- JSON.stringify(__('dashboard.bulk_status_confirm_title')) %>;
       ids.forEach(function(id) {
         const inp = document.createElement('input');
         inp.type = 'hidden';
@@ -584,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function() {
       opts.push({
         qrUrl: qrDataUrl(window.location.origin + '/asset/' + encodeURIComponent(assetId)),
         title: assetId,
-        tag: get('data-tag_numbe'),
+        tag: get('data-tag_number'),
         descr: get('data-descr'),
         agreement: get('data-x_agreement_id'),
         vendor: get('data-vendor_name'),

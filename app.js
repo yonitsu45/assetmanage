@@ -16,6 +16,7 @@ const documentsRoutes = require('./routes/documents');
 const profileRoutes = require('./routes/profile');
 const updateRoutes = require('./routes/update');
 const logsRoutes = require('./routes/logs');
+const transferRoutes = require('./routes/transfer');
 
 const app = express();
 
@@ -85,6 +86,7 @@ app.use('/', requireAuth, profileRoutes);
 app.use('/upload', requireAuth, uploadRoutes);
 app.use('/documents', requireAuth, documentsRoutes);
 app.use('/update', requireAuth, updateRoutes);
+app.use('/transfer', requireAuth, transferRoutes);
 app.use('/logs', requireAuth, logsRoutes);
 
 const adminRoutes = require('./routes/admin');

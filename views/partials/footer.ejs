@@ -1,5 +1,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/js/sidebar.js"></script>
+  <script src="/js/dept-combo.js"></script>
   <script>
   (function() {
     var toggle = document.getElementById('themeToggle');
@@ -20,14 +21,14 @@
     if (msg && !form.dataset.confirming) {
       e.preventDefault();
       Swal.fire({
-        title: form.getAttribute('data-confirm-title') || '<%= __('sweetalert.title') %>',
+        title: form.getAttribute('data-confirm-title') || <%- JSON.stringify(__('sweetalert.title')) %>,
         text: msg,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: '<%= __('sweetalert.confirm') %>',
-        cancelButtonText: '<%= __('sweetalert.cancel') %>',
+        confirmButtonText: <%- JSON.stringify(__('sweetalert.confirm')) %>,
+        cancelButtonText: <%- JSON.stringify(__('sweetalert.cancel')) %>,
         reverseButtons: true
       }).then(function(result) {
         if (result.isConfirmed) {

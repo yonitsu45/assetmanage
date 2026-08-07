@@ -1,0 +1,89 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="d-flex position-relative">
+  <%- include('partials/sidebar') %>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-content flex-grow-1 p-4">
+    <div class="d-flex align-items-center mb-4">
+      <a href="/logs" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left me-1"></i><%= __('logs.batch.back') %></a>
+      <h4 class="mb-0"><i class="bi bi-list-check me-2"></i><%= __('logs.batch.title') %></h4>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="row g-3 small">
+          <div class="col-md-3">
+            <div class="text-muted text-uppercase small"><%= __('logs.table.time') %></div>
+            <div><%= new Date(log.created_at).toLocaleString() %></div>
+          </div>
+          <div class="col-md-2">
+            <div class="text-muted text-uppercase small"><%= __('logs.table.user') %></div>
+            <div><%= log.username || '-' %></div>
+          </div>
+          <div class="col-md-2">
+            <div class="text-muted text-uppercase small"><%= __('logs.table.action') %></div>
+            <div><span class="badge bg-primary"><%= log.action || '-' %></span></div>
+          </div>
+          <div class="col-md-5">
+            <% if (info.status) { %>
+              <div class="text-muted text-uppercase small"><%= __('logs.batch.status_changed_to') %></div>
+              <div><span class="badge bg-secondary"><%= info.status %></span></div>
+            <% } else if (info.to_dept) { %>
+              <div class="text-muted text-uppercase small"><%= __('logs.batch.transferred_to') %></div>
+              <div><span class="badge bg-secondary"><%= info.to_dept %></span></div>
+            <% } %>
+          </div>
+          <% if (info.note) { %>
+          <div class="col-12">
+            <div class="text-muted text-uppercase small"><%= __('logs.batch.note') %></div>
+            <div><%= info.note %></div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <strong><%= __('logs.batch.items') %></strong>
+        <span class="badge bg-secondary ms-2"><%= items.length %></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th><%= __('logs.batch.asset') %></th>
+              <th><%= __('logs.batch.description') %></th>
+              <th><%= __('logs.batch.current_status') %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (items.length === 0) { %>
+              <tr><td colspan="4" class="text-center text-muted py-4"><%= __('logs.batch.no_items') %></td></tr>
+            <% } %>
+            <% items.forEach(function(item, i) { %>
+            <tr>
+              <td class="text-muted small"><%= i + 1 %></td>
+              <td>
+                <% if (item.exists) { %>
+                  <a href="/asset/<%= encodeURIComponent(item.asset_id) %>"><%= item.asset_id %></a>
+                <% } else { %>
+                  <%= item.asset_id %>
+                  <span class="badge bg-danger ms-1"><%= __('logs.batch.deleted') %></span>
+                <% } %>
+              </td>
+              <td class="small"><%= item.descr || '-' %></td>
+              <td><span class="badge bg-secondary"><%= item.status || '-' %></span></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

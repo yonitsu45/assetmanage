@@ -1,5 +1,6 @@
 const Asset = require('../models/asset');
 const ActivityLog = require('../models/activityLog');
+const Transfer = require('../models/transfer');
 const XLSX = require('xlsx');
 
 // Parse comma-separated filter values from query (supports either ?key=a&key=b or ?key=a,b)
@@ -9,20 +10,31 @@ const parseFilter = (val) => {
   return val.split(',').map(s => s.trim()).filter(Boolean);
 };
 
+// Non-super-admin users are locked to their own department.
+// Returns { departments, userDeptEmpty } where departments is the effective filter list.
+const effectiveDepartments = (req) => {
+  if (req.session.role !== 'super_admin') {
+    const dept = req.session.department || null;
+    if (!dept) return { departments: ['__none__'], userDeptEmpty: true };
+    return { departments: [dept], userDeptEmpty: false };
+  }
+  return { departments: parseFilter(req.query.departments), userDeptEmpty: false };
+};
+
 const dashboardController = {
   async index(req, res) {
     try {
       const search = req.query.search || '';
       const categories = parseFilter(req.query.categories);
       const statuses = parseFilter(req.query.statuses);
-      const departments = parseFilter(req.query.departments);
+      const { departments, userDeptEmpty } = effectiveDepartments(req);
       const sortBy = req.query.sort_by || 'created_at';
       const order = req.query.order || 'DESC';
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 25;
 
       const data = await Asset.getAll({ search, categories, statuses, departments, sortBy, order, page, limit });
-      const summary = await Asset.getSummary();
+      const summary = await Asset.getSummary(departments);
       const allCategories = await Asset.getCategories();
       const allStatuses = await Asset.getStatuses();
       const allDepartments = await Asset.getDepartments();
@@ -45,6 +57,7 @@ const dashboardController = {
         total: data.total,
         limit,
         cleared,
+        userDeptEmpty,
         reqQuery: req.query
       });
     } catch (err) {
@@ -57,7 +70,11 @@ const dashboardController = {
     try {
       const asset = await Asset.getById(req.params.asset_id);
       if (!asset) return res.status(404).render('asset-detail', { asset: null, error: req.__('asset_detail.not_found') });
-      res.render('asset-detail', { asset, error: null });
+      if (req.session.role !== 'super_admin' && asset.dept_name !== req.session.department) {
+        return res.status(404).render('asset-detail', { asset: null, error: req.__('asset_detail.not_found') });
+      }
+      const history = await Transfer.getByAsset(asset.asset_id);
+      res.render('asset-detail', { asset, error: null, history });
     } catch (err) {
       console.error('Asset detail error:', err);
       res.status(500).send('Server error');
@@ -89,7 +106,7 @@ const dashboardController = {
       const asset = await Asset.getById(asset_id);
       if (!asset) return res.redirect('/?error=not_found');
 
-      const allowed = ['business_unit', 'tag_numbe', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id'];
+      const allowed = ['business_unit', 'tag_number', 'tag_number_extend', 'serial_number_asset', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id'];
       const data = {};
       for (const field of allowed) {
         if (req.body[field] !== undefined) {
@@ -147,15 +164,15 @@ const dashboardController = {
       const search = req.query.search || '';
       const categories = parseFilter(req.query.categories);
       const statuses = parseFilter(req.query.statuses);
-      const departments = parseFilter(req.query.departments);
+      const { departments } = effectiveDepartments(req);
       const sortBy = req.query.sort_by || 'asset_id';
       const order = req.query.order || 'DESC';
 
       const rows = await Asset.getAllForExport({ search, categories, statuses, departments, sortBy, order });
 
       const fields = [
-        'asset_id', 'business_unit', 'tag_numbe', 'descr', 'descr_long', 'model', 'plant',
-        'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category',
+        'asset_id', 'business_unit', 'tag_number', 'serial_number_asset', 'tag_number_extend', 'descr', 'descr_long', 'model', 'plant',
+        'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name',
         'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id',
         'uploaded_by', 'created_at', 'updated_at'
       ];

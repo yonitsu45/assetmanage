@@ -55,7 +55,9 @@ const normalizeValue = (v) => {
 
 const COLUMN_LABEL_KEYS = {
   business_unit: 'dashboard.table.business_unit',
-  tag_numbe: 'dashboard.table.tag_numbe',
+  tag_number: 'dashboard.table.tag_number',
+  tag_number_extend: 'dashboard.table.tag_number_extend',
+  serial_number_asset: 'dashboard.table.serial_number_asset',
   descr: 'dashboard.table.descr',
   descr_long: 'dashboard.table.descr_long',
   model: 'dashboard.table.model',
@@ -66,6 +68,7 @@ const COLUMN_LABEL_KEYS = {
   deptid: 'dashboard.table.deptid',
   dept_name: 'dashboard.table.dept_name',
   category: 'dashboard.table.category',
+  category_name: 'dashboard.table.category_name',
   x_asset_status: 'dashboard.table.x_asset_status',
   asset_status: 'dashboard.table.asset_status',
   x_asset_reason: 'dashboard.table.x_asset_reason',

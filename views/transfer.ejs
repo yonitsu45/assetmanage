@@ -1,0 +1,245 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="d-flex position-relative">
+  <%- include('partials/sidebar') %>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-content flex-grow-1 p-4">
+    <h4 class="mb-4"><i class="bi bi-arrow-left-right me-2"></i><%= __('transfer.title') %></h4>
+
+    <% if (success) { %>
+      <div class="alert alert-success"><%= __('transfer.success', success) %></div>
+    <% } %>
+    <% if (error === 'no_selection') { %>
+      <div class="alert alert-warning"><%= __('transfer.no_selection') %></div>
+    <% } else if (error === 'no_dept') { %>
+      <div class="alert alert-warning"><%= __('transfer.no_dept') %></div>
+    <% } else if (error === 'not_found') { %>
+      <div class="alert alert-danger"><%= __('transfer.not_found', errorCount) %></div>
+    <% } else if (error === 'no_change') { %>
+      <div class="alert alert-info"><%= __('transfer.no_change', errorCount) %></div>
+    <% } else if (error === 'failed') { %>
+      <div class="alert alert-danger"><%= __('transfer.failed') %></div>
+    <% } %>
+
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="mb-3"><i class="bi bi-box-arrow-right me-1"></i><%= __('transfer.form_title') %></h6>
+        <form id="transferForm" method="POST" action="/transfer/create">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold"><%= __('transfer.select_assets') %></label>
+              <input type="text" class="form-control" id="assetSearch" autocomplete="off" placeholder="<%= __('transfer.search_assets') %>">
+              <div class="list-group position-absolute w-100 z-3" id="assetResults" style="max-height:240px; overflow-y:auto;"></div>
+              <ul class="list-group mt-2" id="selectedAssets" style="max-height:200px; overflow-y:auto;"></ul>
+              <div id="hiddenAssets"></div>
+              <span class="text-muted small" id="selectedCountText"><%= __('transfer.selected_assets', 0) %></span>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold"><%= __('transfer.to_dept') %></label>
+              <% if (departments && departments.length > 0) { %>
+                <select class="d-none" id="toDept" name="to_dept">
+                  <option value=""><%= __('transfer.to_dept_placeholder') %></option>
+                  <% departments.forEach(function(d) { %>
+                    <option value="<%= d.name %>"><%= d.name %></option>
+                  <% }); %>
+                </select>
+                <script type="application/json" id="toDeptOptions"><%- JSON.stringify(departments.map(function(d){return d.name;})) %></script>
+                <div class="position-relative">
+                  <input type="text" class="form-control" id="toDeptInput" autocomplete="off" placeholder="<%= __('transfer.to_dept_placeholder') %>" data-no-match="<%= __('transfer.no_dept_match') %>">
+                  <div class="list-group position-absolute w-100 z-3 d-none shadow-sm" id="toDeptList" style="max-height:220px; overflow-y:auto;"></div>
+                </div>
+              <% } else { %>
+                <input type="text" class="form-control" id="toDept" name="to_dept" placeholder="<%= __('transfer.to_dept_placeholder') %>">
+              <% } %>
+              <div class="mt-3">
+                <label class="form-label fw-bold"><%= __('transfer.note') %></label>
+                <textarea class="form-control" name="note" rows="2" maxlength="500" placeholder="<%= __('transfer.note_placeholder') %>"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <button type="submit" class="btn btn-primary px-4" id="transferSubmit" disabled>
+              <i class="bi bi-arrow-left-right me-1"></i><%= __('transfer.transfer_btn') %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="mb-3"><i class="bi bi-clock-history me-1"></i><%= __('transfer.history_title') %></h6>
+        <form method="GET" action="/transfer" class="row g-2 mb-3">
+          <div class="col-md-5">
+            <input type="text" name="search" class="form-control form-control-sm" placeholder="<%= __('transfer.history_search_placeholder') %>" value="<%= search %>">
+          </div>
+          <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search me-1"></i><%= __('dashboard.filter.apply') %></button>
+            <% if (search) { %>
+              <a href="/transfer" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></a>
+            <% } %>
+          </div>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th><%= __('transfer.col_asset_id') %></th>
+                <th><%= __('transfer.col_from') %></th>
+                <th><%= __('transfer.col_to') %></th>
+                <th><%= __('transfer.col_by') %></th>
+                <th><%= __('transfer.col_at') %></th>
+                <th><%= __('transfer.col_note') %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (!history || history.rows.length === 0) { %>
+                <tr><td colspan="6" class="text-center text-muted py-4"><%= __('transfer.no_history') %></td></tr>
+              <% } %>
+              <% (history.rows || []).forEach(function(t) { %>
+              <tr>
+                <td class="small"><a href="/asset/<%= encodeURIComponent(t.asset_id) %>"><%= t.asset_id %></a></td>
+                <td class="small"><%= t.from_dept || '-' %></td>
+                <td class="small"><span class="badge bg-primary"><%= t.to_dept || '-' %></span></td>
+                <td class="small"><%= t.transferred_by_name || '-' %></td>
+                <td class="small text-nowrap"><%= new Date(t.transferred_at).toLocaleString() %></td>
+                <td class="small text-muted"><%= t.note || '' %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if (history.totalPages > 1) { %>
+        <nav>
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item <%= history.page <= 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="/transfer?search=<%= encodeURIComponent(search) %>&page=<%= history.page - 1 %>&limit=<%= limit %>"><%= __('transfer.previous') %></a>
+            </li>
+            <% for (let p = 1; p <= history.totalPages; p++) { %>
+              <% if (p === history.page || p === 1 || p === history.totalPages || Math.abs(p - history.page) <= 2) { %>
+                <li class="page-item <%= p === history.page ? 'active' : '' %>">
+                  <a class="page-link" href="/transfer?search=<%= encodeURIComponent(search) %>&page=<%= p %>&limit=<%= limit %>"><%= p %></a>
+                </li>
+              <% } else if (p === history.page - 3 || p === history.page + 3) { %>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+              <% } %>
+            <% } %>
+            <li class="page-item <%= history.page >= history.totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="/transfer?search=<%= encodeURIComponent(search) %>&page=<%= history.page + 1 %>&limit=<%= limit %>"><%= __('transfer.next') %></a>
+            </li>
+          </ul>
+        </nav>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var state = {};
+  var searchInput = document.getElementById('assetSearch');
+  var resultsBox = document.getElementById('assetResults');
+  var selectedList = document.getElementById('selectedAssets');
+  var hiddenContainer = document.getElementById('hiddenAssets');
+  var toDept = document.getElementById('toDept');
+  var form = document.getElementById('transferForm');
+  var submitBtn = document.getElementById('transferSubmit');
+  var countText = document.getElementById('selectedCountText');
+  var noResultMsg = <%- JSON.stringify(__('transfer.no_asset_found')) %>;
+  var selectedMsg = <%- JSON.stringify(__('transfer.selected_assets')) %>;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function(ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+
+  function renderSelected() {
+    selectedList.innerHTML = '';
+    hiddenContainer.innerHTML = '';
+    var keys = Object.keys(state);
+    keys.forEach(function(id) {
+      var li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center py-1';
+      var span = document.createElement('span');
+      span.className = 'small';
+      span.textContent = id;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-sm btn-outline-danger';
+      btn.innerHTML = '<i class="bi bi-x-lg"></i>';
+      btn.addEventListener('click', function() { delete state[id]; renderSelected(); });
+      li.appendChild(span);
+      li.appendChild(btn);
+      selectedList.appendChild(li);
+      var inp = document.createElement('input');
+      inp.type = 'hidden';
+      inp.name = 'asset_ids';
+      inp.value = id;
+      hiddenContainer.appendChild(inp);
+    });
+    submitBtn.disabled = keys.length === 0;
+    countText.textContent = selectedMsg.replace('%d', keys.length);
+  }
+
+  var timer;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      var q = searchInput.value.trim();
+      if (q.length < 1) { resultsBox.innerHTML = ''; return; }
+      fetch('/transfer/search?q=' + encodeURIComponent(q))
+        .then(function(r) { return r.json(); })
+        .then(function(items) {
+          if (!items.length) {
+            resultsBox.innerHTML = '<div class="list-group-item small text-muted">' + noResultMsg + '</div>';
+            return;
+          }
+          resultsBox.innerHTML = items.map(function(it) {
+            return '<button type="button" class="list-group-item list-group-item-action" data-id="' + escapeHtml(it.asset_id) + '">'
+              + '<div class="fw-bold small">' + escapeHtml(it.asset_id) + '</div>'
+              + '<div class="small text-muted">' + escapeHtml(it.descr || '') + (it.dept_name ? ' &middot; ' + escapeHtml(it.dept_name) : '') + '</div>'
+              + '</button>';
+          }).join('');
+        });
+    }, 250);
+  });
+
+  resultsBox.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-id]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-id');
+    if (!(id in state)) state[id] = true;
+    renderSelected();
+    resultsBox.innerHTML = '';
+    searchInput.value = '';
+    searchInput.focus();
+  });
+
+  form.addEventListener('submit', function(e) {
+    var count = Object.keys(state).length;
+    var dept = toDept.value;
+    if (count === 0) {
+      e.preventDefault();
+      Swal.fire({ icon: 'warning', text: <%- JSON.stringify(__('transfer.no_selection')) %> });
+      return;
+    }
+    if (!dept) {
+      e.preventDefault();
+      Swal.fire({ icon: 'warning', text: <%- JSON.stringify(__('transfer.no_dept')) %> });
+      return;
+    }
+    var msg = <%- JSON.stringify(__('transfer.confirm')) %>;
+    msg = msg.replace('%s', count).replace('%s', dept);
+    this.dataset.confirmTitle = <%- JSON.stringify(__('transfer.confirm_title')) %>;
+    this.dataset.confirm = msg;
+  });
+})();
+</script>
+
+<%- include('partials/footer') %>

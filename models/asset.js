@@ -1,14 +1,14 @@
 const { pool } = require('../config/db');
 
-const ALLOWED_SORT = ['asset_id', 'tag_numbe', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'business_unit', 'created_at', 'updated_at'];
+const ALLOWED_SORT = ['asset_id', 'business_unit', 'tag_number', 'tag_number_extend', 'serial_number_asset', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'created_at', 'updated_at'];
 
 function buildConditions({ search, categories, statuses, departments }) {
   const conditions = [];
   const params = [];
   if (search) {
-    conditions.push(`(asset_id LIKE ? OR tag_numbe LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR model LIKE ? OR business_unit LIKE ?)`);
+    conditions.push(`(asset_id LIKE ? OR tag_number LIKE ? OR tag_number_extend LIKE ? OR serial_number_asset LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR category_name LIKE ? OR model LIKE ? OR business_unit LIKE ?)`);
     const s = `%${search}%`;
-    params.push(s, s, s, s, s, s, s, s, s, s);
+    params.push(s, s, s, s, s, s, s, s, s, s, s, s, s);
   }
   if (categories && categories.length > 0) {
     conditions.push(`category IN (${categories.map(() => '?').join(',')})`);
@@ -72,18 +72,21 @@ const Asset = {
     return rows.map(r => r.dept_name);
   },
 
-  async getSummary() {
+  async getSummary(departments) {
+    const { conditions, params } = buildConditions({ departments });
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
     const sqls = {
-      total: 'SELECT COUNT(*) as value FROM assets',
-      byStatus: 'SELECT COALESCE(asset_status, "N/A") as label, COUNT(*) as value FROM assets GROUP BY asset_status ORDER BY value DESC LIMIT 5',
-      byCategory: 'SELECT COALESCE(category, "N/A") as label, COUNT(*) as value FROM assets GROUP BY category ORDER BY value DESC LIMIT 5',
-      byDept: 'SELECT COALESCE(dept_name, "N/A") as label, COUNT(*) as value FROM assets GROUP BY dept_name ORDER BY value DESC LIMIT 5'
+      total: `SELECT COUNT(*) as value FROM assets ${where}`,
+      byStatus: `SELECT COALESCE(asset_status, "N/A") as label, COUNT(*) as value FROM assets ${where} GROUP BY asset_status ORDER BY value DESC LIMIT 5`,
+      byCategory: `SELECT COALESCE(category, "N/A") as label, COUNT(*) as value FROM assets ${where} GROUP BY category ORDER BY value DESC LIMIT 5`,
+      byDept: `SELECT COALESCE(dept_name, "N/A") as label, COUNT(*) as value FROM assets ${where} GROUP BY dept_name ORDER BY value DESC LIMIT 5`
     };
 
-    const [total] = await pool.query(sqls.total);
-    const [byStatus] = await pool.query(sqls.byStatus);
-    const [byCategory] = await pool.query(sqls.byCategory);
-    const [byDept] = await pool.query(sqls.byDept);
+    const [total] = await pool.query(sqls.total, params);
+    const [byStatus] = await pool.query(sqls.byStatus, params);
+    const [byCategory] = await pool.query(sqls.byCategory, params);
+    const [byDept] = await pool.query(sqls.byDept, params);
 
     return {
       total: total[0].value,
@@ -95,7 +98,7 @@ const Asset = {
 
   async bulkInsert(rows, uploaded_by) {
     if (rows.length === 0) return { inserted: 0, skipped: 0, total: 0 };
-    const sql = `INSERT IGNORE INTO assets (business_unit, asset_id, tag_numbe, descr, descr_long, model, plant, serial_id, vendor_id, vendor_name, deptid, dept_name, category, x_asset_status, asset_status, x_asset_reason, x_agreement_id, uploaded_by) VALUES ?`;
+    const sql = `INSERT IGNORE INTO assets (business_unit, asset_id, tag_number, tag_number_extend, serial_number_asset, descr, descr_long, model, plant, serial_id, vendor_id, vendor_name, deptid, dept_name, category, category_name, x_asset_status, asset_status, x_asset_reason, x_agreement_id, uploaded_by) VALUES ?`;
     const batchSize = 500;
     let inserted = 0;
     const total = rows.length;
@@ -104,7 +107,9 @@ const Asset = {
       const values = batch.map(r => [
         r.business_unit || null,
         r.asset_id || null,
-        r.tag_numbe || null,
+        r.tag_number || null,
+        r.tag_number_extend || null,
+        r.serial_number_asset || null,
         r.descr || null,
         r.descr_long || null,
         r.model || null,
@@ -115,6 +120,7 @@ const Asset = {
         r.deptid || null,
         r.dept_name || null,
         r.category || null,
+        r.category_name || null,
         r.x_asset_status || null,
         r.asset_status || null,
         r.x_asset_reason || null,
@@ -171,6 +177,13 @@ const Asset = {
     if (!ids || ids.length === 0) return 0;
     const sql = `UPDATE assets SET asset_status = ?, updated_at = NOW(), updated_by = ? WHERE asset_id IN (${ids.map(() => '?').join(',')})`;
     const [result] = await pool.query(sql, [status, updatedBy || null, ...ids]);
+    return result.affectedRows;
+  },
+
+  async bulkTransferDepartment(ids, deptName, updatedBy) {
+    if (!ids || ids.length === 0) return 0;
+    const sql = `UPDATE assets SET dept_name = ?, updated_at = NOW(), updated_by = ? WHERE asset_id IN (${ids.map(() => '?').join(',')})`;
+    const [result] = await pool.query(sql, [deptName, updatedBy || null, ...ids]);
     return result.affectedRows;
   }
 };
