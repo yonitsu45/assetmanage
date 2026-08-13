@@ -106,7 +106,7 @@ const dashboardController = {
       const asset = await Asset.getById(asset_id);
       if (!asset) return res.redirect('/?error=not_found');
 
-      const allowed = ['business_unit', 'tag_number', 'tag_number_extend', 'serial_number_asset', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id'];
+      const allowed = ['business_unit', 'tag_number', 'tag_number_extend', 'serial_number_asset', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'expire_date'];
       const data = {};
       for (const field of allowed) {
         if (req.body[field] !== undefined) {
@@ -174,6 +174,7 @@ const dashboardController = {
         'asset_id', 'business_unit', 'tag_number', 'serial_number_asset', 'tag_number_extend', 'descr', 'descr_long', 'model', 'plant',
         'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name',
         'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id',
+        'expire_date',
         'uploaded_by', 'created_at', 'updated_at'
       ];
       const data = rows.map(r => {

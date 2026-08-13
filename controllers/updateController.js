@@ -72,7 +72,8 @@ const COLUMN_LABEL_KEYS = {
   x_asset_status: 'dashboard.table.x_asset_status',
   asset_status: 'dashboard.table.asset_status',
   x_asset_reason: 'dashboard.table.x_asset_reason',
-  x_agreement_id: 'dashboard.table.x_agreement_id'
+  x_agreement_id: 'dashboard.table.x_agreement_id',
+  expire_date: 'dashboard.table.expire_date'
 };
 
 const updateController = {

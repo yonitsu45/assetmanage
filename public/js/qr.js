@@ -34,20 +34,18 @@
     container.dataset.qrText = text;
   }
 
-  // Single landscape label sized for Epson LW-1000P with LK-6YBP tape
-  // (24mm wide black-on-yellow). Height = 24mm (tape width), length = 80mm.
+  // Landscape label for 24mm (1") tape: 70mm long (along the tape) x 24mm high
+  // (tape width). Page size matches the label exactly so it prints edge-to-edge.
   // opts: { qrUrl, tag, descr, agreement, vendor, labelAgreement, labelVendor, title }
   function labelHTML(opts, isLast) {
     var e = escapeHtml;
     return '<div class="label"' + (isLast ? '' : ' style="page-break-after: always; break-after: page;"') + '>' +
       '<div class="text">' +
       '<div class="tag">' + e(opts.tag || '') + '</div>' +
-      '<div>' +
       '<div class="descr">' + e(opts.descr || '') + '</div>' +
       '<div class="meta">' +
       '<div><span>' + e(opts.labelAgreement || '') + ':</span> ' + e(opts.agreement || '') + '</div>' +
       '<div><span>' + e(opts.labelVendor || '') + ':</span> ' + e(opts.vendor || '') + '</div>' +
-      '</div>' +
       '</div>' +
       '</div>' +
       '<div class="qrw"><img src="' + opts.qrUrl + '"></div>' +
@@ -59,22 +57,22 @@
     var html =
       '<html><head><meta charset="utf-8"><title>' + e(docTitle || '') + '</title>' +
       '<style>' +
-      '@page { size: 80mm 24mm; margin: 0; }' +
+      '@page { size: 70mm 24mm; margin: 0; }' +
       'html, body { margin: 0; padding: 0; }' +
       'body { font-family: Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
-      '.label { box-sizing: border-box; width: 80mm; height: 24mm; background: #FFE500; color: #000; ' +
+      '.label { box-sizing: border-box; width: 70mm; height: 24mm; background: #ffffff; color: #000; ' +
       'border: 0.6pt solid #000; display: flex; align-items: stretch; gap: 1.5mm; padding: 1.5mm; ' +
       'overflow: hidden; page-break-inside: avoid; break-inside: avoid; }' +
       '.text { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }' +
-      '.tag { font-size: 11pt; font-weight: bold; line-height: 1.05; word-break: break-all; }' +
-      '.descr { font-size: 7.5pt; margin-top: 0.6mm; line-height: 1.15; overflow: hidden; ' +
+      '.tag { font-size: 10pt; font-weight: bold; line-height: 1.05; word-break: break-all; }' +
+      '.descr { font-size: 7pt; margin-top: 0.6mm; line-height: 1.15; overflow: hidden; ' +
       'display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-all; }' +
-      '.meta { font-size: 7pt; margin-top: 0.6mm; line-height: 1.2; word-break: break-all; }' +
+      '.meta { font-size: 6.5pt; margin-top: 0.6mm; line-height: 1.2; word-break: break-all; }' +
       '.meta div { margin: 0; }' +
       '.meta span { font-weight: bold; }' +
-      '.qrw { width: 18mm; flex-shrink: 0; display: flex; align-items: center; justify-content: center; ' +
+      '.qrw { width: 17mm; flex-shrink: 0; display: flex; align-items: center; justify-content: center; ' +
       'background: #fff; border: 0.4pt solid #ccc; }' +
-      '.qrw img { width: 17mm; height: 17mm; }' +
+      '.qrw img { width: 16mm; height: 16mm; }' +
       '</style></head><body>' +
       items.map(function (o, i) { return labelHTML(o, i === items.length - 1); }).join('') +
       '<scr' + 'ipt>window.onload=function(){window.print()}</scr' + 'ipt></body></html>';

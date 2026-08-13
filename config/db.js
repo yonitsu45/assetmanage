@@ -93,6 +93,7 @@ const initDB = async () => {
 
   try { await pool.query(`ALTER TABLE assets ADD COLUMN updated_at DATETIME AFTER uploaded_by`); } catch (e) {}
   try { await pool.query(`ALTER TABLE assets ADD COLUMN updated_by INT AFTER updated_at`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE assets ADD COLUMN expire_date DATE AFTER x_agreement_id`); } catch (e) {}
   try { await pool.query(`ALTER TABLE assets ADD FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL`); } catch (e) {}
 
   try { await pool.query(`ALTER TABLE assets CHANGE COLUMN tag_numbe tag_number VARCHAR(100)`); } catch (e) {}

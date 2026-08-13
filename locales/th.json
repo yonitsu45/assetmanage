@@ -86,6 +86,7 @@
       "asset_status": "สถานะ",
       "x_asset_reason": "เหตุผล",
       "x_agreement_id": "รหัสข้อตกลง",
+      "expire_date": "ประกันหมดอายุ",
       "uploaded_at": "วันที่อัปโหลด",
       "modified_at": "วันที่แก้ไข",
       "actions": "จัดการ"

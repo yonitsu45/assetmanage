@@ -1,14 +1,26 @@
 const { pool } = require('../config/db');
 
-const ALLOWED_SORT = ['asset_id', 'business_unit', 'tag_number', 'tag_number_extend', 'serial_number_asset', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'created_at', 'updated_at'];
+const ALLOWED_SORT = ['asset_id', 'business_unit', 'tag_number', 'tag_number_extend', 'serial_number_asset', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'expire_date', 'created_at', 'updated_at'];
+
+const normalizeDate = (v) => {
+  if (v === null || v === undefined) return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v.toISOString().slice(0, 10);
+  if (typeof v === 'number') {
+    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
+    return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+  }
+  const s = String(v).trim();
+  if (!s) return null;
+  return s.slice(0, 10);
+};
 
 function buildConditions({ search, categories, statuses, departments }) {
   const conditions = [];
   const params = [];
   if (search) {
-    conditions.push(`(asset_id LIKE ? OR tag_number LIKE ? OR tag_number_extend LIKE ? OR serial_number_asset LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR category_name LIKE ? OR model LIKE ? OR business_unit LIKE ?)`);
+    conditions.push(`(asset_id LIKE ? OR tag_number LIKE ? OR tag_number_extend LIKE ? OR serial_number_asset LIKE ? OR descr LIKE ? OR descr_long LIKE ? OR serial_id LIKE ? OR vendor_id LIKE ? OR vendor_name LIKE ? OR dept_name LIKE ? OR category_name LIKE ? OR model LIKE ? OR business_unit LIKE ? OR expire_date LIKE ?)`);
     const s = `%${search}%`;
-    params.push(s, s, s, s, s, s, s, s, s, s, s, s, s);
+    params.push(s, s, s, s, s, s, s, s, s, s, s, s, s, s);
   }
   if (categories && categories.length > 0) {
     conditions.push(`category IN (${categories.map(() => '?').join(',')})`);
@@ -98,7 +110,7 @@ const Asset = {
 
   async bulkInsert(rows, uploaded_by) {
     if (rows.length === 0) return { inserted: 0, skipped: 0, total: 0 };
-    const sql = `INSERT IGNORE INTO assets (business_unit, asset_id, tag_number, tag_number_extend, serial_number_asset, descr, descr_long, model, plant, serial_id, vendor_id, vendor_name, deptid, dept_name, category, category_name, x_asset_status, asset_status, x_asset_reason, x_agreement_id, uploaded_by) VALUES ?`;
+    const sql = `INSERT IGNORE INTO assets (business_unit, asset_id, tag_number, tag_number_extend, serial_number_asset, descr, descr_long, model, plant, serial_id, vendor_id, vendor_name, deptid, dept_name, category, category_name, x_asset_status, asset_status, x_asset_reason, x_agreement_id, expire_date, uploaded_by) VALUES ?`;
     const batchSize = 500;
     let inserted = 0;
     const total = rows.length;
@@ -125,6 +137,7 @@ const Asset = {
         r.asset_status || null,
         r.x_asset_reason || null,
         r.x_agreement_id || null,
+        normalizeDate(r.expire_date),
         uploaded_by || null
       ]);
       const [result] = await pool.query(sql, [values]);

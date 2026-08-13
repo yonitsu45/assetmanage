@@ -230,6 +230,7 @@
                   {key:'asset_status', label:'ASSET_STATUS'},
                   {key:'x_asset_reason', label:'X_ASSET_REASON'},
                   {key:'x_agreement_id', label:'X_AGREEMENT_ID'},
+                  {key:'expire_date', label:'EXPIRE_DATE'},
                   {key:'created_at', label:'CREATED_AT'},
                   {key:'updated_at', label:'UPDATED_AT'}
                 ];
@@ -256,7 +257,7 @@
             </thead>
             <tbody>
               <% if (assets.length === 0) { %>
-                <tr><td colspan="24" class="text-center text-muted py-4"><%= __('dashboard.no_data') %></td></tr>
+                <tr><td colspan="25" class="text-center text-muted py-4"><%= __('dashboard.no_data') %></td></tr>
               <% } %>
               <% assets.forEach(function(a) { %>
               <tr class="asset-row"
@@ -292,6 +293,7 @@
                 </td>
                 <td><%= a.x_asset_reason || '-' %></td>
                 <td><%= a.x_agreement_id || '-' %></td>
+                <td class="text-nowrap small"><%= a.expire_date ? new Date(a.expire_date).toLocaleDateString('sv-SE') : '-' %></td>
                 <td class="text-nowrap small"><%= a.created_at ? new Date(a.created_at).toLocaleDateString() : '-' %></td>
                 <td class="text-nowrap small"><%= a.updated_at ? new Date(a.updated_at).toLocaleDateString() : '-' %></td>
                 <td class="text-center">
@@ -326,6 +328,7 @@
                     data-asset_status="<%= a.asset_status || '' %>"
                     data-x_asset_reason="<%= a.x_asset_reason || '' %>"
                     data-x_agreement_id="<%= a.x_agreement_id || '' %>"
+                    data-expire_date="<%= a.expire_date ? new Date(a.expire_date).toLocaleDateString('sv-SE') : '' %>"
                     data-bs-toggle="modal" data-bs-target="#editModal">
                     <i class="bi bi-pencil"></i>
                   </button>
@@ -466,6 +469,10 @@
               <label class="form-label fw-bold small"><%= __('dashboard.table.x_agreement_id') %></label>
               <input name="x_agreement_id" class="form-control form-control-sm">
             </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold small"><%= __('dashboard.table.expire_date') %></label>
+              <input name="expire_date" type="date" class="form-control form-control-sm">
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -504,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function() {
   editModal.addEventListener('show.bs.modal', function(event) {
     const btn = event.relatedTarget;
     const form = this.querySelector('#editForm');
-    const fields = ['asset_id','business_unit','tag_number','tag_number_extend','serial_number_asset','descr','descr_long','model','plant','serial_id','vendor_id','vendor_name','deptid','dept_name','category','category_name','x_asset_status','asset_status','x_asset_reason','x_agreement_id'];
+    const fields = ['asset_id','business_unit','tag_number','tag_number_extend','serial_number_asset','descr','descr_long','model','plant','serial_id','vendor_id','vendor_name','deptid','dept_name','category','category_name','x_asset_status','asset_status','x_asset_reason','x_agreement_id','expire_date'];
     fields.forEach(function(f) {
       const val = btn.getAttribute('data-' + f) || '';
       const el = form.querySelector('[name="' + f + '"]');
