@@ -10,6 +10,9 @@
           <% if (error) { %>
             <div class="alert alert-danger"><%= error %></div>
           <% } %>
+          <% if (query && query.register === 'disabled') { %>
+            <div class="alert alert-warning"><%= __('auth.registration_disabled') %></div>
+          <% } %>
           <form action="/login" method="POST">
             <div class="mb-3">
               <label class="form-label"><%= __('auth.username') %></label>
@@ -21,9 +24,11 @@
             </div>
             <button type="submit" class="btn btn-primary w-100"><%= __('auth.login_btn') %></button>
           </form>
+          <% if (ALLOW_REGISTRATION) { %>
           <p class="text-center mt-3 mb-0">
             <%= __('auth.no_account') %> <a href="/register"><%= __('auth.register_btn') %></a>
           </p>
+          <% } %>
         </div>
       </div>
     </div>

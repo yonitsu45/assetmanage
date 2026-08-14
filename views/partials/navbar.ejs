@@ -44,7 +44,9 @@
         <i class="bi bi-moon-stars" id="themeIcon"></i>
       </button>
       <a href="/login" class="btn btn-outline-light btn-sm me-2"><%= __('nav.login') %></a>
+      <% if (ALLOW_REGISTRATION) { %>
       <a href="/register" class="btn btn-light btn-sm"><%= __('nav.register') %></a>
+      <% } %>
     <% } %>
   </div>
 </nav>

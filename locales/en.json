@@ -271,6 +271,7 @@
     "login_btn": "Login",
     "register_btn": "Register",
     "no_account": "Don't have an account?",
+    "registration_disabled": "Registration is currently disabled. Please contact an administrator.",
     "has_account": "Already have an account?",
     "error_required": "Please fill in all required fields",
     "error_invalid": "Invalid username or password",

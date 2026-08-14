@@ -25,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.set('trust proxy', 1);
 
 const sessionStore = new MySQLStore({
   host: process.env.DB_HOST || 'localhost',
@@ -41,7 +42,11 @@ app.use(session({
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: parseInt(process.env.SESSION_EXPIRY) || 86400000 }
+  cookie: {
+    maxAge: parseInt(process.env.SESSION_EXPIRY) || 86400000,
+    httpOnly: true,
+    secure: process.env.COOKIE_SECURE === 'true'
+  }
 }));
 
 app.use(localeMiddleware);
@@ -65,6 +70,7 @@ app.use((req, res, next) => {
   } : null;
   res.locals.currentPath = req.path;
   res.locals.query = req.query;
+  res.locals.ALLOW_REGISTRATION = process.env.ALLOW_REGISTRATION !== 'false';
   next();
 });
 
@@ -93,11 +99,12 @@ const adminRoutes = require('./routes/admin');
 app.use('/admin', requireAuth, requireSuperAdmin, adminRoutes);
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 initDB()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+    app.listen(PORT, HOST, () => {
+      console.log(`Server running on http://${HOST}:${PORT}`);
     });
   })
   .catch(err => {

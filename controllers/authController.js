@@ -3,6 +3,9 @@ const User = require('../models/user');
 
 const SALT_ROUNDS = 10;
 
+// Registration is open by default (local dev); set ALLOW_REGISTRATION=false to close it (production).
+const isRegistrationOpen = () => process.env.ALLOW_REGISTRATION !== 'false';
+
 const authController = {
   showLogin(req, res) {
     res.render('login', { error: null });
@@ -35,6 +38,7 @@ const authController = {
   },
 
   showRegister(req, res) {
+    if (!isRegistrationOpen()) return res.redirect('/login?register=disabled');
     const Department = require('../models/department');
     Department.getAll().then(departments => {
       res.render('register', { error: null, departments });
@@ -44,6 +48,7 @@ const authController = {
   },
 
   async register(req, res) {
+    if (!isRegistrationOpen()) return res.redirect('/login?register=disabled');
     const { username, email, password, confirm_password, full_name, role, department } = req.body;
 
     if (!username || !email || !password) {
