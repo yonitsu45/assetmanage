@@ -46,6 +46,7 @@
       '<div class="meta">' +
       '<div><span>' + e(opts.labelAgreement || '') + ':</span> ' + e(opts.agreement || '') + '</div>' +
       '<div><span>' + e(opts.labelVendor || '') + ':</span> ' + e(opts.vendor || '') + '</div>' +
+      '<div><span>' + e(opts.labelExpireDate || '') + ':</span> ' + e(opts.expire_date || '') + '</div>' +
       '</div>' +
       '</div>' +
       '<div class="qrw"><img src="' + opts.qrUrl + '"></div>' +

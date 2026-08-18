@@ -156,8 +156,10 @@ document.addEventListener('DOMContentLoaded', function () {
       descr: '<%= asset ? asset.descr : '' %>',
       agreement: '<%= asset ? asset.x_agreement_id : '' %>',
       vendor: '<%= asset ? asset.vendor_name : '' %>',
+      expire_date: '<%= asset ? asset.expire_date : '' %>',
       labelAgreement: <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>,
-      labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>
+      labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>,
+      labelExpireDate: <%- JSON.stringify(__('dashboard.table.expire_date')) %>
     });
   });
 });

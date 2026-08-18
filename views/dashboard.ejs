@@ -303,6 +303,7 @@
                     data-descr="<%= a.descr || '' %>"
                     data-x_agreement_id="<%= a.x_agreement_id || '' %>"
                     data-vendor_name="<%= a.vendor_name || '' %>"
+                    data-expire_date="<%= a.expire_date || '' %>"
                     data-bs-toggle="modal" data-bs-target="#qrModal">
                     <i class="bi bi-qr-code"></i>
                   </button>
@@ -552,8 +553,10 @@ document.addEventListener('DOMContentLoaded', function() {
       descr: get('data-descr'),
       agreement: get('data-x_agreement_id'),
       vendor: get('data-vendor_name'),
+      expire_date: get('data-expire_date'),
       labelAgreement: <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>,
-      labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>
+      labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>,
+      labelExpireDate: <%- JSON.stringify(__('dashboard.table.expire_date')) %>
     });
   });
 
@@ -565,6 +568,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const selectedCountEl = document.getElementById('selectedCount');
   const labelAgreement = <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>;
   const labelVendor = <%- JSON.stringify(__('dashboard.table.vendor_name')) %>;
+  const labelExpireDate = <%- JSON.stringify(__('dashboard.table.expire_date')) %>;
 
   function updateSelected() {
     const n = rowChecks.filter(function(c) { return c.checked; }).length;
@@ -621,8 +625,10 @@ document.addEventListener('DOMContentLoaded', function() {
         descr: get('data-descr'),
         agreement: get('data-x_agreement_id'),
         vendor: get('data-vendor_name'),
+        expire_date: get('data-expire_date'),
         labelAgreement: labelAgreement,
-        labelVendor: labelVendor
+        labelVendor: labelVendor,
+        labelExpireDate: labelExpireDate
       });
     });
     printLabels(opts);
