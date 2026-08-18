@@ -187,6 +187,7 @@
             <h5 class="card-title mb-1"><i class="bi bi-file-earmark-excel me-1"></i><%= __('admin.import_dept') %></h5>
             <p class="text-muted small mb-2"><%= __('admin.import_dept_hint') %></p>
             <form action="/admin/departments/import" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <div class="input-group">
                 <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
                 <button type="submit" class="btn btn-success"><i class="bi bi-upload me-1"></i><%= __('admin.import_dept_btn') %></button>
@@ -200,6 +201,7 @@
               <div class="card-body">
                 <h5 class="card-title mb-3"><i class="bi bi-building-add me-1"></i><%= __('admin.add_dept') %></h5>
                 <form action="/admin/departments/add" method="POST">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <div class="mb-2">
                     <label class="form-label small fw-bold mb-1"><%= __('admin.dept_costcenter') %></label>
                     <input type="text" name="costcenter" class="form-control" placeholder="<%= __('admin.dept_costcenter_placeholder') %>">
@@ -237,6 +239,7 @@
                           <td class="small"><%= d.created_at ? new Date(d.created_at).toLocaleDateString() : '-' %></td>
                           <td class="text-center">
                             <form action="/admin/departments/delete/<%= d.id %>" method="POST" class="d-inline" data-confirm="<%= __('admin.delete_dept_confirm', d.name) %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                               <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                             </form>
                           </td>
@@ -259,6 +262,7 @@
             <h5 class="card-title mb-1"><i class="bi bi-file-earmark-excel me-1"></i><%= __('admin.import_category') %></h5>
             <p class="text-muted small mb-2"><%= __('admin.import_category_hint') %></p>
             <form action="/admin/categories/import" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <div class="input-group">
                 <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
                 <button type="submit" class="btn btn-success"><i class="bi bi-upload me-1"></i><%= __('admin.import_category_btn') %></button>
@@ -272,6 +276,7 @@
               <div class="card-body">
                 <h5 class="card-title mb-3"><i class="bi bi-tags me-1"></i><%= __('admin.add_category') %></h5>
                 <form action="/admin/categories/add" method="POST">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <div class="input-group mb-2">
                     <input type="text" name="code" class="form-control" placeholder="CATEGORY (code)" required>
                   </div>
@@ -308,6 +313,7 @@
                           <td class="small"><%= c.created_at ? new Date(c.created_at).toLocaleDateString() : '-' %></td>
                           <td class="text-center">
                             <form action="/admin/categories/delete/<%= c.id %>" method="POST" class="d-inline" data-confirm="<%= __('admin.delete_category_confirm', c.name) %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                               <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                             </form>
                           </td>
@@ -331,6 +337,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="POST" id="editUserForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="modal-header">
           <h5 class="modal-title"><i class="bi bi-pencil me-2"></i><%= __('admin.edit_modal.title') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -381,6 +388,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="POST" id="passwordForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="modal-header">
           <h5 class="modal-title"><i class="bi bi-key me-2"></i><%= __('admin.password_modal.title') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -406,6 +414,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="POST" id="deleteUserForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="modal-header">
           <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i><%= __('admin.delete_modal.title') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

@@ -2,6 +2,7 @@ const { Router } = require('express');
 const router = Router();
 const documentController = require('../controllers/documentController');
 const { uploadPdf } = require('../middleware/upload');
+const { csrfCheck } = require('../middleware/csrf');
 const fs = require('fs');
 
 function renderUploadError(req, res, message) {
@@ -25,10 +26,10 @@ router.post('/upload', (req, res, next) => {
     }
     next();
   });
-}, documentController.upload);
+}, csrfCheck, documentController.upload);
 router.get('/view/:id', documentController.view);
 router.get('/view/:id/file', documentController.viewFile);
 router.get('/download/:id', documentController.download);
-router.post('/delete/:id', documentController.delete);
+router.post('/delete/:id', csrfCheck, documentController.delete);
 
 module.exports = router;

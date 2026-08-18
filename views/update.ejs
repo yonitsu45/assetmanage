@@ -24,6 +24,7 @@
         <div class="card-body">
           <p class="text-muted small mb-3"><%= __('update.subtitle') %></p>
           <form action="/update/preview" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="mb-4">
               <label class="form-label fw-bold"><%= __('update.select_file') %></label>
               <div class="upload-zone border border-2 border-dashed rounded p-5 text-center" id="dropZone">
@@ -80,6 +81,7 @@
       </div>
 
       <form method="POST" action="/update/apply">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <% if (preview.changed.length === 0 && preview.toCreate.length === 0) { %>
           <div class="alert alert-info"><%= __('update.no_changes') %></div>
         <% } %>
@@ -153,6 +155,7 @@
       </form>
 
       <form method="POST" action="/update/cancel" class="d-inline">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" class="btn btn-outline-secondary px-4">
           <i class="bi bi-x-lg me-1"></i> <%= __('update.cancel') %>
         </button>

@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const { ipKeyGenerator } = require('express-rate-limit');
 const authController = require('../controllers/authController');
 const { redirectIfAuth } = require('../middleware/auth');
+const { csrfCheck } = require('../middleware/csrf');
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -24,9 +25,9 @@ const registerLimiter = rateLimit({
 });
 
 router.get('/login', redirectIfAuth, authController.showLogin);
-router.post('/login', redirectIfAuth, loginLimiter, authController.login);
+router.post('/login', redirectIfAuth, loginLimiter, csrfCheck, authController.login);
 router.get('/register', redirectIfAuth, authController.showRegister);
-router.post('/register', redirectIfAuth, registerLimiter, authController.register);
-router.post('/logout', authController.logout);
+router.post('/register', redirectIfAuth, registerLimiter, csrfCheck, authController.register);
+router.post('/logout', csrfCheck, authController.logout);
 
 module.exports = router;

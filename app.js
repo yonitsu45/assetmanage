@@ -8,6 +8,7 @@ const path = require('path');
 
 const { pool, initDB } = require('./config/db');
 const { requireAuth, requireSuperAdmin } = require('./middleware/auth');
+const { generateCsrfToken } = require('./middleware/csrf');
 const Department = require('./models/department');
 
 const localeMiddleware = require('./middleware/locale');
@@ -24,7 +25,6 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('trust proxy', 1);
@@ -76,6 +76,8 @@ app.use(session({
   }
 }));
 
+app.use(generateCsrfToken);
+app.use('/uploads', requireAuth, express.static(path.join(__dirname, 'uploads')));
 app.use(localeMiddleware);
 
 app.get('/lang/:lang', (req, res) => {

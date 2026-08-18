@@ -27,6 +27,7 @@
       <div class="card-body">
         <h6 class="mb-3"><i class="bi bi-box-arrow-right me-1"></i><%= __('transfer.form_title') %></h6>
         <form id="transferForm" method="POST" action="/transfer/create">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label fw-bold"><%= __('transfer.select_assets') %></label>

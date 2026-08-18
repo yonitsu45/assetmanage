@@ -50,6 +50,7 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <form action="/upload/file" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <div class="mb-4">
                 <label class="form-label fw-bold"><%= __('upload.select_file') %></label>
                 <div class="upload-zone border border-2 border-dashed rounded p-5 text-center" id="dropZone">
@@ -75,6 +76,7 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <form action="/upload/manual" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <div class="row g-3">
                 <div class="col-md-4">
                   <label class="form-label">BUSINESS_UNIT <span class="text-danger">*</span></label>

@@ -10,6 +10,7 @@
       <i class="bi bi-speedometer2 me-2"></i><%= __('dashboard.title') %>
       <% if (user.role === 'super_admin') { %>
       <form action="/clear" method="POST" class="d-inline float-end" data-confirm="<%= __('dashboard.clear_confirm') %>" data-confirm-title="<%= __('dashboard.clear_confirm_title') %>">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash3 me-1"></i><%= __('dashboard.clear_all') %></button>
       </form>
       <% } %>
@@ -334,6 +335,7 @@
                     <i class="bi bi-pencil"></i>
                   </button>
                   <form action="/delete/<%= encodeURIComponent(a.asset_id) %>" method="POST" class="d-inline" data-confirm="<%= __('dashboard.delete_confirm', a.asset_id) %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button class="btn btn-sm btn-outline-danger" title="<%= __('dashboard.delete') %>"><i class="bi bi-trash"></i></button>
                   </form>
                   <% } %>
@@ -375,6 +377,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form method="POST" id="editForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="modal-header">
           <h5 class="modal-title"><i class="bi bi-pencil me-2"></i><%= __('dashboard.edit') %> Asset</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -606,6 +609,11 @@ document.addEventListener('DOMContentLoaded', function() {
       statusInput.name = 'status';
       statusInput.value = bulkStatus.value;
       form.appendChild(statusInput);
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = '_csrf';
+      csrfInput.value = '<%= csrfToken %>';
+      form.appendChild(csrfInput);
       document.body.appendChild(form);
       form.submit();
     });

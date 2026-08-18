@@ -2,6 +2,7 @@ const { Router } = require('express');
 const router = Router();
 const uploadController = require('../controllers/uploadController');
 const upload = require('../middleware/upload');
+const { csrfCheck } = require('../middleware/csrf');
 
 function handleMulterError(req, res, next) {
   upload.single('file')(req, res, (err) => {
@@ -16,7 +17,7 @@ function handleMulterError(req, res, next) {
 }
 
 router.get('/', uploadController.showUpload);
-router.post('/file', handleMulterError, uploadController.handleUpload);
-router.post('/manual', uploadController.handleManualEntry);
+router.post('/file', handleMulterError, csrfCheck, uploadController.handleUpload);
+router.post('/manual', csrfCheck, uploadController.handleManualEntry);
 
 module.exports = router;

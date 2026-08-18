@@ -3,6 +3,7 @@ const router = Router();
 const profileController = require('../controllers/profileController');
 const { requireAuth } = require('../middleware/auth');
 const { uploadProfile } = require('../middleware/upload');
+const { csrfCheck } = require('../middleware/csrf');
 
 function handleProfileMulterError(req, res, next) {
   uploadProfile.single('profile_picture')(req, res, (err) => {
@@ -16,6 +17,6 @@ function handleProfileMulterError(req, res, next) {
   });
 }
 
-router.post('/profile/update', requireAuth, handleProfileMulterError, profileController.update);
+router.post('/profile/update', requireAuth, handleProfileMulterError, csrfCheck, profileController.update);
 
 module.exports = router;

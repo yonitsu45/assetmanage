@@ -2,16 +2,17 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 const upload = require('../middleware/upload');
+const { csrfCheck } = require('../middleware/csrf');
 const fs = require('fs');
 
 router.get('/users', adminController.index);
-router.post('/users/edit/:id', adminController.edit);
-router.post('/users/password/:id', adminController.changePassword);
-router.post('/users/delete/:id', adminController.deleteUser);
+router.post('/users/edit/:id', csrfCheck, adminController.edit);
+router.post('/users/password/:id', csrfCheck, adminController.changePassword);
+router.post('/users/delete/:id', csrfCheck, adminController.deleteUser);
 
 router.get('/departments', adminController.departments);
-router.post('/departments/add', adminController.addDepartment);
-router.post('/departments/delete/:id', adminController.deleteDepartment);
+router.post('/departments/add', csrfCheck, adminController.addDepartment);
+router.post('/departments/delete/:id', csrfCheck, adminController.deleteDepartment);
 router.post('/departments/import', (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
@@ -25,11 +26,11 @@ router.post('/departments/import', (req, res, next) => {
     }
     next();
   });
-}, adminController.importDepartments);
+}, csrfCheck, adminController.importDepartments);
 
 router.get('/categories', adminController.categories);
-router.post('/categories/add', adminController.addCategory);
-router.post('/categories/delete/:id', adminController.deleteCategory);
+router.post('/categories/add', csrfCheck, adminController.addCategory);
+router.post('/categories/delete/:id', csrfCheck, adminController.deleteCategory);
 router.post('/categories/import', (req, res, next) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
@@ -43,6 +44,6 @@ router.post('/categories/import', (req, res, next) => {
     }
     next();
   });
-}, adminController.importCategories);
+}, csrfCheck, adminController.importCategories);
 
 module.exports = router;

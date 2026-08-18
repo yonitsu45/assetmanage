@@ -37,6 +37,7 @@
         <a href="/admin/users" class="btn btn-outline-light btn-sm"><%= __('nav.admin') %></a>
       <% } %>
       <form action="/logout" method="POST" class="m-0">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-outline-light btn-sm" type="submit"><%= __('nav.logout') %></button>
       </form>
     <% } else { %>
@@ -56,6 +57,7 @@
   <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
       <form action="/profile/update" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="modal-header">
           <h5 class="modal-title"><i class="bi bi-person-gear me-2"></i><%= __('nav.profile') %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
