@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const { pool, initDB } = require('./config/db');
@@ -27,6 +29,29 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      imgSrc: ["'self'", "data:"],
+      fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      connectSrc: ["'self'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.use(generalLimiter);
 
 const sessionStore = new MySQLStore({
   host: process.env.DB_HOST || 'localhost',
@@ -99,6 +124,15 @@ app.use('/logs', requireAuth, logsRoutes);
 
 const adminRoutes = require('./routes/admin');
 app.use('/admin', requireAuth, requireSuperAdmin, adminRoutes);
+
+app.use((req, res) => {
+  res.status(404).send('Page not found');
+});
+
+app.use((err, req, res, _next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).send('Internal server error');
+});
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
