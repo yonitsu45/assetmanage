@@ -34,11 +34,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://www.google.com", "https://www.gstatic.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:"],
       fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
-      connectSrc: ["'self'"]
+      connectSrc: ["'self'", "https://www.google.com"]
     }
   },
   crossOriginEmbedderPolicy: false
@@ -100,6 +100,7 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.query = req.query;
   res.locals.ALLOW_REGISTRATION = process.env.ALLOW_REGISTRATION !== 'false';
+  res.locals.RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
   next();
 });
 

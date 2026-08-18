@@ -29,5 +29,7 @@ router.post('/login', redirectIfAuth, loginLimiter, csrfCheck, authController.lo
 router.get('/register', redirectIfAuth, authController.showRegister);
 router.post('/register', redirectIfAuth, registerLimiter, csrfCheck, authController.register);
 router.post('/logout', csrfCheck, authController.logout);
+router.get('/verify/:token', authController.verifyEmail);
+router.post('/resend-verify', csrfCheck, authController.resendVerify);
 
 module.exports = router;

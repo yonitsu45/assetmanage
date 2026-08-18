@@ -82,6 +82,20 @@
             <label class="form-label small fw-bold"><%= __('nav.full_name') %></label>
             <input type="text" name="full_name" class="form-control" value="<%= user.fullName %>">
           </div>
+          <div class="mb-2 p-2 bg-light rounded">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small fw-bold text-muted"><%= __('nav.role') %>:</span>
+              <span class="badge bg-<%= user.role === 'super_admin' ? 'danger' : user.role === 'admin' ? 'primary' : 'secondary' %>"><%= user.role %></span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small fw-bold text-muted"><%= __('nav.department') %>:</span>
+              <span class="small"><%= user.department || '-' %></span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small fw-bold text-muted"><%= __('nav.email') %>:</span>
+              <span class="small"><%= user.email %></span>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><%= __('nav.cancel') %></button>

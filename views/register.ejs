@@ -1,6 +1,10 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
+<% if (typeof RECAPTCHA_SITE_KEY !== 'undefined' && RECAPTCHA_SITE_KEY) { %>
+<script src="https://www.google.com/recaptcha/api.js?render=<%= RECAPTCHA_SITE_KEY %>"></script>
+<% } %>
+
 <div class="container">
   <div class="row justify-content-center mt-5">
     <div class="col-md-5">
@@ -22,25 +26,27 @@
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label"><%= __('auth.full_name') %></label>
-              <input type="text" name="full_name" class="form-control">
+              <label class="form-label"><%= __('auth.full_name') %> *</label>
+              <input type="text" name="full_name" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label class="form-label"><%= __('auth.username') %></label>
-              <input type="text" name="username" class="form-control" required>
+              <label class="form-label"><%= __('auth.username') %> *</label>
+              <input type="text" name="username" class="form-control" required pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscores, and dashes only">
             </div>
             <div class="mb-3">
-              <label class="form-label"><%= __('auth.email') %></label>
+              <label class="form-label"><%= __('auth.email') %> *</label>
               <input type="email" name="email" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label class="form-label"><%= __('auth.password') %></label>
-              <input type="password" name="password" class="form-control" required>
+              <label class="form-label"><%= __('auth.password') %> *</label>
+              <input type="password" name="password" class="form-control" required minlength="8">
+              <div class="form-text"><%= __('auth.error_password_complexity') %></div>
             </div>
             <div class="mb-3">
-              <label class="form-label"><%= __('auth.confirm_password') %></label>
+              <label class="form-label"><%= __('auth.confirm_password') %> *</label>
               <input type="password" name="confirm_password" class="form-control" required>
             </div>
+            <input type="hidden" name="g-recaptcha-response" id="recaptchaToken">
             <button type="submit" class="btn btn-primary w-100"><%= __('auth.register_btn') %></button>
           </form>
           <p class="text-center mt-3 mb-0">
@@ -51,5 +57,23 @@
     </div>
   </div>
 </div>
+
+<% if (typeof RECAPTCHA_SITE_KEY !== 'undefined' && RECAPTCHA_SITE_KEY) { %>
+<script>
+document.querySelector('form[action="/register"]').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+  var form = this;
+  grecaptcha.ready(function() {
+    grecaptcha.execute('<%= RECAPTCHA_SITE_KEY %>', {action: 'register'}).then(function(token) {
+      form.querySelector('#recaptchaToken').value = token;
+      form.submit();
+    });
+  });
+});
+</script>
+<% } %>
 
 <%- include('partials/footer') %>

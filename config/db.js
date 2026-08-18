@@ -47,6 +47,9 @@ const initDB = async () => {
   try { await pool.query(`ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user' AFTER full_name`); } catch (e) {}
   try { await pool.query(`ALTER TABLE users ADD COLUMN department VARCHAR(100) AFTER role`); } catch (e) {}
   try { await pool.query(`ALTER TABLE users ADD COLUMN profile_picture VARCHAR(255) AFTER full_name`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE users ADD COLUMN email_verified TINYINT(1) DEFAULT 0`); } catch (e) {}
+  try { await pool.query(`ALTER TABLE users ADD COLUMN verify_token VARCHAR(64) NULL`); } catch (e) {}
+  try { await pool.query(`UPDATE users SET email_verified = 1 WHERE email_verified IS NULL OR email_verified = 0`); } catch (e) {}
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS assets (

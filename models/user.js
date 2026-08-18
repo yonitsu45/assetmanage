@@ -1,9 +1,9 @@
 const { pool } = require('../config/db');
 
 const User = {
-  async create({ username, email, password, full_name, role, department }) {
-    const sql = 'INSERT INTO users (username, email, password, full_name, role, department) VALUES (?, ?, ?, ?, ?, ?)';
-    const [result] = await pool.query(sql, [username, email, password, full_name || null, role || 'user', department || null]);
+  async create({ username, email, password, full_name, role, department, verifyToken }) {
+    const sql = 'INSERT INTO users (username, email, password, full_name, role, department, verify_token) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const [result] = await pool.query(sql, [username, email, password, full_name || null, role || 'user', department || null, verifyToken || null]);
     return result.insertId;
   },
 
@@ -57,6 +57,16 @@ const User = {
 
   async deleteById(id) {
     const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    return result.affectedRows;
+  },
+
+  async findByVerifyToken(token) {
+    const [rows] = await pool.query('SELECT * FROM users WHERE verify_token = ?', [token]);
+    return rows[0] || null;
+  },
+
+  async verifyEmail(id) {
+    const [result] = await pool.query('UPDATE users SET email_verified = 1, verify_token = NULL WHERE id = ?', [id]);
     return result.affectedRows;
   }
 };
