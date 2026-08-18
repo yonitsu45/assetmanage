@@ -102,8 +102,8 @@ function humanizeLog(__, log) {
 const logController = {
   async index(req, res) {
     try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 25;
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 25));
       const module = req.query.module || '';
       const action = req.query.action || '';
       const search = req.query.search || '';

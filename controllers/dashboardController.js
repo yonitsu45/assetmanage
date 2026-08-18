@@ -30,8 +30,8 @@ const dashboardController = {
       const { departments, userDeptEmpty } = effectiveDepartments(req);
       const sortBy = req.query.sort_by || 'created_at';
       const order = req.query.order || 'DESC';
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 25;
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 25));
 
       const data = await Asset.getAll({ search, categories, statuses, departments, sortBy, order, page, limit });
       const summary = await Asset.getSummary(departments);

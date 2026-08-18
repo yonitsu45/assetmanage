@@ -7,8 +7,8 @@ const transferController = {
   async index(req, res) {
     try {
       const search = req.query.search || '';
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 20;
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
       const history = await Transfer.getAll({ search, page, limit });
       res.render('transfer', {
         history,

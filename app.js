@@ -26,6 +26,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
 
 const sessionStore = new MySQLStore({
   host: process.env.DB_HOST || 'localhost',
@@ -45,7 +46,8 @@ app.use(session({
   cookie: {
     maxAge: parseInt(process.env.SESSION_EXPIRY) || 86400000,
     httpOnly: true,
-    secure: process.env.COOKIE_SECURE === 'true'
+    secure: process.env.COOKIE_SECURE === 'true',
+    sameSite: 'lax'
   }
 }));
 

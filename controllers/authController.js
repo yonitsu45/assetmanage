@@ -80,6 +80,7 @@ const authController = {
   logout(req, res) {
     req.session.destroy((err) => {
       if (err) console.error('Session destroy error:', err);
+      res.clearCookie('connect.sid', { path: '/', httpOnly: true, secure: process.env.COOKIE_SECURE === 'true' });
       res.redirect('/login');
     });
   }
