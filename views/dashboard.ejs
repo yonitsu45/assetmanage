@@ -562,6 +562,8 @@ document.addEventListener('DOMContentLoaded', function() {
       labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>,
       labelExpireDate: <%- JSON.stringify(__('dashboard.table.expire_date')) %>
     });
+    var m = bootstrap.Modal.getInstance(qrModal);
+    if (m) m.hide();
   });
 
   const selectAll = document.getElementById('selectAll');
