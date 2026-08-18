@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
       descr: '<%= asset ? asset.descr : '' %>',
       agreement: '<%= asset ? asset.x_agreement_id : '' %>',
       vendor: '<%= asset ? asset.vendor_name : '' %>',
-      expire_date: '<%= asset ? asset.expire_date : '' %>',
+      expire_date: '<%= asset && asset.expire_date ? new Date(asset.expire_date).toLocaleDateString('sv-SE') : '' %>',
       labelAgreement: <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>,
       labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>,
       labelExpireDate: <%- JSON.stringify(__('dashboard.table.expire_date')) %>

@@ -266,7 +266,8 @@
                 data-tag_number="<%= a.tag_number || '' %>"
                 data-descr="<%= a.descr || '' %>"
                 data-x_agreement_id="<%= a.x_agreement_id || '' %>"
-                data-vendor_name="<%= a.vendor_name || '' %>">
+                data-vendor_name="<%= a.vendor_name || '' %>"
+                data-expire_date="<%= a.expire_date ? new Date(a.expire_date).toLocaleDateString('sv-SE') : '' %>">
                 <td class="text-center">
                   <input type="checkbox" class="form-check-input row-check" data-asset_id="<%= a.asset_id %>">
                 </td>
@@ -304,7 +305,7 @@
                     data-descr="<%= a.descr || '' %>"
                     data-x_agreement_id="<%= a.x_agreement_id || '' %>"
                     data-vendor_name="<%= a.vendor_name || '' %>"
-                    data-expire_date="<%= a.expire_date || '' %>"
+                    data-expire_date="<%= a.expire_date ? new Date(a.expire_date).toLocaleDateString('sv-SE') : '' %>"
                     data-bs-toggle="modal" data-bs-target="#qrModal">
                     <i class="bi bi-qr-code"></i>
                   </button>

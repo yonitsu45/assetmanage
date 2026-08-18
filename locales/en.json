@@ -86,7 +86,7 @@
       "asset_status": "Status",
       "x_asset_reason": "Reason",
       "x_agreement_id": "Agreement ID",
-      "expire_date": "Insurance Expiry",
+      "expire_date": "Warranty Expiry",
       "uploaded_at": "Uploaded",
       "modified_at": "Modified",
       "actions": "Actions"
