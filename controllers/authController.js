@@ -56,10 +56,49 @@ function sendVerifyEmail(email, token, lang) {
 
   const transporter = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass } });
   const verifyUrl = `${baseUrl}/verify/${token}`;
-  const subject = lang === 'th' ? 'ยืนยันอีเมลของคุณ - Asset Management' : 'Verify Your Email - Asset Management';
-  const body = lang === 'th'
-    ? `<h2>ยืนยันอีเมลของคุณ</h2><p>คลิกลิงก์ด้านล่างเพื่อยืนยันอีเมล:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p><p>ลิงก์จะหมดอายุใน 24 ชั่วโมง</p>`
-    : `<h2>Verify Your Email</h2><p>Click the link below to verify your email:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p><p>This link expires in 24 hours.</p>`;
+  const subject = 'ยืนยันอีเมลของคุณ - Asset Management';
+  const body = `<!DOCTYPE html>
+<html lang="th">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Segoe UI',Tahoma,Geneva,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 20px;">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+  <tr><td style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:32px 40px;text-align:center;">
+    <div style="font-size:28px;margin-bottom:8px;">&#128274;</div>
+    <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:600;">Asset Management</h1>
+    <p style="color:rgba(255,255,255,0.85);margin:6px 0 0;font-size:13px;">ระบบจัดการทรัพย์สิน</p>
+  </td></tr>
+  <tr><td style="padding:36px 40px 16px;">
+    <h2 style="color:#1e293b;font-size:20px;margin:0 0 16px;font-weight:600;">ยืนยันอีเมลของคุณ</h2>
+    <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
+      ขอบคุณที่สมัครสมาชิกกับเรา กรุณายืนยันอีเมลของคุณโดยคลิกปุ่มด้านล่าง
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+    <tr><td style="background:#2563eb;border-radius:8px;">
+      <a href="${verifyUrl}" style="display:inline-block;padding:14px 40px;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;letter-spacing:0.3px;">ยืนยันอีเมล</a>
+    </td></tr>
+    </table>
+  </td></tr>
+  <tr><td style="padding:8px 40px 32px;">
+    <p style="color:#94a3b8;font-size:13px;line-height:1.6;margin:0;">
+      หรือคัดลอกลิงก์นี้ไปวางในเบราว์เซอร์:<br>
+      <a href="${verifyUrl}" style="color:#2563eb;word-break:break-all;font-size:12px;">${verifyUrl}</a>
+    </p>
+    <p style="color:#94a3b8;font-size:12px;margin:20px 0 0;border-top:1px solid #e2e8f0;padding-top:16px;">
+      &#9200; ลิงก์นี้จะหมดอายุใน 24 ชั่วโมง
+    </p>
+  </td></tr>
+</table>
+<table width="520" cellpadding="0" cellspacing="0">
+  <tr><td style="padding:20px 40px;text-align:center;">
+    <p style="color:#94a3b8;font-size:11px;margin:0;">อัตโนมัติจากระบบ Asset Management &middot; กรุณาอย่าตอบกลับอีเมลนี้</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
 
   return transporter.sendMail({ from, to: email, subject, html: body }).catch(err => {
     console.error('Send verify email error:', err);
