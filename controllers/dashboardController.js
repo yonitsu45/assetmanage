@@ -33,7 +33,6 @@ const dashboardController = {
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const rawLimit = req.query.limit;
       const limit = Math.min(100, Math.max(1, parseInt(rawLimit) || 25));
-      console.log(`[DEBUG] rawLimit=${rawLimit}, parsed=${parseInt(rawLimit)}, limit=${limit}, page=${page}`);
 
       const data = await Asset.getAll({ search, categories, statuses, departments, sortBy, order, page, limit });
       const summary = await Asset.getSummary(departments);

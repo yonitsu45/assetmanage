@@ -102,6 +102,7 @@
     <div class="card shadow-sm">
       <div class="card-body">
         <form method="GET" action="/" id="filterForm">
+          <input type="hidden" name="page" value="1" id="filterPage">
           <div class="row g-2 mb-2">
             <div class="col-md-5">
               <div class="input-group">
@@ -116,7 +117,7 @@
               </div>
             </div>
             <div class="col-md-2 ms-auto">
-              <select name="limit" class="form-select" onchange="this.form.submit()">
+              <select name="limit" id="limitSelect" class="form-select">
                 <option value="25" <%= limit === 25 ? 'selected' : '' %>>25 <%= __('dashboard.pagination.per_page') %></option>
                 <option value="50" <%= limit === 50 ? 'selected' : '' %>>50 <%= __('dashboard.pagination.per_page') %></option>
                 <option value="100" <%= limit === 100 ? 'selected' : '' %>>100 <%= __('dashboard.pagination.per_page') %></option>
@@ -202,7 +203,7 @@
           <span class="text-muted small"><%= __('dashboard.select_hint') %></span>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-scroll-wrapper">
           <table class="table table-hover table-striped table-sm align-middle table-bordered-columns asset-table">
             <thead class="table-dark">
               <tr>
@@ -644,9 +645,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     printLabels(opts);
   });
+
+  var limitSelect = document.getElementById('limitSelect');
+  if (limitSelect) {
+    limitSelect.addEventListener('change', function() {
+      document.getElementById('filterPage').value = '1';
+      document.getElementById('filterForm').submit();
+    });
+  }
 });
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="/js/qr.js"></script>
 
