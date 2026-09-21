@@ -7,3 +7,6 @@ documents/*
 !documents/.gitkeep
 previews/*
 !previews/.gitkeep
+.docx
+.md
+.pdf
