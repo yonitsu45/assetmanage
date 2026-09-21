@@ -14,6 +14,16 @@
           <% if (error) { %>
             <div class="alert alert-danger"><%= error %></div>
           <% } %>
+          <% if (typeof noAdmin !== 'undefined' && noAdmin) { %>
+          <div class="alert alert-warning border-start border-4 border-warning mb-3">
+            <div class="fw-bold"><i class="bi bi-shield-lock me-2"></i><%= __('auth.first_admin_title') %></div>
+            <div class="small mb-2"><%= __('auth.first_admin_desc') %></div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="becomeAdmin" name="become_admin" value="1" checked>
+              <label class="form-check-label fw-semibold" for="becomeAdmin"><%= __('auth.first_admin_label') %></label>
+            </div>
+          </div>
+          <% } %>
           <form action="/register" method="POST">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="mb-3">

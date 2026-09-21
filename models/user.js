@@ -7,6 +7,27 @@ const User = {
     return result.insertId;
   },
 
+  async count() {
+    const [rows] = await pool.query('SELECT COUNT(*) AS cnt FROM users');
+    return rows[0].cnt;
+  },
+
+  async countAdmins() {
+    const [rows] = await pool.query(`SELECT COUNT(*) AS cnt FROM users WHERE role = 'super_admin'`);
+    return rows[0].cnt;
+  },
+
+  async createFirstAdmin({ username, email, password, full_name, department }) {
+    const sql = `
+      INSERT INTO users (username, email, password, full_name, role, department, email_verified)
+      SELECT ?, ?, ?, ?, 'super_admin', ?, 1
+      FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM users WHERE role = 'super_admin')
+    `;
+    const [result] = await pool.query(sql, [username, email, password, full_name || null, department || null]);
+    return result.affectedRows;
+  },
+
   async findByUsername(username) {
     const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
     return rows[0] || null;

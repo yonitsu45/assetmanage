@@ -185,6 +185,13 @@ const initDB = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
   } catch (e) {}
+
+  try {
+    const [admins] = await pool.query(`SELECT COUNT(*) AS cnt FROM users WHERE role = 'super_admin'`);
+    if (admins[0].cnt === 0) {
+      console.warn('[BOOTSTRAP] ยังไม่มี Super Admin ในระบบ — รัน: npm run create-admin (หรือให้ผู้ใช้คนแรกติ๊ก \"Super Admin\" ตอนสมัคร)');
+    }
+  } catch (e) {}
 };
 
 module.exports = { pool, initDB };

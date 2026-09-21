@@ -149,10 +149,10 @@ const authController = {
   showRegister(req, res) {
     if (!isRegistrationOpen()) return res.redirect('/login?register=disabled');
     const Department = require('../models/department');
-    Department.getAll().then(departments => {
-      res.render('register', { error: null, departments });
+    Promise.all([Department.getAll(), User.countAdmins()]).then(([departments, admins]) => {
+      res.render('register', { error: null, departments, noAdmin: admins === 0 });
     }).catch(() => {
-      res.render('register', { error: null, departments: [] });
+      res.render('register', { error: null, departments: [], noAdmin: false });
     });
   },
 
@@ -216,11 +216,22 @@ const authController = {
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const verifyToken = crypto.randomBytes(32).toString('hex');
-    const userId = await User.create({ username, email, password: hashedPassword, full_name, role: 'user', department, verifyToken });
+    let role = 'user';
 
-    await sendVerifyEmail(email, verifyToken, req.session.lang);
+    if (req.body.become_admin === '1') {
+      const affected = await User.createFirstAdmin({ username, email, password: hashedPassword, full_name, department });
+      if (affected === 1) {
+        role = 'super_admin';
+      }
+    }
 
-    res.render('login', { error: null, success: req.__('auth.verify_email_sent') });
+    if (role === 'super_admin') {
+      res.render('login', { error: null, success: req.__('auth.admin_created') });
+    } else {
+      await User.create({ username, email, password: hashedPassword, full_name, role, department, verifyToken });
+      await sendVerifyEmail(email, verifyToken, req.session.lang);
+      res.render('login', { error: null, success: req.__('auth.verify_email_sent') });
+    }
   },
 
   async verifyEmail(req, res) {
