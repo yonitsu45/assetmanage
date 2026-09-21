@@ -133,7 +133,7 @@ body {
   width: 250px;
   min-height: calc(100vh - 56px);
   transition: width 0.3s ease;
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border-color);
@@ -205,6 +205,18 @@ body {
 .sidebar .dropdown-menu {
   max-height: min(60vh, 420px);
   overflow-y: auto;
+}
+#deptDropdownMenu {
+  width: max-content;
+  min-width: 340px;
+  max-width: min(76vw, 420px);
+}
+#deptDropdownMenu .dropdown-item,
+#deptDropdownMenu .dropdown-item-text {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
 }
 
 /* ─── Main ─── */
