@@ -12,6 +12,7 @@ const { generateCsrfToken } = require('./middleware/csrf');
 const Department = require('./models/department');
 
 const localeMiddleware = require('./middleware/locale');
+const publicRoutes = require('./routes/public');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const uploadRoutes = require('./routes/upload');
@@ -117,6 +118,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use('/', authRoutes);
+app.use('/', publicRoutes);
 app.use('/', requireAuth, dashboardRoutes);
 app.use('/', requireAuth, profileRoutes);
 app.use('/upload', requireAuth, uploadRoutes);

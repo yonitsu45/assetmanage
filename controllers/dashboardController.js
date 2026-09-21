@@ -71,8 +71,10 @@ const dashboardController = {
     try {
       const asset = await Asset.getById(req.params.asset_id);
       if (!asset) return res.status(404).render('asset-detail', { asset: null, error: req.__('asset_detail.not_found') });
-      if (req.session.role !== 'super_admin' && asset.dept_name !== req.session.department) {
-        return res.status(404).render('asset-detail', { asset: null, error: req.__('asset_detail.not_found') });
+      if (req.session && req.session.userId) {
+        if (req.session.role !== 'super_admin' && asset.dept_name !== req.session.department) {
+          return res.status(404).render('asset-detail', { asset: null, error: req.__('asset_detail.not_found') });
+        }
       }
       const history = await Transfer.getByAsset(asset.asset_id);
       res.render('asset-detail', { asset, error: null, history });

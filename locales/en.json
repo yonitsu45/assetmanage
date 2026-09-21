@@ -119,6 +119,7 @@
     "qr_title": "QR Code",
     "download": "Download",
     "print": "Print Label",
+    "public_note": "You are viewing this asset publicly (read-only). Sign in to manage this asset.",
     "transfer_history": "Transfer History"
   },
   "documents": {
