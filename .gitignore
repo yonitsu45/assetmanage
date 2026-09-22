@@ -7,7 +7,7 @@ documents/*
 !documents/.gitkeep
 previews/*
 !previews/.gitkeep
-.docx
-.md
-.pdf
+*.docx
+*.md
+*.pdf
 ~$*
