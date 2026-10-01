@@ -174,6 +174,8 @@ const updateController = {
     const username = req.session.username;
 
     try {
+      const toUpdate = [];
+      const toCreate = [];
       for (const item of pending.rows) {
         if (item.status === 'changed') {
           const data = {};
@@ -184,33 +186,46 @@ const updateController = {
             }
           }
           if (Object.keys(data).length > 0) {
-            await Asset.update(item.assetId, data, userId);
+            toUpdate.push({ item, data });
+          }
+        } else if (item.status === 'new') {
+          if (req.body[`include_${item.key}`]) {
+            toCreate.push(item.row);
+          }
+        }
+      }
+
+      const BATCH = 100;
+      for (let i = 0; i < toUpdate.length; i += BATCH) {
+        const chunk = toUpdate.slice(i, i + BATCH);
+        const results = await Promise.all(chunk.map(({ item, data }) => Asset.update(item.assetId, data, userId)));
+        for (let j = 0; j < chunk.length; j++) {
+          if (results[j] > 0) {
             updated++;
             await ActivityLog.create({
               userId,
               username,
               action: 'update',
               module: 'asset',
-              target: item.assetId,
-              details: JSON.stringify({ source: 'update', fields: Object.keys(data) })
+              target: chunk[j].item.assetId,
+              details: JSON.stringify({ source: 'update', fields: Object.keys(chunk[j].data) })
             });
           }
-        } else if (item.status === 'new') {
-          if (req.body[`include_${item.key}`]) {
-            const { inserted } = await Asset.bulkInsert([item.row], userId);
-            if (inserted > 0) {
-              added++;
-              await ActivityLog.create({
-                userId,
-                username,
-                action: 'create',
-                module: 'asset',
-                target: item.assetId,
-                details: JSON.stringify({ source: 'update' })
-              });
-            }
-          }
         }
+      }
+
+      for (let i = 0; i < toCreate.length; i += BATCH) {
+        const chunk = toCreate.slice(i, i + BATCH);
+        const { inserted } = await Asset.bulkInsert(chunk, userId);
+        added += inserted;
+        await ActivityLog.create({
+          userId,
+          username,
+          action: 'create',
+          module: 'asset',
+          target: `${chunk[0].asset_id}...${chunk[chunk.length - 1].asset_id} (${inserted})`,
+          details: JSON.stringify({ source: 'update', batch: inserted })
+        });
       }
 
       deletePreview(req.session.updatePreviewToken);
