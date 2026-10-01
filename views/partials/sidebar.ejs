@@ -8,7 +8,7 @@ var btnLabel = currentDeptName || __('sidebar.all');
 %>
 <div class="sidebar d-flex flex-column flex-shrink-0" id="sidebar">
   <div class="sidebar-header d-flex align-items-center justify-content-between">
-    <% if (user.role === 'super_admin') { %>
+    <% if (user.role !== 'user') { %>
     <div class="dropdown w-100">
       <button class="dept-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bi bi-funnel me-1"></i> <span class="sidebar-text"><%= btnLabel %></span>
@@ -59,7 +59,7 @@ var btnLabel = currentDeptName || __('sidebar.all');
       </a>
     </li>
     <% } %>
-    <% if (user.role === 'super_admin') { %>
+    <% if (user.role !== 'user') { %>
     <li class="nav-item">
       <a href="/transfer" class="nav-link <%= isActive('/transfer') %>">
         <i class="bi bi-arrow-left-right me-2 fs-5"></i>

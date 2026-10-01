@@ -412,6 +412,11 @@
     "title": "Confirm"
   },
   "transfer": {
+    "no_selection_hint": "No assets selected yet",
+    "no_dept_badge": "No department",
+    "dashboard_btn": "Transfer selected",
+    "open_btn": "Transfer assets",
+    "form_hint": "Pick the assets and the destination department to transfer them",
     "title": "Transfer Assets",
     "form_title": "Transfer assets between departments",
     "select_assets": "Assets to transfer",

@@ -52,7 +52,7 @@
       <div class="ms-auto">
         <form id="uploadForm" action="/documents/upload<%= qUpload ? '?' + qUpload.slice(1) : '' %>" method="POST" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <% if (userRole === 'super_admin') { %>
+          <% if (userRole !== 'user') { %>
             <select id="uploadDept" class="form-select form-select-sm" required style="max-width:200px;">
               <option value="" disabled <%= currentDept ? '' : 'selected' %>><%= __('documents.select_dept') %></option>
               <% departments.forEach(function(d) { %>
@@ -107,7 +107,7 @@
               <div class="doc-actions">
                 <a href="/documents/view/<%= doc.id %>" class="btn btn-sm btn-outline-primary" title="<%= __('documents.view') %>"><i class="bi bi-eye"></i></a>
                 <a href="/documents/download/<%= doc.id %>" class="btn btn-sm btn-outline-success" title="<%= __('documents.download') %>"><i class="bi bi-download"></i></a>
-                <% var canDel = (userRole === 'super_admin') || (userRole === 'admin' && doc.department && userDept && doc.department === userDept); if (canDel) { %>
+                <% var canDel = userRole !== 'user'; if (canDel) { %>
                 <form action="/documents/delete/<%= doc.id %>" method="POST" class="d-inline" data-confirm="<%= __('documents.delete_confirm') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <button type="submit" class="btn btn-sm btn-outline-danger" title="<%= __('documents.delete') %>"><i class="bi bi-trash"></i></button>
@@ -152,7 +152,7 @@
                         <div class="d-flex gap-1">
                           <a href="/documents/view/<%= doc.id %>" class="btn btn-sm btn-outline-primary" title="<%= __('documents.view') %>"><i class="bi bi-eye"></i></a>
                           <a href="/documents/download/<%= doc.id %>" class="btn btn-sm btn-outline-success" title="<%= __('documents.download') %>"><i class="bi bi-download"></i></a>
-                          <% var canDel = (userRole === 'super_admin') || (userRole === 'admin' && doc.department && userDept && doc.department === userDept); if (canDel) { %>
+                          <% var canDel = userRole !== 'user'; if (canDel) { %>
                           <form action="/documents/delete/<%= doc.id %>" method="POST" class="d-inline" data-confirm="<%= __('documents.delete_confirm') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <button type="submit" class="btn btn-sm btn-outline-danger" title="<%= __('documents.delete') %>"><i class="bi bi-trash"></i></button>

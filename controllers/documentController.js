@@ -46,7 +46,7 @@ function buildQueryString(opts) {
 }
 
 function effectiveDept(req) {
-  if (req.session.role === 'super_admin') {
+  if (req.session.role !== 'user') {
     return { dept: req.query.dept || '', userDeptEmpty: false };
   }
   const dept = req.session.department;
@@ -54,7 +54,7 @@ function effectiveDept(req) {
 }
 
 function canAccessDoc(req, doc) {
-  if (req.session.role === 'super_admin') return true;
+  if (req.session.role !== 'user') return true;
   return !!(doc.department && req.session.department && doc.department === req.session.department);
 }
 
@@ -91,8 +91,8 @@ const documentController = {
 
   async upload(req, res) {
     const o = buildOptsFromQuery(req);
-    const isSuper = req.session.role === 'super_admin';
-    const uploadDept = isSuper ? String(req.query.dept || req.body.dept || '').trim() : (req.session.department || '');
+    const isScoped = req.session.role === 'user';
+    const uploadDept = isScoped ? (req.session.department || '') : String(req.query.dept || req.body.dept || '').trim();
 
     if (req.session.role === 'user') {
       if (req.file) fs.unlink(req.file.path, () => {});
@@ -182,15 +182,8 @@ const documentController = {
       const doc = await Document.findById(req.params.id);
       if (!doc) return res.redirect('/documents');
 
-      const userRole = req.session.role;
-      const userDept = req.session.department;
-
-      if (userRole !== 'super_admin') {
-        let allowed = false;
-        if (userRole === 'admin' && doc.department && userDept && doc.department === userDept) allowed = true;
-        if (!allowed) {
-          return documentController.renderIndex(req, res, { error: req.__('documents.error_delete') });
-        }
+      if (req.session.role === 'user') {
+        return documentController.renderIndex(req, res, { error: req.__('documents.error_delete') });
       }
 
       fs.unlink(doc.filepath, () => {});

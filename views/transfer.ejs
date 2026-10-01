@@ -24,48 +24,14 @@
     <% } %>
 
     <div class="card shadow-sm mb-4">
-      <div class="card-body">
-        <h6 class="mb-3"><i class="bi bi-box-arrow-right me-1"></i><%= __('transfer.form_title') %></h6>
-        <form id="transferForm" method="POST" action="/transfer/create">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label fw-bold"><%= __('transfer.select_assets') %></label>
-              <input type="text" class="form-control" id="assetSearch" autocomplete="off" placeholder="<%= __('transfer.search_assets') %>">
-              <div class="list-group position-absolute w-100 z-3" id="assetResults" style="max-height:240px; overflow-y:auto;"></div>
-              <ul class="list-group mt-2" id="selectedAssets" style="max-height:200px; overflow-y:auto;"></ul>
-              <div id="hiddenAssets"></div>
-              <span class="text-muted small" id="selectedCountText"><%= __('transfer.selected_assets', 0) %></span>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-bold"><%= __('transfer.to_dept') %></label>
-              <% if (departments && departments.length > 0) { %>
-                <select class="d-none" id="toDept" name="to_dept">
-                  <option value=""><%= __('transfer.to_dept_placeholder') %></option>
-                  <% departments.forEach(function(d) { %>
-                    <option value="<%= d.name %>"><%= d.name %></option>
-                  <% }); %>
-                </select>
-                <script type="application/json" id="toDeptOptions"><%- JSON.stringify(departments.map(function(d){return d.name;})) %></script>
-                <div class="position-relative">
-                  <input type="text" class="form-control" id="toDeptInput" autocomplete="off" placeholder="<%= __('transfer.to_dept_placeholder') %>" data-no-match="<%= __('transfer.no_dept_match') %>">
-                  <div class="list-group position-absolute w-100 z-3 d-none shadow-sm" id="toDeptList" style="max-height:220px; overflow-y:auto;"></div>
-                </div>
-              <% } else { %>
-                <input type="text" class="form-control" id="toDept" name="to_dept" placeholder="<%= __('transfer.to_dept_placeholder') %>">
-              <% } %>
-              <div class="mt-3">
-                <label class="form-label fw-bold"><%= __('transfer.note') %></label>
-                <textarea class="form-control" name="note" rows="2" maxlength="500" placeholder="<%= __('transfer.note_placeholder') %>"></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="mt-3">
-            <button type="submit" class="btn btn-primary px-4" id="transferSubmit" disabled>
-              <i class="bi bi-arrow-left-right me-1"></i><%= __('transfer.transfer_btn') %>
-            </button>
-          </div>
-        </form>
+      <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <h6 class="mb-1"><i class="bi bi-box-arrow-right me-1"></i><%= __('transfer.form_title') %></h6>
+          <span class="text-muted small"><%= __('transfer.form_hint') %></span>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transferModal">
+          <i class="bi bi-arrow-left-right me-1"></i><%= __('transfer.open_btn') %>
+        </button>
       </div>
     </div>
 
@@ -140,107 +106,7 @@
   </div>
 </div>
 
-<script>
-(function() {
-  var state = {};
-  var searchInput = document.getElementById('assetSearch');
-  var resultsBox = document.getElementById('assetResults');
-  var selectedList = document.getElementById('selectedAssets');
-  var hiddenContainer = document.getElementById('hiddenAssets');
-  var toDept = document.getElementById('toDept');
-  var form = document.getElementById('transferForm');
-  var submitBtn = document.getElementById('transferSubmit');
-  var countText = document.getElementById('selectedCountText');
-  var noResultMsg = <%- JSON.stringify(__('transfer.no_asset_found')) %>;
-  var selectedMsg = <%- JSON.stringify(__('transfer.selected_assets')) %>;
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, function(ch) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-    });
-  }
-
-  function renderSelected() {
-    selectedList.innerHTML = '';
-    hiddenContainer.innerHTML = '';
-    var keys = Object.keys(state);
-    keys.forEach(function(id) {
-      var li = document.createElement('li');
-      li.className = 'list-group-item d-flex justify-content-between align-items-center py-1';
-      var span = document.createElement('span');
-      span.className = 'small';
-      span.textContent = id;
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn btn-sm btn-outline-danger';
-      btn.innerHTML = '<i class="bi bi-x-lg"></i>';
-      btn.addEventListener('click', function() { delete state[id]; renderSelected(); });
-      li.appendChild(span);
-      li.appendChild(btn);
-      selectedList.appendChild(li);
-      var inp = document.createElement('input');
-      inp.type = 'hidden';
-      inp.name = 'asset_ids';
-      inp.value = id;
-      hiddenContainer.appendChild(inp);
-    });
-    submitBtn.disabled = keys.length === 0;
-    countText.textContent = selectedMsg.replace('%d', keys.length);
-  }
-
-  var timer;
-  searchInput.addEventListener('input', function() {
-    clearTimeout(timer);
-    timer = setTimeout(function() {
-      var q = searchInput.value.trim();
-      if (q.length < 1) { resultsBox.innerHTML = ''; return; }
-      fetch('/transfer/search?q=' + encodeURIComponent(q))
-        .then(function(r) { return r.json(); })
-        .then(function(items) {
-          if (!items.length) {
-            resultsBox.innerHTML = '<div class="list-group-item small text-muted">' + noResultMsg + '</div>';
-            return;
-          }
-          resultsBox.innerHTML = items.map(function(it) {
-            return '<button type="button" class="list-group-item list-group-item-action" data-id="' + escapeHtml(it.asset_id) + '">'
-              + '<div class="fw-bold small">' + escapeHtml(it.asset_id) + '</div>'
-              + '<div class="small text-muted">' + escapeHtml(it.descr || '') + (it.dept_name ? ' &middot; ' + escapeHtml(it.dept_name) : '') + '</div>'
-              + '</button>';
-          }).join('');
-        });
-    }, 250);
-  });
-
-  resultsBox.addEventListener('click', function(e) {
-    var btn = e.target.closest('[data-id]');
-    if (!btn) return;
-    var id = btn.getAttribute('data-id');
-    if (!(id in state)) state[id] = true;
-    renderSelected();
-    resultsBox.innerHTML = '';
-    searchInput.value = '';
-    searchInput.focus();
-  });
-
-  form.addEventListener('submit', function(e) {
-    var count = Object.keys(state).length;
-    var dept = toDept.value;
-    if (count === 0) {
-      e.preventDefault();
-      Swal.fire({ icon: 'warning', text: <%- JSON.stringify(__('transfer.no_selection')) %> });
-      return;
-    }
-    if (!dept) {
-      e.preventDefault();
-      Swal.fire({ icon: 'warning', text: <%- JSON.stringify(__('transfer.no_dept')) %> });
-      return;
-    }
-    var msg = <%- JSON.stringify(__('transfer.confirm')) %>;
-    msg = msg.replace('%s', count).replace('%s', dept);
-    this.dataset.confirmTitle = <%- JSON.stringify(__('transfer.confirm_title')) %>;
-    this.dataset.confirm = msg;
-  });
-})();
-</script>
+<% transferVariant = 'page'; transferReturnTo = '/transfer' + (search ? '?search=' + encodeURIComponent(search) : ''); %>
+<%- include('partials/transfer-modal') %>
 
 <%- include('partials/footer') %>

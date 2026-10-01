@@ -3,9 +3,25 @@ const Asset = require('../models/asset');
 const Transfer = require('../models/transfer');
 const ActivityLog = require('../models/activityLog');
 
-// Transfer is restricted to super_admin only (same rule as routes/transfer.js).
+// Transfer is available to admin and super_admin (same rule as routes/transfer.js).
 // This guard protects the endpoints even if a request bypasses the route middleware.
-const canTransfer = (req) => !!req.session && req.session.role === 'super_admin';
+const canTransfer = (req) =>
+  !!req.session && (req.session.role === 'admin' || req.session.role === 'super_admin');
+
+// Only same-origin paths are accepted so return_to cannot be used for an open redirect.
+const safeReturnTo = (value, fallback) => {
+  const v = (value || '').toString().trim();
+  if (!v.startsWith('/')) return fallback;
+  if (v.startsWith('//') || v.startsWith('/\\')) return fallback;
+  if (v.includes('\\') || /[\r\n]/.test(v)) return fallback;
+  return v;
+};
+
+const withQuery = (path, params) => {
+  const qs = new URLSearchParams(params).toString();
+  if (!qs) return path;
+  return path + (path.includes('?') ? '&' : '?') + qs;
+};
 
 const transferController = {
   async index(req, res) {
@@ -52,22 +68,27 @@ const transferController = {
   async create(req, res) {
     try {
       if (!canTransfer(req)) return res.redirect('/');
+      const back = safeReturnTo(req.body.return_to, '/transfer');
       let ids = req.body.asset_ids;
       if (!Array.isArray(ids)) ids = ids ? [ids] : [];
       ids = ids.map(String).filter(Boolean);
       const toDept = (req.body.to_dept || '').toString().trim();
       const note = (req.body.note || '').toString().trim();
 
-      if (ids.length === 0) return res.redirect('/transfer?error=no_selection');
-      if (!toDept) return res.redirect('/transfer?error=no_dept');
+      if (ids.length === 0) return res.redirect(withQuery(back, { error: 'no_selection' }));
+      if (!toDept) return res.redirect(withQuery(back, { error: 'no_dept' }));
 
       const assetMap = await Asset.getByAssetIds(ids);
       const missing = ids.filter(id => !assetMap.has(id));
-      if (missing.length > 0) return res.redirect('/transfer?error=not_found&count=' + missing.length);
+      if (missing.length > 0) {
+        return res.redirect(withQuery(back, { error: 'not_found', count: missing.length }));
+      }
 
       const assets = Array.from(assetMap.values());
       const toMove = assets.filter(a => (a.dept_name || '') !== toDept);
-      if (toMove.length === 0) return res.redirect('/transfer?error=no_change&count=' + assets.length);
+      if (toMove.length === 0) {
+        return res.redirect(withQuery(back, { error: 'no_change', count: assets.length }));
+      }
 
       const moveIds = toMove.map(a => a.asset_id);
       await Asset.bulkTransferDepartment(moveIds, toDept, req.session.userId);
@@ -91,10 +112,10 @@ const transferController = {
         details: JSON.stringify({ to_dept: toDept, count: moveIds.length, asset_ids: moveIds, note: note || null })
       });
 
-      res.redirect('/transfer?success=' + moveIds.length);
+      res.redirect(withQuery(back, { success: moveIds.length }));
     } catch (err) {
       console.error('Transfer create error:', err);
-      res.redirect('/transfer?error=failed');
+      res.redirect(withQuery(safeReturnTo(req.body.return_to, '/transfer'), { error: 'failed' }));
     }
   }
 };

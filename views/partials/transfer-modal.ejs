@@ -1,0 +1,79 @@
+<%
+const tVariant = (typeof transferVariant !== 'undefined' && transferVariant) ? transferVariant : 'page';
+const tDepartments = (typeof departments !== 'undefined' && departments) ? departments : [];
+const tReturnTo = (typeof transferReturnTo !== 'undefined' && transferReturnTo) ? transferReturnTo : '/transfer';
+%>
+<div class="modal fade" id="transferModal" tabindex="-1" aria-hidden="true" data-variant="<%= tVariant %>" data-return-to="<%= tReturnTo %>">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="POST" action="/transfer/create" id="transferForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="return_to" id="transferReturnTo" value="<%= tReturnTo %>">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-arrow-left-right me-2"></i><%= __('transfer.form_title') %></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <% if (tVariant === 'page') { %>
+          <div class="mb-3">
+            <label class="form-label fw-bold"><%= __('transfer.select_assets') %></label>
+            <input type="text" class="form-control" id="assetSearch" autocomplete="off" placeholder="<%= __('transfer.search_assets') %>">
+            <div class="list-group position-absolute w-100 z-3" id="assetResults" style="max-height:240px; overflow-y:auto;"></div>
+          </div>
+          <% } %>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <% if (tVariant !== 'page') { %>
+              <label class="form-label fw-bold"><%= __('transfer.select_assets') %></label>
+              <% } %>
+              <div class="border rounded p-2 bg-light">
+                <ul class="list-group" id="selectedAssets" style="max-height:220px; overflow-y:auto;"></ul>
+                <div id="hiddenAssets"></div>
+                <div class="text-muted small text-center py-2" id="selectedEmpty"><%= __('transfer.no_selection_hint') %></div>
+              </div>
+              <span class="text-muted small mt-1 d-block" id="selectedCountText"><%= __('transfer.selected_assets', 0) %></span>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold"><%= __('transfer.to_dept') %></label>
+              <% if (tDepartments.length > 0) { %>
+                <select class="d-none" id="toDept" name="to_dept">
+                  <option value=""><%= __('transfer.to_dept_placeholder') %></option>
+                  <% tDepartments.forEach(function(d) { %>
+                    <option value="<%= d.name %>"><%= d.name %></option>
+                  <% }); %>
+                </select>
+                <script type="application/json" id="toDeptOptions"><%- JSON.stringify(tDepartments.map(function(d){return d.name;})) %></script>
+                <div class="position-relative">
+                  <input type="text" class="form-control" id="toDeptInput" autocomplete="off" placeholder="<%= __('transfer.to_dept_placeholder') %>" data-no-match="<%= __('transfer.no_dept_match') %>">
+                  <div class="list-group position-absolute w-100 z-3 d-none shadow-sm" id="toDeptList" style="max-height:220px; overflow-y:auto;"></div>
+                </div>
+              <% } else { %>
+                <input type="text" class="form-control" id="toDept" name="to_dept" placeholder="<%= __('transfer.to_dept_placeholder') %>">
+              <% } %>
+              <div class="mt-3">
+                <label class="form-label fw-bold"><%= __('transfer.note') %></label>
+                <textarea class="form-control" name="note" rows="3" maxlength="500" placeholder="<%= __('transfer.note_placeholder') %>"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= __('common.cancel') %></button>
+          <button type="submit" class="btn btn-primary px-4" id="transferSubmit" disabled>
+            <i class="bi bi-arrow-left-right me-1"></i><%= __('transfer.transfer_btn') %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script type="application/json" id="transferStrings"><%- JSON.stringify({
+  no_result: __('transfer.no_asset_found'),
+  selected: __('transfer.selected_assets'),
+  no_dept_badge: __('transfer.no_dept_badge'),
+  no_selection: __('transfer.no_selection'),
+  no_dept: __('transfer.no_dept'),
+  confirm: __('transfer.confirm'),
+  confirm_title: __('transfer.confirm_title')
+}) %></script>

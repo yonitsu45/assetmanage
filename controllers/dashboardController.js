@@ -10,10 +10,10 @@ const parseFilter = (val) => {
   return val.split(',').map(s => s.trim()).filter(Boolean);
 };
 
-// Non-super-admin users are locked to their own department.
-// Returns { departments, userDeptEmpty } where departments is the effective filter list.
+// Only plain 'user' accounts are locked to their own department.
+// admin and super_admin both see every department.
 const effectiveDepartments = (req) => {
-  if (req.session.role !== 'super_admin') {
+  if (req.session.role === 'user') {
     const dept = req.session.department || null;
     if (!dept) return { departments: ['__none__'], userDeptEmpty: true };
     return { departments: [dept], userDeptEmpty: false };
@@ -59,7 +59,8 @@ const dashboardController = {
         limit,
         cleared,
         userDeptEmpty,
-        reqQuery: req.query
+        reqQuery: req.query,
+        currentUrl: req.originalUrl
       });
     } catch (err) {
       console.error('Dashboard error:', err);
@@ -72,7 +73,7 @@ const dashboardController = {
       const asset = await Asset.getById(req.params.asset_id);
       if (!asset) return res.status(404).render('asset-detail', { asset: null, error: req.__('asset_detail.not_found') });
       if (req.session && req.session.userId) {
-        if (req.session.role !== 'super_admin' && asset.dept_name !== req.session.department) {
+        if (req.session.role === 'user' && asset.dept_name !== req.session.department) {
           return res.status(404).render('asset-detail', { asset: null, error: req.__('asset_detail.not_found') });
         }
       }
