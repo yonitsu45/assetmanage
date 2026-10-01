@@ -53,15 +53,17 @@ var btnLabel = currentDeptName || __('sidebar.all');
       </a>
     </li>
     <li class="nav-item">
-      <a href="/transfer" class="nav-link <%= isActive('/transfer') %>">
-        <i class="bi bi-arrow-left-right me-2 fs-5"></i>
-        <span class="sidebar-text"><%= __('sidebar.transfer') %></span>
-      </a>
-    </li>
-    <li class="nav-item">
       <a href="/logs" class="nav-link <%= isActive('/logs') %>">
         <i class="bi bi-clock-history me-2 fs-5"></i>
         <span class="sidebar-text"><%= __('sidebar.logs') %></span>
+      </a>
+    </li>
+    <% } %>
+    <% if (user.role === 'super_admin') { %>
+    <li class="nav-item">
+      <a href="/transfer" class="nav-link <%= isActive('/transfer') %>">
+        <i class="bi bi-arrow-left-right me-2 fs-5"></i>
+        <span class="sidebar-text"><%= __('sidebar.transfer') %></span>
       </a>
     </li>
     <% } %>
