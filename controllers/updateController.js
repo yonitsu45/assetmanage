@@ -4,6 +4,7 @@ const path = require('path');
 const Asset = require('../models/asset');
 const ActivityLog = require('../models/activityLog');
 const { ALL_COLUMNS, parseAssetExcel } = require('../helpers/excelParser');
+const { parseDateToISO, formatDMY } = require('../helpers/dateUtil');
 
 const previewsDir = path.join(__dirname, '..', 'previews');
 if (!fs.existsSync(previewsDir)) {
@@ -51,6 +52,18 @@ const COMPARE_COLUMNS = ALL_COLUMNS.filter(col => col !== 'ASSET_ID').map(col =>
 const normalizeValue = (v) => {
   if (v === null || v === undefined) return '';
   return String(v).trim();
+};
+
+const isDateCol = (col) => col === 'expire_date';
+
+const compareValue = (col, v) => {
+  if (isDateCol(col)) return parseDateToISO(v);
+  return normalizeValue(v);
+};
+
+const displayValue = (col, v) => {
+  if (isDateCol(col)) return formatDMY(v);
+  return v === null || v === '' ? '' : String(v);
 };
 
 const COLUMN_LABEL_KEYS = {
@@ -111,10 +124,10 @@ const updateController = {
 
         const diff = [];
         for (const col of COMPARE_COLUMNS) {
-          const oldVal = normalizeValue(existing[col]);
-          const newVal = normalizeValue(row[col]);
+          const oldVal = compareValue(col, existing[col]);
+          const newVal = compareValue(col, row[col]);
           if (oldVal !== newVal) {
-            diff.push({ col, labelKey: COLUMN_LABEL_KEYS[col], old: existing[col], new: row[col] });
+            diff.push({ col, labelKey: COLUMN_LABEL_KEYS[col], old: displayValue(col, existing[col]), new: displayValue(col, row[col]) });
           }
         }
 
@@ -182,7 +195,8 @@ const updateController = {
           for (const d of item.diff) {
             const choice = req.body[`choice_${item.key}_${d.col}`];
             if (choice === 'new') {
-              data[d.col] = item.row[d.col] === undefined ? null : item.row[d.col];
+              const raw = item.row[d.col] === undefined ? null : item.row[d.col];
+              data[d.col] = isDateCol(d.col) ? (parseDateToISO(raw) || null) : raw;
             }
           }
           if (Object.keys(data).length > 0) {

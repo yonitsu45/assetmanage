@@ -74,7 +74,7 @@
                         <% if (f.k === 'uploaded_at' || f.k === 'modified_at') { %>
                           <%= f.v ? new Date(f.v).toLocaleString() : '-' %>
                         <% } else if (f.k === 'expire_date') { %>
-                          <%= f.v ? new Date(f.v).toLocaleDateString('sv-SE') : '-' %>
+                          <%= f.v ? fmtDMY(f.v) : '-' %>
                         <% } else if (f.k === 'category') { %>
                           <span class="badge bg-secondary"><%= f.v || '-' %></span>
                         <% } else if (f.k === 'asset_status') { %>
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
       descr: '<%= asset ? asset.descr : '' %>',
       agreement: '<%= asset ? asset.x_agreement_id : '' %>',
       vendor: '<%= asset ? asset.vendor_name : '' %>',
-      expire_date: '<%= asset && asset.expire_date ? new Date(asset.expire_date).toLocaleDateString('sv-SE') : '' %>',
+      expire_date: '<%= asset && asset.expire_date ? fmtDMY(asset.expire_date) : '' %>',
       labelAgreement: <%- JSON.stringify(__('dashboard.table.x_agreement_id')) %>,
       labelVendor: <%- JSON.stringify(__('dashboard.table.vendor_name')) %>,
       labelExpireDate: <%- JSON.stringify(__('dashboard.table.expire_date')) %>

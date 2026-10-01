@@ -1,17 +1,11 @@
 const { pool } = require('../config/db');
+const { parseDateToISO } = require('../helpers/dateUtil');
 
 const ALLOWED_SORT = ['asset_id', 'business_unit', 'tag_number', 'tag_number_extend', 'serial_number_asset', 'descr', 'descr_long', 'model', 'plant', 'serial_id', 'vendor_id', 'vendor_name', 'deptid', 'dept_name', 'category', 'category_name', 'x_asset_status', 'asset_status', 'x_asset_reason', 'x_agreement_id', 'expire_date', 'created_at', 'updated_at'];
 
 const normalizeDate = (v) => {
-  if (v === null || v === undefined) return null;
-  if (v instanceof Date) return isNaN(v.getTime()) ? null : v.toISOString().slice(0, 10);
-  if (typeof v === 'number') {
-    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
-    return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
-  }
-  const s = String(v).trim();
-  if (!s) return null;
-  return s.slice(0, 10);
+  const iso = parseDateToISO(v);
+  return iso || null;
 };
 
 function buildConditions({ search, categories, statuses, departments }) {

@@ -102,6 +102,8 @@ app.use((req, res, next) => {
   res.locals.query = req.query;
   res.locals.ALLOW_REGISTRATION = process.env.ALLOW_REGISTRATION !== 'false';
   res.locals.RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
+  res.locals.fmtDMY = require('./helpers/dateUtil').formatDMY;
+  res.locals.fmtISO = require('./helpers/dateUtil').parseDateToISO;
   next();
 });
 
