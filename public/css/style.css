@@ -70,6 +70,21 @@
   --pagination-active-bg: #2adb76;
   --pagination-active-border: #2adb76;
   --pagination-active-color: #000000;
+
+  /* Bootstrap 5.3 ships its own colour variables and only switches them when
+     data-bs-theme="dark" is set on the element. This app toggles .dark-mode
+     instead, so Bootstrap's variables stay at their light values and components
+     that read them (e.g. .card-body { color: var(--bs-body-color) }) render dark
+     text on our dark cards. Point them at the theme variables above so every
+     component follows dark mode. */
+  --bs-body-color: var(--text-color);
+  --bs-body-bg: var(--body-bg);
+  --bs-emphasis-color: var(--text-color);
+  --bs-secondary-color: var(--text-muted);
+  --bs-tertiary-color: var(--text-muted);
+  --bs-secondary-bg: var(--sidebar-hover);
+  --bs-tertiary-bg: var(--sidebar-hover);
+  --bs-border-color: var(--border-color);
 }
 
 * { transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
