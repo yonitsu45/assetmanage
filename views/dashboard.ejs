@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="/js/qr.js"></script>
 
-<% if (user.role !== 'user') { transferVariant = 'dashboard'; transferReturnTo = reqQuery.return_to || currentUrl || '/'; %>
+<% if (user.role !== 'user') { transferVariant = 'dashboard'; transferDepartments = deptList || []; transferReturnTo = reqQuery.return_to || currentUrl || '/'; %>
 <%- include('partials/transfer-modal') %>
 <% } %>
 

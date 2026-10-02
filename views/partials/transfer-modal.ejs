@@ -1,6 +1,9 @@
 <%
 const tVariant = (typeof transferVariant !== 'undefined' && transferVariant) ? transferVariant : 'page';
-const tDepartments = (typeof departments !== 'undefined' && departments) ? departments : [];
+// 'departments' collides with the dashboard's *filtered* subset, so this partial reads a
+// dedicated variable. Entries may be department objects ({name}) or plain name strings.
+const tDeptSource = (typeof transferDepartments !== 'undefined' && transferDepartments) ? transferDepartments : [];
+const tDepartments = tDeptSource.map(function(d) { return (d && d.name != null) ? d.name : d; }).filter(function(n) { return typeof n === 'string' && n.trim() !== ''; });
 const tReturnTo = (typeof transferReturnTo !== 'undefined' && transferReturnTo) ? transferReturnTo : '/transfer';
 %>
 <div class="modal fade" id="transferModal" tabindex="-1" aria-hidden="true" data-variant="<%= tVariant %>" data-return-to="<%= tReturnTo %>">
@@ -40,10 +43,10 @@ const tReturnTo = (typeof transferReturnTo !== 'undefined' && transferReturnTo) 
                 <select class="d-none" id="toDept" name="to_dept">
                   <option value=""><%= __('transfer.to_dept_placeholder') %></option>
                   <% tDepartments.forEach(function(d) { %>
-                    <option value="<%= d.name %>"><%= d.name %></option>
+                    <option value="<%= d %>"><%= d %></option>
                   <% }); %>
                 </select>
-                <script type="application/json" id="toDeptOptions"><%- JSON.stringify(tDepartments.map(function(d){return d.name;})) %></script>
+                <script type="application/json" id="toDeptOptions"><%- JSON.stringify(tDepartments) %></script>
                 <div class="position-relative">
                   <input type="text" class="form-control" id="toDeptInput" autocomplete="off" placeholder="<%= __('transfer.to_dept_placeholder') %>" data-no-match="<%= __('transfer.no_dept_match') %>">
                   <div class="list-group position-absolute w-100 z-3 d-none shadow-sm" id="toDeptList" style="max-height:220px; overflow-y:auto;"></div>

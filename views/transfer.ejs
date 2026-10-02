@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<% transferVariant = 'page'; transferReturnTo = '/transfer' + (search ? '?search=' + encodeURIComponent(search) : ''); %>
+<% transferVariant = 'page'; transferDepartments = departments || []; transferReturnTo = '/transfer' + (search ? '?search=' + encodeURIComponent(search) : ''); %>
 <%- include('partials/transfer-modal') %>
 
 <%- include('partials/footer') %>
