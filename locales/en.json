@@ -138,6 +138,7 @@
     "list_view": "List",
     "error_no_file": "Please select a PDF file",
     "error_upload": "Upload failed",
+    "error_not_pdf": "The selected file is not a valid PDF. Please check the file and try again.",
     "error_delete": "You do not have permission to delete this file",
     "error_no_permission_upload": "You do not have permission to upload documents",
     "no_department": "Your account has no assigned department, so no documents are shown",

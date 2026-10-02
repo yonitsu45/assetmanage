@@ -12,6 +12,22 @@ function safeDirName(name) {
     .trim() || 'unassigned';
 }
 
+function isPdfContent(filePath) {
+  let fd;
+  try {
+    fd = fs.openSync(filePath, 'r');
+    const buf = Buffer.alloc(5);
+    const read = fs.readSync(fd, buf, 0, 5, 0);
+    return read === 5 && buf.toString('latin1') === '%PDF-';
+  } catch (err) {
+    return false;
+  } finally {
+    if (fd !== undefined) {
+      try { fs.closeSync(fd); } catch (e) {}
+    }
+  }
+}
+
 function formatDocs(docs) {
   return docs.map(function(d) {
     d.formatted_date = d.uploaded_at
@@ -106,6 +122,11 @@ const documentController = {
     if (!uploadDept) {
       fs.unlink(req.file.path, () => {});
       return documentController.renderIndex(req, res, { error: req.__('documents.upload_select_dept') });
+    }
+
+    if (!isPdfContent(req.file.path)) {
+      fs.unlink(req.file.path, () => {});
+      return documentController.renderIndex(req, res, { error: req.__('documents.error_not_pdf') });
     }
 
     let finalPath = req.file.path;
