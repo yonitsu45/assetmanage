@@ -28,6 +28,11 @@ const Department = {
     return result.affectedRows;
   },
 
+  async getById(id) {
+    const [rows] = await pool.query('SELECT id, name, costcenter FROM departments WHERE id = ?', [id]);
+    return rows[0] || null;
+  },
+
   async getByName(name) {
     const [rows] = await pool.query('SELECT id FROM departments WHERE name = ?', [name]);
     return rows[0] || null;

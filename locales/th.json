@@ -259,7 +259,15 @@
       "transfer_note": "หมายเหตุ: %s",
       "upload_asset": "นำเข้า %d รายการจาก \"%s\" (เพิ่ม %d, ข้าม %d)",
       "upload_document": "อัปโหลดเอกสาร \"%s\"",
-      "delete_document": "ลบเอกสาร \"%s\""
+      "delete_document": "ลบเอกสาร \"%s\"",
+      "costcenter": "Cost Center: %s",
+      "code": "รหัส: %s",
+      "create_department": "เพิ่มแผนก \"%s\"",
+      "delete_department": "ลบแผนก \"%s\"",
+      "import_department": "นำเข้าแผนกจากไฟล์ \"%s\" (เพิ่มใหม่ %d, อัปเดต %d, ข้าม %d แถว, ข้าม %d ชีท)",
+      "create_category": "เพิ่มหมวด \"%s\"",
+      "delete_category": "ลบหมวด \"%s\"",
+      "import_category": "นำเข้าหมวดจากไฟล์ \"%s\" (เพิ่มใหม่ %d, อัปเดต %d, ข้าม %d แถว, ข้าม %d ชีท)"
     }
   },
   "auth": {

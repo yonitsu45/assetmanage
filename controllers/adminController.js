@@ -94,6 +94,14 @@ const adminController = {
         }
       }
       await Department.create(name, costcenter);
+      await ActivityLog.create({
+        userId: req.session.userId,
+        username: req.session.username,
+        action: 'create',
+        module: 'department',
+        target: name,
+        details: JSON.stringify({ costcenter })
+      });
       res.redirect('/admin/users?success=dept_added');
     } catch (err) {
       console.error('Add department error:', err);
@@ -159,7 +167,18 @@ const adminController = {
   async deleteDepartment(req, res) {
     try {
       const { id } = req.params;
+      const dept = await Department.getById(id);
       await Department.deleteById(id);
+      if (dept) {
+        await ActivityLog.create({
+          userId: req.session.userId,
+          username: req.session.username,
+          action: 'delete',
+          module: 'department',
+          target: dept.name,
+          details: JSON.stringify({ costcenter: dept.costcenter || null })
+        });
+      }
       res.redirect('/admin/users?success=dept_deleted');
     } catch (err) {
       console.error('Delete department error:', err);
@@ -196,6 +215,14 @@ const adminController = {
         return res.redirect('/admin/users?error=cat_exists');
       }
       await Category.create(code, name);
+      await ActivityLog.create({
+        userId: req.session.userId,
+        username: req.session.username,
+        action: 'create',
+        module: 'category',
+        target: name,
+        details: JSON.stringify({ code })
+      });
       res.redirect('/admin/users?success=cat_added');
     } catch (err) {
       console.error('Add category error:', err);
@@ -261,7 +288,18 @@ const adminController = {
   async deleteCategory(req, res) {
     try {
       const { id } = req.params;
+      const cat = await Category.getById(id);
       await Category.deleteById(id);
+      if (cat) {
+        await ActivityLog.create({
+          userId: req.session.userId,
+          username: req.session.username,
+          action: 'delete',
+          module: 'category',
+          target: cat.name,
+          details: JSON.stringify({ code: cat.code || null })
+        });
+      }
       res.redirect('/admin/users?success=cat_deleted');
     } catch (err) {
       console.error('Delete category error:', err);

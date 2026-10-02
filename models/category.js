@@ -28,6 +28,11 @@ const Category = {
     return result.affectedRows;
   },
 
+  async getById(id) {
+    const [rows] = await pool.query('SELECT id, code, name FROM categories WHERE id = ?', [id]);
+    return rows[0] || null;
+  },
+
   async getByCode(code) {
     if (!code) return null;
     const [rows] = await pool.query('SELECT id, code, name FROM categories WHERE code = ?', [code]);

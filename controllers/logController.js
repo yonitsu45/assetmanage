@@ -95,6 +95,28 @@ function humanizeLog(__, log) {
   if (key === 'document:delete' && log.target) {
     return __('logs.humanized.delete_document', log.target);
   }
+  if (key === 'department:create' && log.target) {
+    const extra = d && d.costcenter ? ` (${__('logs.humanized.costcenter', d.costcenter)})` : '';
+    return __('logs.humanized.create_department', log.target) + extra;
+  }
+  if (key === 'department:delete' && log.target) {
+    const extra = d && d.costcenter ? ` (${__('logs.humanized.costcenter', d.costcenter)})` : '';
+    return __('logs.humanized.delete_department', log.target) + extra;
+  }
+  if (key === 'department:import' && log.target && d) {
+    return __('logs.humanized.import_department', log.target, d.inserted || 0, d.updated || 0, d.skippedRows || 0, d.skippedSheets || 0);
+  }
+  if (key === 'category:create' && log.target) {
+    const extra = d && d.code ? ` (${__('logs.humanized.code', d.code)})` : '';
+    return __('logs.humanized.create_category', log.target) + extra;
+  }
+  if (key === 'category:delete' && log.target) {
+    const extra = d && d.code ? ` (${__('logs.humanized.code', d.code)})` : '';
+    return __('logs.humanized.delete_category', log.target) + extra;
+  }
+  if (key === 'category:import' && log.target && d) {
+    return __('logs.humanized.import_category', log.target, d.inserted || 0, d.updated || 0, d.skippedRows || 0, d.skippedSheets || 0);
+  }
   if (log.details) return String(log.details);
   return '';
 }

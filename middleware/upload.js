@@ -2,6 +2,12 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+function decodeOriginalName(name) {
+  if (!name || !/[\u00C0-\u00FF]/.test(name)) return name;
+  const decoded = Buffer.from(name, 'latin1').toString('utf8');
+  return decoded.includes('\uFFFD') ? name : decoded;
+}
+
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -21,6 +27,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
+  file.originalname = decodeOriginalName(file.originalname);
   const allowed = ['.xlsx', '.xls', '.csv'];
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowed.includes(ext)) {
@@ -37,6 +44,7 @@ const upload = multer({
 });
 
 const pdfFilter = (req, file, cb) => {
+  file.originalname = decodeOriginalName(file.originalname);
   const ext = path.extname(file.originalname).toLowerCase();
   if (ext === '.pdf') {
     cb(null, true);
@@ -59,6 +67,7 @@ const uploadPdf = multer({
 });
 
 module.exports = upload;
+module.exports.decodeOriginalName = decodeOriginalName;
 module.exports.uploadPdf = uploadPdf;
 
 const profileDir = path.join(__dirname, '..', 'uploads', 'profiles');
@@ -67,6 +76,7 @@ if (!fs.existsSync(profileDir)) {
 }
 
 const profileFilter = (req, file, cb) => {
+  file.originalname = decodeOriginalName(file.originalname);
   const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowed.includes(ext)) {

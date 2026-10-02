@@ -259,7 +259,15 @@
       "transfer_note": "note: %s",
       "upload_asset": "Imported %d rows from \"%s\" (%d added, %d skipped)",
       "upload_document": "Uploaded document \"%s\"",
-      "delete_document": "Deleted document \"%s\""
+      "delete_document": "Deleted document \"%s\"",
+      "costcenter": "Cost Center: %s",
+      "code": "code: %s",
+      "create_department": "Added department \"%s\"",
+      "delete_department": "Deleted department \"%s\"",
+      "import_department": "Imported departments from \"%s\" (%d added, %d updated, %d rows skipped, %d sheets skipped)",
+      "create_category": "Added category \"%s\"",
+      "delete_category": "Deleted category \"%s\"",
+      "import_category": "Imported categories from \"%s\" (%d added, %d updated, %d rows skipped, %d sheets skipped)"
     }
   },
   "auth": {
